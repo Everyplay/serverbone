@@ -1,4 +1,7 @@
-# Everyplay models [![TravisCI][travis-img-url]][travis-ci-url] [![Coveralls][coveralls-img-url]][coveralls-url]
+# Everyplay models [![TravisCI][travis-img-url]][travis-ci-url]
+
+[travis-img-url]: https://magnum.travis-ci.com/Everyplay/serverbone.png?branch=master
+[travis-ci-url]: https://magnum.travis-ci.com/Everyplay/serverbone
 
 ## How to develop
 
