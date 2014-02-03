@@ -5,8 +5,8 @@ var sequence = require('when/sequence');
 var testSetup = require('./test_setup');
 var TestCollection = testSetup.TestJSONIndexCollection;
 var TestMultiIndexCollection = testSetup.TestMultiIndexCollection;
-var epm = require('..');
-var JSONModel = epm.models.JSONModel;
+var serverbone = require('..');
+var JSONModel = serverbone.models.JSONModel;
 
 describe('Test JSONIndexCollection', function () {
   var collection;

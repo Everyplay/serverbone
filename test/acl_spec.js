@@ -1,11 +1,11 @@
 var should = require('chai').should();
 var _ = require('lodash');
-var epm = require('..');
+var serverbone = require('..');
 
 var Db = require('backbone-db');
 var db = new Db('acl-test');
 
-var BaseModel = epm.models.BaseModel.extend({
+var BaseModel = serverbone.models.BaseModel.extend({
   sync: Db.sync.bind(db)
 });
 
@@ -45,7 +45,7 @@ describe('Test ACL', function () {
   var foo = new TestModel({id: 1, name: 'foo', internal_id: 'xyz'});
 
   it('should test hasPermission', function() {
-    var acl = new epm.acl.AccessControl({
+    var acl = new serverbone.acl.AccessControl({
       read: ['owner', 'admin'],
       write: ['admin']
     });

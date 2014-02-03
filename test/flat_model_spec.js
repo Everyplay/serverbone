@@ -1,5 +1,5 @@
 var should = require('chai').should();
-var epm = require('..');
+var serverbone = require('..');
 var testSetup = require('./test_setup');
 var FlatModel = testSetup.FlatTestModel;
 

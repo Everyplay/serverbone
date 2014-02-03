@@ -1,7 +1,7 @@
 var should = require('chai').should();
 var sinon = require('sinon');
-var epm = require('..');
-var BaseModel = epm.models.BaseModel;
+var serverbone = require('..');
+var BaseModel = serverbone.models.BaseModel;
 var Db = require('backbone-db');
 var TestDB = new Db('registry_db');
 
@@ -30,14 +30,14 @@ describe('Registry tests', function () {
 
   it('should set value to Registry', function () {
     var model = new TestModel({test: 'foo'});
-    var registry = new epm.Registry();
+    var registry = new serverbone.Registry();
     registry.set(model);
     var cachedModel = registry.get(model.type, model.id);
     should.exist(cachedModel);
   });
 
   it('should cache model when saving', function(done) {
-    var registry = new epm.Registry();
+    var registry = new serverbone.Registry();
     var set = sandbox.spy(registry, 'set');
 
     var model = new TestModel({

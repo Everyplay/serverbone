@@ -1,6 +1,6 @@
 var should = require('chai').should();
-var epm = require('..');
-var BaseModel = epm.models.BaseModel;
+var serverbone = require('..');
+var BaseModel = serverbone.models.BaseModel;
 var assert = require('chai').assert;
 
 var MongoDb = require('backbone-db-mongodb');
@@ -41,7 +41,7 @@ var TestModel = BaseModel.extend({
   }
 });
 
-var TestCollection = epm.collections.BaseCollection.extend({
+var TestCollection = serverbone.collections.BaseCollection.extend({
   type: TestModel.prototype.type + 's',
   model: TestModel,
   db: testDb,

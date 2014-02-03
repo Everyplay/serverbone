@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var sinon = require('sinon');
 var should = require('chai').should();
-var epm = require('..');
+var serverbone = require('..');
 
 describe('Utils tests', function() {
   var model;
@@ -24,7 +24,7 @@ describe('Utils tests', function() {
       }
     };
     var err = new Error('Foo error');
-    epm.utils.response.sendError(req, res, err);
+    serverbone.utils.response.sendError(req, res, err);
   });
 
   it('should fail if trying to send JSON without resource', function() {
@@ -36,6 +36,6 @@ describe('Utils tests', function() {
 
       }
     };
-    epm.utils.response.sendJson(req, res);
+    serverbone.utils.response.sendJson(req, res);
   });
 });

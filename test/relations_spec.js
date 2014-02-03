@@ -1,8 +1,8 @@
 var _ = require('lodash');
 var sinon = require('sinon');
 var should = require('chai').should();
-var epm = require('..');
-var BaseModel = epm.models.BaseModel;
+var serverbone = require('..');
+var BaseModel = serverbone.models.BaseModel;
 var assert = require('chai').assert;
 
 var Db = require('backbone-db');

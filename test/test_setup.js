@@ -1,11 +1,11 @@
 var _ = require('lodash');
-var epm = require('..');
+var serverbone = require('..');
 var when = require('when');
-var BaseModel = epm.models.BaseModel;
-var FlatModel = epm.models.FlatModel;
+var BaseModel = serverbone.models.BaseModel;
+var FlatModel = serverbone.models.FlatModel;
 var Db = require('backbone-db');
 var database = new Db('test_database');
-var IndexingTestDb = epm.db.IndexingTestDb;
+var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
 
 var testSchema =  {
@@ -52,13 +52,13 @@ var ProtectedModel = exports.ProtectedModel = BaseModel.extend({
   schema: protectedSchema
 });
 
-var TestCollection = exports.TestCollection = epm.collections.BaseCollection.extend({
+var TestCollection = exports.TestCollection = serverbone.collections.BaseCollection.extend({
   model: TestModel,
   sync: Db.sync.bind(database),
   url: 'test_collection'
 });
 
-exports.ProtectedCollection = epm.collections.BaseCollection.extend({
+exports.ProtectedCollection = serverbone.collections.BaseCollection.extend({
   model: ProtectedModel,
   sync: Db.sync.bind(database)
 });
@@ -80,7 +80,7 @@ var FooModel = exports.FooModel = BaseModel.extend({
   sync: Db.sync.bind(database)
 });
 
-exports.TestIndexCollection = epm.collections.IndexCollection.extend({
+exports.TestIndexCollection = serverbone.collections.IndexCollection.extend({
   model: FooModel,
   type: FooModel.prototype.type,
   indexDb: indexingDatabase,
@@ -89,8 +89,8 @@ exports.TestIndexCollection = epm.collections.IndexCollection.extend({
   url: 'indexed_collection'
 });
 
-exports.TestValueIndexCollection = epm.collections.IndexCollection.extend(
-  _.extend({}, epm.collections.ValueIndexMixin, {
+exports.TestValueIndexCollection = serverbone.collections.IndexCollection.extend(
+  _.extend({}, serverbone.collections.ValueIndexMixin, {
     model: FooModel,
     type: FooModel.prototype.type,
     indexDb: indexingDatabase,
@@ -100,8 +100,8 @@ exports.TestValueIndexCollection = epm.collections.IndexCollection.extend(
   }
 ));
 
-var TestJSONIndexCollection = exports.TestJSONIndexCollection = epm.collections.IndexCollection.extend(
-  _.extend({}, epm.collections.JSONIndexMixin, {
+var TestJSONIndexCollection = exports.TestJSONIndexCollection = serverbone.collections.IndexCollection.extend(
+  _.extend({}, serverbone.collections.JSONIndexMixin, {
     type: 'jsoncoll',
     indexDb: indexingDatabase,
     indexKey: 'i:Value:{foo_id}:relation',
@@ -111,7 +111,7 @@ var TestJSONIndexCollection = exports.TestJSONIndexCollection = epm.collections.
 ));
 
 var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexCollection.extend(
-  _.extend({}, epm.collections.MultiIndexMixin, {
+  _.extend({}, serverbone.collections.MultiIndexMixin, {
     unionKey: 'i:Values:{foo_id}',
     initialize: function(models, options) {
       this.setupIndexes(options);

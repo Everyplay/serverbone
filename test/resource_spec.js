@@ -4,7 +4,7 @@ var request = require('supertest');
 var sinon = require('sinon');
 var util = require('util');
 var _ = require('lodash');
-var epm = require('..');
+var serverbone = require('..');
 
 var testSetup = require('./test_setup');
 var TestModel = testSetup.TestModel;
@@ -21,20 +21,20 @@ describe('Test Resource', function () {
     app = express();
     app.use(express.json());
     app.use(express.urlencoded());
-    resource = new epm.Resource('test', {
+    resource = new serverbone.Resource('test', {
       collection: TestCollection
     });
-    var fooRes = new epm.Resource('foo', {
+    var fooRes = new serverbone.Resource('foo', {
       collection: TestCollection
     });
     app.use('/test', resource.app);
     app.use('/foo', fooRes.app);
-    var protRes = new epm.Resource('prot', {
+    var protRes = new serverbone.Resource('prot', {
       collection: ProtectedCollection
     });
     app.use('/prot', protRes.app);
-    resource.should.be.an.instanceof(epm.Resource);
-    //app.resources.test.should.be.an.instanceof(epm.Resource);
+    resource.should.be.an.instanceof(serverbone.Resource);
+    //app.resources.test.should.be.an.instanceof(serverbone.Resource);
   });
 
   after(function () {
@@ -47,7 +47,7 @@ describe('Test Resource', function () {
     });
 
     it('should create an application & take model from collection if not provided', function (done) {
-      var res = new epm.Resource('test', {
+      var res = new serverbone.Resource('test', {
         collection: TestCollection
       });
       res.app.should.be.ok;
@@ -55,7 +55,7 @@ describe('Test Resource', function () {
     });
 
     it('should create a parameter handler using models idAttribute', function (done) {
-      var res = new epm.Resource('testing', {
+      var res = new serverbone.Resource('testing', {
         model: TestModel,
         collection: TestCollection
       });
@@ -83,7 +83,7 @@ describe('Test Resource', function () {
     });
 
     it('should forward all uncaught exceptions to the error handler', function (done) {
-      var res = new epm.Resource('test', {
+      var res = new serverbone.Resource('test', {
         collection: TestCollection,
         model: TestModel
       });
@@ -106,7 +106,7 @@ describe('Test Resource', function () {
       var opts = {
         collection: TestCollection
       };
-      var res = new epm.Resource('test', opts);
+      var res = new serverbone.Resource('test', opts);
       app.use('/api/v1/foo/test', res.app);
       res.app.should.be.ok;
       request(app)
@@ -136,10 +136,10 @@ describe('Test Resource', function () {
             _.bind(this.send, this)
           ]
         }];
-        epm.Resource.call(this, name, options);
+        serverbone.Resource.call(this, name, options);
       };
 
-      util.inherits(CustomResource, epm.Resource);
+      util.inherits(CustomResource, serverbone.Resource);
 
       CustomResource.prototype.setup = function (req, res, next) {
         this.val = 'bar2';
@@ -154,7 +154,7 @@ describe('Test Resource', function () {
       };
 
       CustomResource.prototype.initMiddlewares = function (options) {
-        epm.Resource.prototype.initMiddlewares.call(this, options);
+        serverbone.Resource.prototype.initMiddlewares.call(this, options);
         this.app.use(fooMiddleware());
       };
 
@@ -318,7 +318,7 @@ describe('Test Resource', function () {
     });
 
     it('should return error produced by preSave', function (done) {
-      var res = new epm.Resource('fail', {
+      var res = new serverbone.Resource('fail', {
         collection: FailingCollection
       });
 

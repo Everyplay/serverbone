@@ -1,6 +1,6 @@
 var should = require('chai').should();
-var epm = require('..');
-var BaseModel = epm.models.BaseModel;
+var serverbone = require('..');
+var BaseModel = serverbone.models.BaseModel;
 
 var testSchema =  {
   owner: 'user_id',
