@@ -50,7 +50,7 @@ Mixin for Collections that store plain strings into Redis sets.
 
 ### BaseModel
 
-BaseModel extends [backbone-blueprint](https://github.com/mikkolehtinen/backbone-blueprint)'s ValidatingModel providing e.g. Model lifecycle conventions, ACL related functionality & CRUD helpers.
+BaseModel extends [backbone-blueprint](https://github.com/Everyplay/backbone-blueprint)'s ValidatingModel providing e.g. Model lifecycle conventions, ACL related functionality & CRUD helpers.
 
 ### FlatModel
 
