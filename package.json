@@ -24,7 +24,7 @@
   "dependencies": {
     "async": "~0.2.9",
     "backbone": "1.1.0",
-    "backbone-blueprint": "git://github.com/Everyplay/backbone-blueprint.git",
+    "backbone-blueprint": "0.0.2",
     "backbone-db": "~0.3.0",
     "backbone-db-mongodb": "~0.1.1",
     "backbone-db-redis": "~0.0.4",
@@ -43,7 +43,6 @@
     "chai": "~1.8.1",
     "sinon": "*",
     "sinon-chai": "*",
-    "proxyquire": "*",
     "supertest": "~0.8.0",
     "jshint": "~2.3.0",
     "istanbul": "~0.1.45",
