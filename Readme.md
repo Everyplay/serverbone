@@ -1,7 +1,9 @@
-# Everyplay models [![TravisCI][travis-img-url]][travis-ci-url]
+# Serverbone [![TravisCI][travis-img-url]][travis-ci-url] [![Coverage Status][coveralls-img-url]][coveralls-url]
 
 [travis-img-url]: https://travis-ci.org/Everyplay/serverbone.png?branch=master
 [travis-ci-url]: https://travis-ci.org/Everyplay/serverbone
+[coveralls-img-url]: https://coveralls.io/repos/Everyplay/serverbone/badge.png?branch=master
+[coveralls-url]: https://coveralls.io/r/Everyplay/serverbone
 
 ## How to develop
 

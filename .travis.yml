@@ -9,3 +9,6 @@ notifications:
 before_script: make jshint
 script:
   - make test-coverage
+  - make test-int
+after_success:
+  - make coveralls
