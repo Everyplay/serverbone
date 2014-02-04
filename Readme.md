@@ -3,7 +3,7 @@
 [travis-img-url]: https://travis-ci.org/Everyplay/serverbone.png?branch=master
 [travis-ci-url]: https://travis-ci.org/Everyplay/serverbone
 [coveralls-img-url]: https://coveralls.io/repos/Everyplay/serverbone/badge.png
-[coveralls-url]: https://coveralls.io/r/Everyplay/serverbon
+[coveralls-url]: https://coveralls.io/r/Everyplay/serverbone
 
 ## How to develop
 
