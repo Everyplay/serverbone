@@ -22,6 +22,7 @@ describe('Test Resource', function () {
     app.use(express.json());
     app.use(express.urlencoded());
     resource = new serverbone.Resource('test', {
+      mountRelations: true,
       collection: TestCollection
     });
     var fooRes = new serverbone.Resource('foo', {
@@ -346,16 +347,53 @@ describe('Test Resource', function () {
   describe('Resource listing', function () {
 
     it('should pass req.query options to Resource collection\'s fetch', function (done) {
-      var spy = sinon.spy(resource.collection, 'fetch');
+      var oldConstructCollection = resource._constructCollection;
+
+      var collection = resource._constructCollection();
+
+      resource._constructCollection = function () {
+        return collection;
+      };
+
+      var spy = sinon.spy(collection, 'fetch');
       request(app)
         .get('/test?sort=title&limit=5&offset=5')
         .end(function (err, res) {
+          resource._constructCollection = oldConstructCollection;
+
           res.status.should.equal(200);
           spy.called.should.equal(true);
           var args = spy.getCall(0).args[0];
           args.sort.should.equal('title');
           args.limit.should.equal(5);
           args.offset.should.equal(5);
+          done();
+        });
+    });
+  });
+
+  describe('Relations mounting', function () {
+    it('resources for releations should have been created', function () {
+      resource.relations.tests.should.be.ok;
+      resource.relations.icanhazcustoms.should.be.ok;
+    });
+
+    it('should return mounted relation', function (done) {
+      request(app)
+        .get('/test/' + id + '/tests?sort=title&limit=5&offset=5')
+        .end(function (err, res) {
+          console.log(res.body);
+          res.status.should.equal(200);
+          done();
+        });
+    });
+
+    it('should return mounted relation with custom name property', function (done) {
+      request(app)
+        .get('/test/' + id + '/icanhazcustoms?sort=title&limit=5&offset=5')
+        .end(function (err, res) {
+
+          res.status.should.equal(200);
           done();
         });
     });

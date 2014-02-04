@@ -20,6 +20,37 @@ var testSchema =  {
     },
     test: {
       type: 'string'
+    },
+    tests: {
+      type: 'relation',
+      mount: true,
+      references: {test_id:"id"},
+      collection: serverbone.collections.BaseCollection.extend({
+        model: BaseModel.extend({
+          type:'foobar',
+          db: database,
+          sync: Db.sync.bind(database),
+          schema: {}
+        }),
+        sync: Db.sync.bind(database),
+        url: 'test_foobar_collection'
+      })
+    },
+    customName: {
+      type: 'relation',
+      name: 'icanhazcustoms',
+      mount: true,
+      references: {test_id:"id"},
+      collection: serverbone.collections.BaseCollection.extend({
+        model: BaseModel.extend({
+          type:'barfoo',
+          db: database,
+          sync: Db.sync.bind(database),
+          schema: {}
+        }),
+        sync: Db.sync.bind(database),
+        url: 'test_icanhazcustoms_collection'
+      })
     }
   }
 };
