@@ -55,4 +55,4 @@ check-coverage: test-coverage
 .PHONY: check-coverage
 
 coveralls:
-	cat ./coverage/lcov.info | COVERALLS_SERVICE_NAME="travis-pro" ./node_modules/coveralls/bin/coveralls.js
+	cat ./coverage/lcov.info | COVERALLS_SERVICE_NAME="travis-ci" ./node_modules/coveralls/bin/coveralls.js
