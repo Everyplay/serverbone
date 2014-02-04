@@ -1,4 +1,4 @@
-# Everyplay models [![TravisCI][travis-img-url]][travis-ci-url] [![Coverage Status][coveralls-img-url]][coveralls-url]
+# Serverbone [![TravisCI][travis-img-url]][travis-ci-url] [![Coverage Status][coveralls-img-url]][coveralls-url]
 
 [travis-img-url]: https://travis-ci.org/Everyplay/serverbone.png?branch=master
 [travis-ci-url]: https://travis-ci.org/Everyplay/serverbone
