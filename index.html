@@ -181,7 +181,7 @@
   <div id="sidebar" class="interface">
 
     <a class="toc_title" href="#">
-      Serverbone.js <span class="version">(0.1.0)</span>
+      Serverbone.js <span class="version">(0.0.2)</span>
     </a>
     <ul class="toc_section">
       <li>&raquo; <a href="https://github.com/everyplay/serverbone">GitHub Repository</a></li>
@@ -217,7 +217,18 @@
     </a>
     <ul class="toc_section">
       <li><b>BaseModel</b></li>
-      <li>- <a href="#each">each</a></li>
+      <li>- <a href="#url">url</a></li>
+      <li>- <a href="#sync">sync</a></li>
+      <li>- <a href="#save">save</a></li>
+      <li>- <a href="#saveAll">saveAll</a></li>
+      <li>- <a href="#destroy">destroy</a></li>
+      <li>- <a href="#toJSON">toJSON</a></li>
+      <li>- <a href="#validate">validate</a></li>
+      <li>- <a href="#fetchAll">fetchAll</a></li>
+      <li>- <a href="#fetchRelations">fetchRelations</a></li>
+      <li>- <a href="#saveAll">saveAll</a></li>
+      <li>- <a href="#applyToAll">saveAll</a></li>
+      <li>- <a href="#toJSON">toJSON</a></li>
       <li><b>FlatModel</b></li>
       <li>- <a href="#each">each</a></li>
       <li><b>JSONModel</b></li>
@@ -270,7 +281,8 @@
 
     <p>
       <a href="https://github.com/everplay/serverbone">Serverbone.js</a> is a server-side
-      framework that support multiple data stores on Node.js
+      framework that support multiple data stores on Node.js. Especially, you can combine 
+      multiple data stores such as a document store, and a key-value store for indexes.
       The project is based on <a href="https://github.com/Everyplay/backbone-promises">Backbone.Promises</a>
       and <a href="https://github.com/Everyplay/backbone-blueprint">Backbone.Blueprint</a>
     </p>
@@ -1658,17 +1670,7 @@ _([1, 2, 3]).value();
 
       <h2 id="changelog">Change Log</h2>
 
-      <p id="0.1.2">
-        <b class="header">1.5.2</b> &mdash; <small><i>September 7, 2013</i></small> &mdash; <a href="https://github.com/jashkenas/underscore/compare/1.5.1...1.5.2">Diff</a> &mdash; <a href="http://htmlpreview.github.io/?https://raw.github.com/jashkenas/underscore/1.5.2/index.html">Docs</a><br />
-        <ul>
-          <li>
-            Added an <tt>indexBy</tt>  ...
-            cousins, <tt>countBy</tt> ...
-          </li>
-        </ul>
-      </p>
-
-      <p id="0.1.0">
+      <p id="0.0.2">
         <b class="header">0.1.0</b> &mdash; <small><i>October 28, 2009</i></small> &mdash; <a href="http://htmlpreview.github.io/?https://raw.github.com/jashkenas/underscore/0.1.1/index.html">Docs</a><br />
         Initial release of Underscore.js.
       </p>
