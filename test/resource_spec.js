@@ -382,7 +382,6 @@ describe('Test Resource', function () {
       request(app)
         .get('/test/' + id + '/tests?sort=title&limit=5&offset=5')
         .end(function (err, res) {
-          console.log(res.body);
           res.status.should.equal(200);
           done();
         });
