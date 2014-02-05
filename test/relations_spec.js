@@ -3,6 +3,7 @@ var sinon = require('sinon');
 var should = require('chai').should();
 var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
+var BaseCollection = serverbone.collections.BaseCollection;
 var assert = require('chai').assert;
 
 var Db = require('backbone-db');
@@ -67,6 +68,20 @@ describe('BaseModel Relations', function() {
       .fetchAll()
       .then(function() {
         spy.called.should.equal(true);
+        model.get('owner').fetch.restore();
+        done();
+      }).otherwise(done);
+  });
+
+  it('should fetch relations with collection helper function', function(done) {
+    var collection = new BaseCollection();
+    collection.add(model);
+    var spy = sandbox.spy(model.get('owner'), 'fetch');
+    collection
+      .fetchModelRelations()
+      .then(function() {
+        spy.called.should.equal(true);
+        model.get('owner').fetch.restore();
         done();
       }).otherwise(done);
   });
