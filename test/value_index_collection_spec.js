@@ -6,56 +6,56 @@ var TestCollection = testSetup.TestValueIndexCollection;
 describe('Test ValueIndexCollection', function () {
   var collection;
 
-  before(function(done) {
+  before(function(next) {
     collection = new TestCollection();
-    done();
+    next();
   });
 
-  after(function(done) {
+  after(function(next) {
     testSetup.clearDb();
-    done();
+    next();
   });
 
-  it('value should not exists in index', function(done) {
+  it('value should not exists in index', function(next) {
     collection
       .exists('foo')
-      .then(function(exists) {
+      .done(function(exists) {
         exists.should.equal(false);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should add item to value index', function(done) {
+  it('should add item to value index', function(next) {
     collection
       .addToIndex('foo')
-      .then(function() {
-        done();
-      }).otherwise(done);
+      .done(function() {
+        next();
+      }, next);
   });
 
-  it('should check that added value exists in index', function(done) {
+  it('should check that added value exists in index', function(next) {
     collection
       .exists('foo')
-      .then(function(exists) {
+      .done(function(exists) {
         exists.should.equal(true);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should remove value from index', function(done) {
+  it('should remove value from index', function(next) {
     collection
       .removeFromIndex('foo')
-      .then(function() {
-        done();
-      }).otherwise(done);
+      .done(function() {
+        next();
+      }, next);
   });
 
-  it('value should not exists in index', function(done) {
+  it('value should not exists in index', function(next) {
     collection
       .exists('foo')
-      .then(function(exists) {
+      .done(function(exists) {
         exists.should.equal(false);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 });

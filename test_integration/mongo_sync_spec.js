@@ -81,74 +81,63 @@ describe('Integration Test: MongoDb sync', function () {
 
   describe('#model', function() {
     var testId;
-    it('should save model', function (done) {
+    it('should save model', function (next) {
       var testModel = new TestModel({data: 2});
-      testModel.save().then(
-        function(model) {
-          model.get('data').should.equal(2);
-          testId = model.id;
-          testId.should.be.ok;
-          done();
-        }, function(err) {
-          console.log('err', err);
-          done(err);
-        }).otherwise(function(err) {
-          done(err);
-        });
+      testModel.save().then( function(model) {
+        model.get('data').should.equal(2);
+        testId = model.id;
+        testId.should.be.ok;
+        next();
+      }, next);
     });
 
 
-    it('should fetch model', function (done) {
+    it('should fetch model', function (next) {
       var testModel = new TestModel({id: testId});
-      testModel.fetch().then(function(model){
-        done();
-      }, function(err) {
-        console.log(err);
-        done(err);
-      }).otherwise(function(err) {
-        done(err);
-      });
+      testModel.fetch().done(function(model){
+        next();
+      }, next);
     });
 
-    it('should destroy model', function(done) {
+    it('should destroy model', function(next) {
       var testModel = new TestModel({id: testId});
       testModel
         .destroy()
-        .then(function (m) {
-          done();
-        }).otherwise(done);
+        .done(function (m) {
+          next();
+        }, next);
     });
   });
 
   describe('#collection', function() {
     var collection = new TestCollection();
 
-    it('should create model', function(done) {
+    it('should create model', function(next) {
       collection
         .create({data: 1})
-        .then(function(m) {
-          done();
-        }).otherwise(done);
+        .done(function(m) {
+          next();
+        }, next);
     });
 
-    it('should create another model', function(done) {
+    it('should create another model', function(next) {
       collection
         .create({data: 2})
-        .then(function(m) {
-          done();
-        }).otherwise(done);
+        .done(function(m) {
+          next();
+        }, next);
     });
 
-    it('should fetch all models', function(done) {
+    it('should fetch all models', function(next) {
       collection
         .fetch()
-        .then(function() {
+        .done(function() {
           collection.length.should.equal(2);
-          done();
+          next();
         });
     });
 
-    it('should fetch models filtered with options', function(done) {
+    it('should fetch models filtered with options', function(next) {
       var opts = {
         where: {
           data: 2
@@ -157,15 +146,14 @@ describe('Integration Test: MongoDb sync', function () {
         offset: 0
       };
       collection
-        .fetch(opts)
-        .then(function() {
-          collection.length.should.equal(1);
-          var m = collection.at(0);
-          should.exist(m);
-          m.get('data').should.equal(2);
-          done();
-        });
+      .fetch(opts)
+      .done(function() {
+        collection.length.should.equal(1);
+        var m = collection.at(0);
+        should.exist(m);
+        m.get('data').should.equal(2);
+        next();
+      }, next);
     });
-
   });
 });

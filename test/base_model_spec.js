@@ -37,15 +37,14 @@ describe('BaseModel', function() {
       formattedProps.kissa.should.equal('cat');
     });
 
-    it('should throw an error if trying to save model without sync setup', function(done) {
+    it('should throw an error if trying to save model without sync setup', function(next) {
       var FooModel = BaseModel.extend({});
       var f = new FooModel();
-      try {
-        f.save();
-        assert(false);
-      } catch(e) {
-        done();
-      }
+      f.save().done(function() {
+        next(new Error('should not save'));
+      }, function(err) {
+        next();
+      });
     });
 
     it('model should return its url', function() {
@@ -72,58 +71,52 @@ describe('BaseModel', function() {
       testModel.isNew().should.equal(true);
       var preSpy = sinon.spy(testModel, 'preSave');
       var afterSpy = sinon.spy(testModel, 'afterSave');
-      testModel.save().then(
-        function(model) {
-          model.get('data').should.be.equal(2);
-          model.url().should.be.ok;
-          testId = model.get('id');
-          testId.should.be.ok;
-          preSpy.called.should.be.ok;
-          afterSpy.called.should.be.ok;
-          done();
-        }, assert.fail).otherwise(function(err) {
-          done(err);
-        });
+      testModel.save().done( function(model) {
+        model.get('data').should.be.equal(2);
+        model.url().should.be.ok;
+        testId = model.get('id');
+        testId.should.be.ok;
+        preSpy.called.should.be.ok;
+        afterSpy.called.should.be.ok;
+        done();
+      }, done);
     });
 
-    it('should pass options to afterSave', function(done) {
+    it('should pass options to afterSave', function(next) {
       var testModel = new TestModel();
       var afterSpy = sinon.spy(testModel, 'afterSave');
       testModel
         .save(null, {foo: 'bar'})
-        .then(function() {
+        .done(function() {
           var opts = afterSpy.args[0][0];
           should.exist(opts);
           should.exist(opts.foo);
-          done();
-        }).otherwise(done);
+          next();
+        }, next);
     });
 
-    it('should change model attribute', function(done) {
+    it('should change model attribute', function(next) {
       var testModel = new TestModel({id: testId});
       testModel.set('data', 99);
       testModel
         .save()
-        .then(function(model) {
+        .done(function(model) {
           model.get('data').should.equal(99);
-          done();
-        })
-        .otherwise(done);
+          next();
+        }, next);
     });
 
-    it('should fetch model', function (done) {
+    it('should fetch model', function (next) {
       var testModel = new TestModel({id: testId});
-      testModel.fetch().then(function(model){
+      testModel.fetch().done(function(model){
         // depends values set in previous test
         testModel.get('data').should.be.equal(99);
         model.get('data').should.be.equal(99);
-        done();
-      }, assert.fail).otherwise(function(err) {
-        done(err);
-      });
+        next();
+      }, next);
     });
 
-    it('should inc a model attribute', function(done) {
+    it('should inc a model attribute', function(next) {
       var testModel = new TestModel({id: testId});
       var opts = {
         inc: {
@@ -133,32 +126,31 @@ describe('BaseModel', function() {
       };
       testModel
         .save(null, opts)
-        .then(function() {
+        .done(function() {
           testModel.get('data').should.equal(100);
-          done();
-        }).otherwise(done);
+          next();
+        }, next);
     });
 
-    it('should destroy model', function(done) {
+    it('should destroy model', function(next) {
       var testModel = new TestModel({id: testId});
       testModel
         .destroy()
-        .then(function (u) {
+        .done(function (u) {
           //console.log(u.toJSON());
-          done();
-        })
-        .otherwise(done);
+          next();
+        }, next);
     });
 
-    it('should not fetch destroyed model', function (done) {
+    it('should not fetch destroyed model', function (next) {
       var testModel = new TestModel({id: testId});
       testModel
         .fetch()
-        .then(function() {
+        .done(function() {
           assert.ok(false);
-        }).otherwise(function() {
-          //TODO: check error
-          done();
+          next(new Error());
+        }, function() {
+          next();
         });
     });
 

@@ -25,9 +25,9 @@ describe('BaseCollection tests', function () {
   var testId;
   var collection = new TestCollection();
 
-  after(function(done) {
+  after(function(next) {
     testSetup.clearDb();
-    done();
+    next();
   });
 
   describe('Setup', function() {
@@ -54,101 +54,91 @@ describe('BaseCollection tests', function () {
   });
 
   describe('CRUD', function() {
-    it('should create models', function(done) {
+    it('should create models', function(next) {
       // TODO: test create when failing validation
-      collection.create({test: '1', title: 'foo1'}).then(function(model) {
+      collection.create({test: '1', title: 'foo1'}).done(function(model) {
         model.id.should.be.ok;
-        done();
-      }, function(err) {
-        done(err);
-      }).otherwise(done);
+        next();
+      }, next);
     });
 
-    it('should create another model', function(done) {
-      collection.create({test: '2', title: 'foo2'}).then(function(model) {
+    it('should create another model', function(next) {
+      collection.create({test: '2', title: 'foo2'}).done(function(model) {
         collection.length.should.equal(2);
         model.id.should.be.ok;
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
     });
 
-    it('should fetch 2 models', function(done) {
-      collection.fetch().then(function() {
+    it('should fetch 2 models', function(next) {
+      collection.fetch().done(function() {
         collection.length.should.equal(2);
         testId = collection.at(1).id;
         testId.should.be.ok;
         collection.at(1).get('test').should.equal('2');
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
     });
 
-    it('should load models created through the collection', function(done) {
+    it('should load models created through the collection', function(next) {
       var m = new collection.model({id: testId});
-      m.fetch().then(
-        function() {
-          m.get('id').should.equal(testId);
-          done();
-        }
-      ).otherwise(done);
+      m.fetch().done( function() {
+        m.get('id').should.equal(testId);
+        next();
+      }, next);
     });
 
-
-    it('should destroy model', function(done) {
+    it('should destroy model', function(next) {
       var m = collection.at(1);
       testId = m.id;
-      m
-        .destroy()
-        .then(function() {
+      m.destroy()
+        .done(function() {
           collection.length.should.equal(1);
-          done();
-        })
-        .otherwise(done);
+          next();
+        }, next);
     });
 
-    it('should verify that model was destroyed', function(done) {
+    it('should verify that model was destroyed', function(next) {
       var m = new collection.model({id: testId});
-      m.fetch()
-        .then(function() {
+      m.fetch().done(function() {
           assert.ok(false);
+          next(new Error());
         }, function(err) {
           err.should.be.instanceOf(Error);
-          done();
-        })
-        .otherwise(function(err) {
-          done(err);
+          next();
         });
     });
 
-    it('should fail creating if model preSave fails', function(done) {
+    it('should fail creating if model preSave fails', function(next) {
       var coll = new FailingCollection();
       coll
         .create()
-        .then(function() {
+        .done(function() {
           assert.ok(false);
-          done();
-        }).otherwise(function(err) {
+          next(new Error());
+        }, function(err) {
           err.message.should.equal('foo reason');
-          done();
-        }).otherwise(done);
+          next();
+        });
     });
 
-    it('should destroy all models from collection', function(done) {
+    it('should destroy all models from collection', function(next) {
       collection.length.should.equal(1);
       collection
         .destroyAll()
-        .then(function() {
+        .done(function() {
           collection.length.should.equal(0);
-          done();
-        }).otherwise(done);
+          next();
+        }, next);
     });
 
-    it('should check that models were removed', function(done) {
+    it('should check that models were removed', function(next) {
       collection
         .fetch()
-        .then(function() {
+        .done(function() {
           collection.length.should.equal(0);
-          done();
-        }).otherwise(done);
+          next();
+        }, next);
     });
   });
 

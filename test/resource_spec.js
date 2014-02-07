@@ -47,15 +47,15 @@ describe('Test Resource', function () {
       testSetup.clearDb();
     });
 
-    it('should create an application & take model from collection if not provided', function (done) {
+    it('should create an application & take model from collection if not provided', function (next) {
       var res = new serverbone.Resource('test', {
         collection: TestCollection
       });
       res.app.should.be.ok;
-      done();
+      next();
     });
 
-    it('should create a parameter handler using models idAttribute', function (done) {
+    it('should create a parameter handler using models idAttribute', function (next) {
       var res = new serverbone.Resource('testing', {
         model: TestModel,
         collection: TestCollection
@@ -72,18 +72,18 @@ describe('Test Resource', function () {
         test: 'asdasd',
         title: 'foo'
       });
-      model.save().then(function () {
+      model.save().done(function () {
         request(res.app)
           .get('/asd/123')
           .end(function (err, res) {
             res.status.should.be.equal(200);
             res.body.test.should.be.equal('asdasd');
-            done();
+            next();
           });
-      }).otherwise(done);
+      }, next);
     });
 
-    it('should forward all uncaught exceptions to the error handler', function (done) {
+    it('should forward all uncaught exceptions to the error handler', function (next) {
       var res = new serverbone.Resource('test', {
         collection: TestCollection,
         model: TestModel
@@ -98,7 +98,7 @@ describe('Test Resource', function () {
         .get('/throwing_route')
         .end(function (err, res) {
           res.status.should.be.equal(444);
-          done();
+          next();
         });
     });
 

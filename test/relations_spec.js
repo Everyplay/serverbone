@@ -52,38 +52,38 @@ describe('BaseModel Relations', function() {
     model.get('owner').get('id').should.equal(1);
   });
 
-  it('should save relations', function(done) {
+  it('should save relations', function(next) {
     var spy = sandbox.spy(model.get('owner'), 'save');
     model
       .saveAll()
-      .then(function() {
+      .done(function() {
         spy.called.should.equal(true);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should fetch relations', function(done) {
+  it('should fetch relations', function(next) {
     var spy = sandbox.spy(model.get('owner'), 'fetch');
     model
       .fetchAll()
-      .then(function() {
+      .done(function() {
         spy.called.should.equal(true);
         model.get('owner').fetch.restore();
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should fetch relations with collection helper function', function(done) {
+  it('should fetch relations with collection helper function', function(next) {
     var collection = new BaseCollection();
     collection.add(model);
     var spy = sandbox.spy(model.get('owner'), 'fetch');
     collection
       .fetchModelRelations()
-      .then(function() {
+      .done(function() {
         spy.called.should.equal(true);
         model.get('owner').fetch.restore();
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
   it('should output json based on config', function() {
@@ -124,51 +124,51 @@ describe('BaseModel Relations', function() {
     should.exist(json.data);
   });
 
-  it('should apply destroy fn to relations', function(done) {
+  it('should apply destroy fn to relations', function(next) {
     var spy = sandbox.spy(model.get('owner'), 'destroy');
     model
       .applyToAll('destroy')
-      .then(function() {
+      .done(function() {
         spy.called.should.equal(true);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should create model', function(done) {
+  it('should create model', function(next) {
     model = new TestModel({user_id: 1});
     model
       .saveAll()
-      .then(function() {
-        done();
-      }).otherwise(done);
+      .done(function() {
+        next();
+      }, next);
   });
 
-  it('should call fetchAll before deleting', function(done) {
+  it('should call fetchAll before deleting', function(next) {
     model = new TestModel({id: model.id, user_id: 1});
     var spy = sandbox.spy(model, 'fetchAll');
     model
       .destroy()
-      .then(function() {
+      .done(function() {
         spy.called.should.equal(true);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should be able to fetchAll even if no relations defined', function(done) {
+  it('should be able to fetchAll even if no relations defined', function(next) {
     var user = new User();
     user
       .fetchAll()
-      .then(function() {
-        done();
-      }).otherwise(done);
+      .done(function() {
+        next();
+      }, next);
   });
 
-  it('should be able to saveAll even if no relations defined', function(done) {
+  it('should be able to saveAll even if no relations defined', function(next) {
     var user = new User();
     user
       .saveAll()
-      .then(function() {
-        done();
-      }).otherwise(done);
+      .done(function() {
+        next();
+      }, next);
     });
 });

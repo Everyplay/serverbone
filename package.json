@@ -47,7 +47,8 @@
     "jshint": "~2.3.0",
     "istanbul": "~0.1.45",
     "coveralls": "~2.5.0",
-    "when": "~2.7.0"
+    "when": "~2.8.0",
+    "mocha-as-promised": "~2.0.0"
   },
   "readmeFilename": "Readme.md",
   "bugs": {

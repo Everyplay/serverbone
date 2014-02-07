@@ -42,38 +42,38 @@ describe('Test JSONIndexCollection', function () {
     json.hello.should.equal('world');
   });
 
-  it('should add JSON values to index', function(done) {
+  it('should add JSON values to index', function(next) {
     var fns = _.map(data, function(row) {
       return _.bind(collection.addToIndex, collection, row);
     });
     sequence(fns)
-      .then(function() {
-        done();
-      }).otherwise(done);
+      .done(function() {
+        next();
+      }, next);
   });
 
-  it('should fetch all values', function(done) {
+  it('should fetch all values', function(next) {
     collection
       .fetch()
-      .then(function() {
+      .done(function() {
         collection.length.should.equal(3);
         var json = collection.toJSON();
         json[0].foo.should.equal('bar');
         collection.at(1).get('hello').should.equal('world1');
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should add values to another index', function(done) {
+  it('should add values to another index', function(next) {
     var anotherColl = new TestCollection(null, {foo_id: 2});
     anotherColl
       .addToIndex({foo: 'barx'})
       .then(function(){
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should read values from both indexes', function(done) {
+  it('should read values from both indexes', function(next) {
     var multiColl = new TestMultiIndexCollection(null, {
       foo_id: 1,
       indexProperties: [{foo_id: 1}, {foo_id: 2}]
@@ -84,23 +84,23 @@ describe('Test JSONIndexCollection', function () {
     multiColl.indexKeys[1].should.equal('i:Value:2:relation');
     multiColl
       .readFromIndex()
-      .then(function() {
+      .done(function() {
         multiColl.length.should.equal(4);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
-  it('should remove all values from index', function(done) {
+  it('should remove all values from index', function(next) {
     collection = new TestCollection(null, {foo_id: 1});
     var fns = [
       _.bind(collection.destroyAll, collection),
       _.bind(collection.fetch, collection)
     ];
     sequence(fns)
-      .then(function() {
+      .done(function() {
         collection.length.should.equal(0);
-        done();
-      }).otherwise(done);
+        next();
+      }, next);
   });
 
 });

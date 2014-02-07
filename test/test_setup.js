@@ -1,3 +1,4 @@
+require('mocha-as-promised')();
 var _ = require('lodash');
 var serverbone = require('..');
 var when = require('when');
