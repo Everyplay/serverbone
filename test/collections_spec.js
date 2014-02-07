@@ -88,7 +88,8 @@ describe('BaseCollection tests', function () {
     it('should destroy model', function() {
       var m = collection.at(1);
       testId = m.id;
-      m.destroy()
+      return m
+        .destroy()
         .then(function() {
           collection.length.should.equal(1);
         });
@@ -96,9 +97,10 @@ describe('BaseCollection tests', function () {
 
     it('should verify that model was destroyed', function() {
       var m = new collection.model({id: testId});
-      return m.fetch().then(function() {
-          assert.ok(false);
-          return when.reject(new Error());
+      return m
+        .fetch()
+        .then(function() {
+          return when.reject(new Error('Failed destroying'));
         }, function(err) {
           err.should.be.instanceOf(Error);
           return when.resolve();
@@ -107,7 +109,9 @@ describe('BaseCollection tests', function () {
 
     it('should fail creating if model preSave fails', function() {
       var coll = new FailingCollection();
-      return coll.create().then(function() {
+      return coll
+        .create()
+        .then(function() {
           assert.ok(false);
           when.reject(new Error());
         }, function(err) {

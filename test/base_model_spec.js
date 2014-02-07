@@ -41,11 +41,13 @@ describe('BaseModel', function() {
     it('should throw an error if trying to save model without sync setup', function() {
       var FooModel = BaseModel.extend({});
       var f = new FooModel();
-      return f.save().then(function() {
-        return when.reject(new Error('should not save'));
-      }, function(err) {
-        return when.resolve();
-      });
+      return f
+        .save()
+        .then(function() {
+          return when.reject(new Error('should not save'));
+        }, function(err) {
+          return when.resolve();
+        });
     });
 
     it('model should return its url', function() {
@@ -72,14 +74,17 @@ describe('BaseModel', function() {
       testModel.isNew().should.equal(true);
       var preSpy = sinon.spy(testModel, 'preSave');
       var afterSpy = sinon.spy(testModel, 'afterSave');
-      return testModel.save().then( function(model) {
-        model.get('data').should.be.equal(2);
-        model.url().should.be.ok;
-        testId = model.get('id');
-        testId.should.be.ok;
-        preSpy.called.should.be.ok;
-        afterSpy.called.should.be.ok;
-      });
+
+      return testModel
+        .save()
+        .then( function(model) {
+          model.get('data').should.be.equal(2);
+          model.url().should.be.ok;
+          testId = model.get('id');
+          testId.should.be.ok;
+          preSpy.called.should.be.ok;
+          afterSpy.called.should.be.ok;
+        });
     });
 
     it('should pass options to afterSave', function() {
@@ -106,11 +111,13 @@ describe('BaseModel', function() {
 
     it('should fetch model', function () {
       var testModel = new TestModel({id: testId});
-      return testModel.fetch().then(function(model){
-        // depends values set in previous test
-        testModel.get('data').should.be.equal(99);
-        model.get('data').should.be.equal(99);
-      });
+      return testModel
+        .fetch()
+        .then(function(model){
+          // depends values set in previous test
+          testModel.get('data').should.be.equal(99);
+          model.get('data').should.be.equal(99);
+        });
     });
 
     it('should inc a model attribute', function() {
@@ -131,10 +138,7 @@ describe('BaseModel', function() {
     it('should destroy model', function() {
       var testModel = new TestModel({id: testId});
       return testModel
-        .destroy()
-        .then(function (u) {
-          //console.log(u.toJSON());
-        });
+        .destroy();
     });
 
     it('should not fetch destroyed model', function () {
