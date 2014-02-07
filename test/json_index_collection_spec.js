@@ -25,14 +25,14 @@ describe('Test JSONIndexCollection', function () {
     }
   ];
 
-  before(function(done) {
+  before(function(next) {
     collection = new TestCollection(null, {foo_id: 1});
-    done();
+    next();
   });
 
-  after(function(done) {
+  after(function(next) {
     testSetup.clearDb();
-    done();
+    next();
   });
 
   it('should create JSONModel instance', function() {
@@ -42,38 +42,30 @@ describe('Test JSONIndexCollection', function () {
     json.hello.should.equal('world');
   });
 
-  it('should add JSON values to index', function(next) {
+  it('should add JSON values to index', function() {
     var fns = _.map(data, function(row) {
       return _.bind(collection.addToIndex, collection, row);
     });
-    sequence(fns)
-      .done(function() {
-        next();
-      }, next);
+    return sequence(fns);
   });
 
-  it('should fetch all values', function(next) {
-    collection
+  it('should fetch all values', function() {
+    return collection
       .fetch()
-      .done(function() {
+      .then(function() {
         collection.length.should.equal(3);
         var json = collection.toJSON();
         json[0].foo.should.equal('bar');
         collection.at(1).get('hello').should.equal('world1');
-        next();
-      }, next);
+      });
   });
 
   it('should add values to another index', function(next) {
     var anotherColl = new TestCollection(null, {foo_id: 2});
-    anotherColl
-      .addToIndex({foo: 'barx'})
-      .then(function(){
-        next();
-      }, next);
+    return anotherColl.addToIndex({foo: 'barx'});
   });
 
-  it('should read values from both indexes', function(next) {
+  it('should read values from both indexes', function() {
     var multiColl = new TestMultiIndexCollection(null, {
       foo_id: 1,
       indexProperties: [{foo_id: 1}, {foo_id: 2}]
@@ -82,25 +74,23 @@ describe('Test JSONIndexCollection', function () {
     multiColl.unionKey.should.equal('i:Values:1');
     multiColl.indexKeys.length.should.equal(2);
     multiColl.indexKeys[1].should.equal('i:Value:2:relation');
-    multiColl
+    return multiColl
       .readFromIndex()
-      .done(function() {
+      .then(function() {
         multiColl.length.should.equal(4);
-        next();
-      }, next);
+      });
   });
 
-  it('should remove all values from index', function(next) {
+  it('should remove all values from index', function() {
     collection = new TestCollection(null, {foo_id: 1});
     var fns = [
       _.bind(collection.destroyAll, collection),
       _.bind(collection.fetch, collection)
     ];
-    sequence(fns)
-      .done(function() {
+    return sequence(fns)
+      .then(function() {
         collection.length.should.equal(0);
-        next();
-      }, next);
+      });
   });
 
 });

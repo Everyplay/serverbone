@@ -44,81 +44,68 @@ var TestCollection = serverbone.collections.BaseCollection.extend({
   }
 });
 
-var clearDb = function(cb) {
+var clearDb = function(next) {
   redis.keys('*redistestmodel*', function(err, keys) {
     keys.forEach(function(key) {
       redis.del(key);
     });
-    cb();
+    next();
   });
 };
 
 describe('Integration Test: Redis sync', function () {
-  after(function(done) {
+  after(function(next) {
     clearDb(function(err) {
-      done(err);
+      next(err);
     });
   });
 
   describe('#model', function() {
     var testId;
-    it('should save model', function (next) {
+    it('should save model', function () {
       var testModel = new TestModel({data: 2});
-      testModel.save().done( function(model) {
+      return testModel.save().then( function(model) {
         model.get('data').should.equal(2);
         testId = model.id;
         testId.should.be.ok;
-        next();
-      }, next);
+      });
     });
 
 
-    it('should fetch model', function (next) {
+    it('should fetch model', function () {
       var testModel = new TestModel({id: testId});
-      testModel.fetch().done(function(model){
-        next();
-      }, next);
+      return testModel.fetch();
     });
 
-    it('should destroy model', function(next) {
+    it('should destroy model', function() {
       var testModel = new TestModel({id: testId});
-      testModel
-      .destroy().done(function (m) {
-          //console.log(m.toJSON());
-        next();
-      }, next);
+      return testModel
+      .destroy();
     });
   });
 
   describe('#collection', function() {
     var collection = new TestCollection();
 
-    it('should create model', function(next) {
-      collection
-        .create({data: 1})
-        .done(function(m) {
-          next();
-        }, next);
+    it('should create model', function() {
+      return collection
+        .create({data: 1});
     });
 
-    it('should create another model', function(next) {
-      collection
-        .create({data: 2})
-        .done(function(m) {
-          next();
-        }, next);
+    it('should create another model', function() {
+      return collection
+        .create({data: 2});
     });
 
-    it('should fetch all models', function(next) {
-      collection
+    it('should fetch all models', function() {
+      return collection
         .fetch()
-        .done(function() {
+        .then(function() {
           collection.length.should.equal(2);
-          next();
-        }, next);
+        });
     });
 
-    it('should fetch models filtered with options', function(next) {
+    it('should fetch models filtered with options', function() {
       var opts = {
         where: {
           data: 2
@@ -126,15 +113,14 @@ describe('Integration Test: Redis sync', function () {
         limit: 1,
         offset: 0
       };
-      collection
+      return collection
         .fetch(opts)
-        .done(function() {
+        .then(function() {
           collection.length.should.equal(1);
           var m = collection.at(0);
           should.exist(m);
           m.get('data').should.equal(2);
-          next();
-        }, next);
+        });
     });
   });
 });

@@ -102,7 +102,7 @@ describe('Test Resource', function () {
         });
     });
 
-    it('should map urls to resource', function (done) {
+    it('should map urls to resource', function (next) {
       var app = express();
       var opts = {
         collection: TestCollection
@@ -114,11 +114,11 @@ describe('Test Resource', function () {
         .get('/api/v1/foo/test')
         .end(function (err, res) {
           res.status.should.equal(200);
-          done();
+          next();
         });
     });
 
-    it('should allow exteding resource', function (done) {
+    it('should allow exteding resource', function (next) {
       var fooMiddleware = function () {
         return function (req, res, next) {
           req.user = {
@@ -171,13 +171,13 @@ describe('Test Resource', function () {
           res.status.should.equal(200);
           res.body.foo.should.equal('bar2');
           res.body.user.id.should.equal(1);
-          done();
+          next();
         });
     });
   });
 
   describe('CRUD', function () {
-    it('should create resource', function (done) {
+    it('should create resource', function (next) {
       request(app)
         .post('/test')
         .send({
@@ -189,11 +189,11 @@ describe('Test Resource', function () {
           res.body.title.should.equal('bar');
           id = res.body.id;
           should.exist(id);
-          done();
+          next();
         });
     });
 
-    it('should read resource', function (done) {
+    it('should read resource', function (next) {
       request(app)
         .get('/test/' + id)
         .expect(200)
@@ -201,11 +201,11 @@ describe('Test Resource', function () {
           should.exist(res.body);
           res.body.id.should.equal(id);
           res.body.title.should.equal('bar');
-          done();
+          next();
         });
     });
 
-    it('should read list of models', function (done) {
+    it('should read list of models', function (next) {
       request(app)
         .get('/test')
         .end(function (err, res) {
@@ -215,11 +215,11 @@ describe('Test Resource', function () {
           models.length.should.equal(1);
           var model = models[0];
           model.title.should.equal('bar');
-          done();
+          next();
         });
     });
 
-    it('should update model with PUT', function (done) {
+    it('should update model with PUT', function (next) {
       request(app)
         .put('/test/' + id)
         .send({
@@ -229,11 +229,11 @@ describe('Test Resource', function () {
         .end(function (err, res) {
           res.status.should.equal(200);
           res.body.title.should.equal('new title');
-          done();
+          next();
         });
     });
 
-    it('should check that model title was updated with PUT', function (done) {
+    it('should check that model title was updated with PUT', function (next) {
       request(app)
         .get('/test/' + id)
         .expect(200)
@@ -241,11 +241,11 @@ describe('Test Resource', function () {
           should.exist(res.body);
           res.body.id.should.equal(id);
           res.body.title.should.equal('new title');
-          done();
+          next();
         });
     });
 
-    it('should update attributes with PATCH', function (done) {
+    it('should update attributes with PATCH', function (next) {
       request(app)
         .patch('/test/' + id)
         .send({
@@ -255,11 +255,11 @@ describe('Test Resource', function () {
         .end(function (err, res) {
           res.status.should.equal(200);
           res.body.test.should.equal('foo');
-          done();
+          next();
         });
     });
 
-    it('should check that model attributes were changed with PATCH', function (done) {
+    it('should check that model attributes were changed with PATCH', function (next) {
       request(app)
         .get('/test/' + id)
         .expect(200)
@@ -267,11 +267,11 @@ describe('Test Resource', function () {
           should.exist(res.body);
           res.body.id.should.equal(id);
           res.body.title.should.equal('another title');
-          done();
+          next();
         });
     });
 
-    it('should return error if trying to update model with invalid values', function (done) {
+    it('should return error if trying to update model with invalid values', function (next) {
       request(app)
         .patch('/test/' + id)
         .send({
@@ -283,42 +283,42 @@ describe('Test Resource', function () {
           res.status.should.equal(400);
           res.body.status.should.equal('error');
           res.body.message.should.be.ok;
-          done();
+          next();
         });
     });
 
-    it('should delete a model', function (done) {
+    it('should delete a model', function (next) {
       request(app)
         .del('/test/' + id)
         .end(function (err, res) {
           res.status.should.equal(200);
-          done();
+          next();
         });
     });
 
-    it('should check that model got removed', function (done) {
+    it('should check that model got removed', function (next) {
       request(app)
         .get('/test')
         .end(function (err, res) {
           res.status.should.equal(200);
           var models = res.body;
           models.length.should.equal(0);
-          done();
+          next();
         });
     });
 
-    it('should return error if trying to create resource with invalid values', function (done) {
+    it('should return error if trying to create resource with invalid values', function (next) {
       request(app)
         .post('/foo')
         .send({})
         .end(function (err, res) {
           res.status.should.equal(400);
           res.body.message.should.be.ok;
-          done();
+          next();
         });
     });
 
-    it('should return error produced by preSave', function (done) {
+    it('should return error produced by preSave', function (next) {
       var res = new serverbone.Resource('fail', {
         collection: FailingCollection
       });
@@ -327,11 +327,11 @@ describe('Test Resource', function () {
         .post('/fail')
         .send({})
         .end(function (err, res) {
-          done();
+          next();
         });
     });
 
-    it('should grant access to resource', function (done) {
+    it('should grant access to resource', function (next) {
       request(app)
         .post('/prot')
         .send({
@@ -339,14 +339,14 @@ describe('Test Resource', function () {
         })
         .end(function (err, res) {
           res.status.should.equal(200);
-          done();
+          next();
         });
     });
   });
 
   describe('Resource listing', function () {
 
-    it('should pass req.query options to Resource collection\'s fetch', function (done) {
+    it('should pass req.query options to Resource collection\'s fetch', function (next) {
       var oldConstructCollection = resource._constructCollection;
 
       var collection = resource._constructCollection();
@@ -367,7 +367,7 @@ describe('Test Resource', function () {
           args.sort.should.equal('title');
           args.limit.should.equal(5);
           args.offset.should.equal(5);
-          done();
+          next();
         });
     });
   });
@@ -378,22 +378,22 @@ describe('Test Resource', function () {
       resource.relations.icanhazcustoms.should.be.ok;
     });
 
-    it('should return mounted relation', function (done) {
+    it('should return mounted relation', function (next) {
       request(app)
         .get('/test/' + id + '/tests?sort=title&limit=5&offset=5')
         .end(function (err, res) {
           res.status.should.equal(200);
-          done();
+          next();
         });
     });
 
-    it('should return mounted relation with custom name property', function (done) {
+    it('should return mounted relation with custom name property', function (next) {
       request(app)
         .get('/test/' + id + '/icanhazcustoms?sort=title&limit=5&offset=5')
         .end(function (err, res) {
 
           res.status.should.equal(200);
-          done();
+          next();
         });
     });
   });

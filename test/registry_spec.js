@@ -36,7 +36,7 @@ describe('Registry tests', function () {
     should.exist(cachedModel);
   });
 
-  it('should cache model when saving', function(next) {
+  it('should cache model when saving', function() {
     var registry = new serverbone.Registry();
     var set = sandbox.spy(registry, 'set');
 
@@ -46,16 +46,15 @@ describe('Registry tests', function () {
       registry: registry
     });
     model.isValid().should.equal(true);
-    model
+    return model
       .save()
-      .done(function() {
+      .then(function() {
         should.exist(model.id, 'Model id was missing');
         set.called.should.equal(true);
         var cachedModel = registry.get(model.type, model.id);
         should.exist(cachedModel, 'cached model did not exist');
         cachedModel.should.be.an.instanceOf(TestModel);
         cachedModel.get('title').should.equal('bar');
-        next();
-      }, next);
+      });
   });
 });

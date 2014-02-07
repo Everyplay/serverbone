@@ -154,9 +154,7 @@ var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexC
 
 var FailingModel = exports.FailingModel = TestModel.extend({
   preSave: function(options) {
-    var deferred = when.defer();
-    deferred.reject(new Error('foo reason'));
-    return deferred.promise;
+    return when.reject(new Error('foo reason'));
   }
 });
 

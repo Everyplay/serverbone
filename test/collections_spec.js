@@ -1,5 +1,6 @@
 var should = require('chai').should();
 var assert = require('chai').assert;
+var when = require('when');
 var testSetup = require('./test_setup');
 var TestCollection = testSetup.TestCollection;
 var FailingCollection = testSetup.FailingCollection;
@@ -54,91 +55,81 @@ describe('BaseCollection tests', function () {
   });
 
   describe('CRUD', function() {
-    it('should create models', function(next) {
+    it('should create models', function() {
       // TODO: test create when failing validation
-      collection.create({test: '1', title: 'foo1'}).done(function(model) {
+      return collection.create({test: '1', title: 'foo1'}).then(function(model) {
         model.id.should.be.ok;
-        next();
-      }, next);
+      });
     });
 
-    it('should create another model', function(next) {
-      collection.create({test: '2', title: 'foo2'}).done(function(model) {
+    it('should create another model', function() {
+      return collection.create({test: '2', title: 'foo2'}).then(function(model) {
         collection.length.should.equal(2);
         model.id.should.be.ok;
-        next();
-      }, next);
+      });
     });
 
-    it('should fetch 2 models', function(next) {
-      collection.fetch().done(function() {
+    it('should fetch 2 models', function() {
+      return collection.fetch().then(function() {
         collection.length.should.equal(2);
         testId = collection.at(1).id;
         testId.should.be.ok;
         collection.at(1).get('test').should.equal('2');
-        next();
-      }, next);
+      });
     });
 
-    it('should load models created through the collection', function(next) {
+    it('should load models created through the collection', function() {
       var m = new collection.model({id: testId});
-      m.fetch().done( function() {
+      return m.fetch().then( function() {
         m.get('id').should.equal(testId);
-        next();
-      }, next);
+      });
     });
 
-    it('should destroy model', function(next) {
+    it('should destroy model', function() {
       var m = collection.at(1);
       testId = m.id;
       m.destroy()
-        .done(function() {
+        .then(function() {
           collection.length.should.equal(1);
-          next();
-        }, next);
+        });
     });
 
-    it('should verify that model was destroyed', function(next) {
+    it('should verify that model was destroyed', function() {
       var m = new collection.model({id: testId});
-      m.fetch().done(function() {
+      return m.fetch().then(function() {
           assert.ok(false);
-          next(new Error());
+          return when.reject(new Error());
         }, function(err) {
           err.should.be.instanceOf(Error);
-          next();
+          return when.resolve();
         });
     });
 
-    it('should fail creating if model preSave fails', function(next) {
+    it('should fail creating if model preSave fails', function() {
       var coll = new FailingCollection();
-      coll
-        .create()
-        .done(function() {
+      return coll.create().then(function() {
           assert.ok(false);
-          next(new Error());
+          when.reject(new Error());
         }, function(err) {
           err.message.should.equal('foo reason');
-          next();
+          return when.resolve();
         });
     });
 
-    it('should destroy all models from collection', function(next) {
+    it('should destroy all models from collection', function() {
       collection.length.should.equal(1);
-      collection
+      return collection
         .destroyAll()
-        .done(function() {
+        .then(function() {
           collection.length.should.equal(0);
-          next();
-        }, next);
+        });
     });
 
-    it('should check that models were removed', function(next) {
-      collection
-        .fetch()
-        .done(function() {
+    it('should check that models were removed', function() {
+      return collection.fetch()
+        .then(function() {
           collection.length.should.equal(0);
-          next();
-        }, next);
+        });
     });
   });
 

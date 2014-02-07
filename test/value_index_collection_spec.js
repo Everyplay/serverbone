@@ -16,46 +16,37 @@ describe('Test ValueIndexCollection', function () {
     next();
   });
 
-  it('value should not exists in index', function(next) {
+  it('value should not exists in index', function() {
     collection
       .exists('foo')
-      .done(function(exists) {
+      .then(function(exists) {
         exists.should.equal(false);
-        next();
-      }, next);
+      });
   });
 
-  it('should add item to value index', function(next) {
-    collection
-      .addToIndex('foo')
-      .done(function() {
-        next();
-      }, next);
+  it('should add item to value index', function() {
+    return collection
+      .addToIndex('foo');
   });
 
-  it('should check that added value exists in index', function(next) {
-    collection
+  it('should check that added value exists in index', function() {
+    return collection
       .exists('foo')
-      .done(function(exists) {
+      .then(function(exists) {
         exists.should.equal(true);
-        next();
-      }, next);
+      });
   });
 
-  it('should remove value from index', function(next) {
-    collection
-      .removeFromIndex('foo')
-      .done(function() {
-        next();
-      }, next);
+  it('should remove value from index', function() {
+    return collection
+      .removeFromIndex('foo');
   });
 
-  it('value should not exists in index', function(next) {
-    collection
+  it('value should not exists in index', function() {
+    return collection
       .exists('foo')
-      .done(function(exists) {
+      .then(function(exists) {
         exists.should.equal(false);
-        next();
-      }, next);
+      });
   });
 });

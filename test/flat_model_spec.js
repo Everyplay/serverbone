@@ -5,10 +5,10 @@ var FlatModel = testSetup.FlatTestModel;
 
 
 describe('FlatModel tests', function () {
-  it('should create model for storing a string', function(next) {
+  it('should create model for storing a string', function() {
     var model = new FlatModel('ffoo');
     model.toJSON().should.equal('ffoo');
-    model
+    return model
       .save()
       .then(function() {
         var model2 = new FlatModel('ffoo');
@@ -17,18 +17,15 @@ describe('FlatModel tests', function () {
           .then(function() {
             model.toJSON().should.equal('ffoo');
           });
-      }).done(function() {
-        next();
-      }, next);
+      });
   });
 
-  it('should read keys starting with given string', function(next) {
+  it('should read keys starting with given string', function() {
     var model = new FlatModel('');
-    model
+    return model
       .findKeys('ffoo')
-      .done(function(keys) {
+      .then(function(keys) {
         keys.length.should.equal(1);
-        next();
-      }, next);
+      });
   });
 });

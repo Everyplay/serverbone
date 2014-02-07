@@ -7,15 +7,13 @@ describe('Test IndexCollection', function () {
   var collection;
   var opts = {foo_id: 'foo'};
 
-  before(function(next) {
+  before(function() {
     collection = new TestCollection(null, opts);
     var fns = [
       collection.create({data: 'aaa'}),
       collection.create({data: 'bbb'})
     ];
-    when.all(fns).then(function() {
-      next();
-    }, next);
+    return when.all(fns);
   });
 
   after(function(next) {
@@ -23,55 +21,44 @@ describe('Test IndexCollection', function () {
     next();
   });
 
-  it('should index a new item', function(next) {
-    collection
-      .addToIndex(collection.at(0))
-      .done(function() {
-        next();
-      }, next);
+  it('should index a new item', function() {
+    return collection.addToIndex(collection.at(0));
   });
 
-  it('should index another item', function(next) {
-    collection
-      .addToIndex(collection.at(1))
-      .done(function() {
-        next();
-      }, next);
+  it('should index another item', function() {
+    return collection.addToIndex(collection.at(1));
   });
 
-  it('should read ids from index', function(next) {
+  it('should read ids from index', function() {
     collection = new TestCollection(null, opts);
-    collection
+    return collection
       .readFromIndex()
-      .done(function() {
+      .then(function() {
         collection.length.should.equal(2);
         collection.pluck('id').length.should.equal(2);
-        next();
-      }, next);
+      });
   });
 
-  it('should get count from index', function(next) {
+  it('should get count from index', function() {
     collection = new TestCollection(null, opts);
-    collection
+    return collection
       .count()
-      .done(function(count) {
+      .then(function(count) {
         count.should.equal(2);
-        next();
-      }, next);
+      });
   });
 
-  it('should fetch models', function(next) {
+  it('should fetch models', function() {
     collection = new TestCollection(null, opts);
-    collection
+    return collection
       .fetch()
-      .done(function() {
+      .then(function() {
         collection.length.should.equal(2);
         collection.at(0).get('data').should.equal('aaa');
-        next();
-      }, next);
+      });
   });
 
-  it('should apply dynamic filters if defined', function(next) {
+  it('should apply dynamic filters if defined', function() {
     var DynamicCollection = TestCollection.extend({
       filterModels: function() {
         var deferred = when.defer();
@@ -90,46 +77,42 @@ describe('Test IndexCollection', function () {
       }
     });
     var dynamicCollection = new DynamicCollection(null, opts);
-    dynamicCollection
+    return dynamicCollection
       .fetch()
-      .done(function() {
+      .then(function() {
         dynamicCollection.length.should.equal(1);
         dynamicCollection.at(0).get('data').should.not.equal('aaa');
-        next();
-      }, next);
+      });
   });
 
-  it('should check that model exists in index', function(next) {
+  it('should check that model exists in index', function() {
     var model = collection.at(0);
     should.exist(model);
-    collection
+    return collection
       .exists(model)
-      .done(function(exists) {
+      .then(function(exists) {
         exists.should.equal(true);
-        next();
-      }, next);
+      });
   });
 
-  it('should remove model from index', function(next) {
+  it('should remove model from index', function() {
     var model = collection.at(0);
     should.exist(model);
-    collection
+    return collection
       .removeFromIndex(model)
-      .done(function() {
+      .then(function() {
         collection.length.should.equal(1);
-        next();
-      }, next);
+      });
   });
 
-  it('should fetch models after removing item', function(next) {
+  it('should fetch models after removing item', function() {
     collection = new TestCollection(null, opts);
-    collection
+    return collection
       .fetch()
-      .done(function() {
+      .then(function() {
         collection.length.should.equal(1);
         collection.at(0).get('data').should.not.equal('aaa');
-        next();
-      }, next);
+      });
   });
 
 });
