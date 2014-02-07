@@ -60,8 +60,7 @@
     "before",
     "after",
     "beforeEach",
-    "afterEach",
-    "expect"
+    "afterEach"
   ]
 }
 
