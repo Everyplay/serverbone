@@ -1,6 +1,6 @@
+var testSetup = require('./test_setup');
 var should = require('chai').should();
 var when = require('when');
-var testSetup = require('./test_setup');
 var TestCollection = testSetup.TestIndexCollection;
 
 describe('Test IndexCollection', function () {

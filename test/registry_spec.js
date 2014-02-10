@@ -1,3 +1,4 @@
+var testSetup = require('./test_setup');
 var should = require('chai').should();
 var sinon = require('sinon');
 var serverbone = require('..');

@@ -1,3 +1,4 @@
+var testSetup = require('./test_setup');
 var _ = require('lodash');
 var when = require('when');
 var sinon = require('sinon');

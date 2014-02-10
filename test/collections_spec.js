@@ -1,7 +1,7 @@
+var testSetup = require('./test_setup');
 var should = require('chai').should();
 var assert = require('chai').assert;
 var when = require('when');
-var testSetup = require('./test_setup');
 var TestCollection = testSetup.TestCollection;
 var FailingCollection = testSetup.FailingCollection;
 var TemplatedCollection = TestCollection.extend({
@@ -123,7 +123,7 @@ describe('BaseCollection tests', function () {
     it('should destroy all models from collection', function() {
       collection.length.should.equal(1);
       return collection
-        .destroyAll()
+        .applyToAll('destroy')
         .then(function() {
           collection.length.should.equal(0);
         });

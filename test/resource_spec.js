@@ -1,3 +1,4 @@
+var testSetup = require('./test_setup');
 var should = require('chai').should();
 var express = require('express');
 var request = require('supertest');
@@ -5,8 +6,6 @@ var sinon = require('sinon');
 var util = require('util');
 var _ = require('lodash');
 var serverbone = require('..');
-
-var testSetup = require('./test_setup');
 var TestModel = testSetup.TestModel;
 var ProtectedCollection = testSetup.ProtectedCollection;
 var TestCollection = testSetup.TestCollection;
