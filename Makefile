@@ -43,6 +43,11 @@ test-int:
 
 jshint:
 	@$(BIN)/jshint $(SRC_FILES)
+.PHONY: jshint
+
+jscs:
+	@$(BIN)/jscs .
+.PHONY: jscs
 
 ## Coverage:
 
