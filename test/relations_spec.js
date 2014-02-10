@@ -72,6 +72,14 @@ describe('BaseModel Relations', function() {
       });
   });
 
+  it('should fetch only specified relations', function() {
+    return model
+      .fetchRelations({onlyRelations: ['owner']})
+      .then(function() {
+        should.exist(model.get('owner'));
+      });
+  });
+
   it('should fetch relations with collection helper function', function() {
     var collection = new BaseCollection();
     collection.add(model);
