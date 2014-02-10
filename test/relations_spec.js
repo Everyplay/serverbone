@@ -25,13 +25,15 @@ var testSchema = {
     owner: {
       type: 'relation',
       model: User,
-      references: {id: 'user_id'}
+      references: {
+        id: 'user_id'
+      }
     }
   }
 };
 
 var TestModel = BaseModel.extend({
-  type:'video',
+  type: 'video',
   schema: testSchema,
   sync: Db.sync.bind(testDb)
 });
@@ -49,7 +51,10 @@ describe('BaseModel Relations', function() {
   });
 
   it('should init relations', function() {
-    model = new TestModel({user_id: 1, data: 666});
+    model = new TestModel({
+      user_id: 1,
+      data: 666
+    });
     model.get('owner').get('id').should.equal(1);
   });
 
@@ -74,7 +79,9 @@ describe('BaseModel Relations', function() {
 
   it('should fetch only specified relations', function() {
     return model
-      .fetchRelations({onlyRelations: ['owner']})
+      .fetchRelations({
+        onlyRelations: ['owner']
+      })
       .then(function() {
         should.exist(model.get('owner'));
       });
@@ -140,12 +147,17 @@ describe('BaseModel Relations', function() {
   });
 
   it('should create model', function() {
-    model = new TestModel({user_id: 1});
+    model = new TestModel({
+      user_id: 1
+    });
     return model.saveAll();
   });
 
   it('should call fetchAll before deleting', function() {
-    model = new TestModel({id: model.id, user_id: 1});
+    model = new TestModel({
+      id: model.id,
+      user_id: 1
+    });
     var spy = sandbox.spy(model, 'fetchAll');
     return model
       .destroy()

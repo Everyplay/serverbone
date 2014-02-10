@@ -15,9 +15,9 @@ var testSchema = {
       type: 'integer',
     }
   },
-  indexes: [
-    {property: 'data'}
-  ]
+  indexes: [{
+    property: 'data'
+  }]
 };
 
 var TestModel = BaseModel.extend({
@@ -27,7 +27,7 @@ var TestModel = BaseModel.extend({
   db: testDb,
   url: function() {
     var key = this.type;
-    if(!this.isNew()) {
+    if (!this.isNew()) {
       key += ':' + this.get(this.idAttribute);
     }
     return key;
@@ -53,7 +53,7 @@ var clearDb = function(next) {
   });
 };
 
-describe('Integration Test: Redis sync', function () {
+describe('Integration Test: Redis sync', function() {
   after(function(next) {
     clearDb(function(err) {
       next(err);
@@ -62,9 +62,11 @@ describe('Integration Test: Redis sync', function () {
 
   describe('#model', function() {
     var testId;
-    it('should save model', function () {
-      var testModel = new TestModel({data: 2});
-      return testModel.save().then( function(model) {
+    it('should save model', function() {
+      var testModel = new TestModel({
+        data: 2
+      });
+      return testModel.save().then(function(model) {
         model.get('data').should.equal(2);
         testId = model.id;
         testId.should.be.ok;
@@ -72,15 +74,19 @@ describe('Integration Test: Redis sync', function () {
     });
 
 
-    it('should fetch model', function () {
-      var testModel = new TestModel({id: testId});
+    it('should fetch model', function() {
+      var testModel = new TestModel({
+        id: testId
+      });
       return testModel.fetch();
     });
 
     it('should destroy model', function() {
-      var testModel = new TestModel({id: testId});
+      var testModel = new TestModel({
+        id: testId
+      });
       return testModel
-      .destroy();
+        .destroy();
     });
   });
 
@@ -89,12 +95,16 @@ describe('Integration Test: Redis sync', function () {
 
     it('should create model', function() {
       return collection
-        .create({data: 1});
+        .create({
+          data: 1
+        });
     });
 
     it('should create another model', function() {
       return collection
-        .create({data: 2});
+        .create({
+          data: 2
+        });
     });
 
     it('should fetch all models', function() {

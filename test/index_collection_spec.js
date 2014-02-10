@@ -3,15 +3,21 @@ var should = require('chai').should();
 var when = require('when');
 var TestCollection = testSetup.TestIndexCollection;
 
-describe('Test IndexCollection', function () {
+describe('Test IndexCollection', function() {
   var collection;
-  var opts = {foo_id: 'foo'};
+  var opts = {
+    foo_id: 'foo'
+  };
 
   before(function() {
     collection = new TestCollection(null, opts);
     var fns = [
-      collection.create({data: 'aaa'}),
-      collection.create({data: 'bbb'})
+      collection.create({
+        data: 'aaa'
+      }),
+      collection.create({
+        data: 'bbb'
+      })
     ];
     return when.all(fns);
   });
@@ -66,7 +72,7 @@ describe('Test IndexCollection', function () {
 
         function resolve() {
           var models = self.filter(function(model) {
-            if(model.get('data') === 'aaa') return null;
+            if (model.get('data') === 'aaa') return null;
             return model;
           });
           self.reset(models);

@@ -21,17 +21,24 @@ var testSchema = {
 };
 
 var TestModel = BaseModel.extend({
-  type:'video',
+  type: 'video',
   schema: testSchema,
   sync: Db.sync.bind(testDb)
 });
 
 describe('BaseModel', function() {
 
-  describe('Basic setup', function () {
-    it('should return template values', function () {
-      var cntx = {type: 'video', id: 1};
-      var options = {type: '{type}', video_id: '{id}', kissa: 'cat'};
+  describe('Basic setup', function() {
+    it('should return template values', function() {
+      var cntx = {
+        type: 'video',
+        id: 1
+      };
+      var options = {
+        type: '{type}',
+        video_id: '{id}',
+        kissa: 'cat'
+      };
       var formattedProps = BaseModel.formatProperties.call(cntx, options);
       should.exist(formattedProps);
       formattedProps.type.should.equal('video');
@@ -57,16 +64,18 @@ describe('BaseModel', function() {
     });
   });
 
-  describe('CRUD', function () {
+  describe('CRUD', function() {
     var testId;
 
-    it('should have initialized type', function () {
+    it('should have initialized type', function() {
       var testModel = new TestModel();
       testModel.type.should.equal('video');
     });
 
-    it('should save model', function () {
-      var testModel = new TestModel({data: 2});
+    it('should save model', function() {
+      var testModel = new TestModel({
+        data: 2
+      });
       should.exist(TestModel.prototype.sync);
       should.exist(testModel.sync);
       _.isFunction(TestModel.prototype.sync).should.be.ok;
@@ -78,7 +87,7 @@ describe('BaseModel', function() {
 
       return testModel
         .save()
-        .then( function(model) {
+        .then(function(model) {
           model.get('data').should.be.equal(2);
           model.url().should.be.ok;
           testId = model.get('id');
@@ -92,7 +101,9 @@ describe('BaseModel', function() {
       var testModel = new TestModel();
       var afterSpy = sinon.spy(testModel, 'afterSave');
       return testModel
-        .save(null, {foo: 'bar'})
+        .save(null, {
+          foo: 'bar'
+        })
         .then(function() {
           var opts = afterSpy.args[0][0];
           should.exist(opts);
@@ -101,7 +112,9 @@ describe('BaseModel', function() {
     });
 
     it('should change model attribute', function() {
-      var testModel = new TestModel({id: testId});
+      var testModel = new TestModel({
+        id: testId
+      });
       testModel.set('data', 99);
       return testModel
         .save()
@@ -110,11 +123,13 @@ describe('BaseModel', function() {
         });
     });
 
-    it('should fetch model', function () {
-      var testModel = new TestModel({id: testId});
+    it('should fetch model', function() {
+      var testModel = new TestModel({
+        id: testId
+      });
       return testModel
         .fetch()
-        .then(function(model){
+        .then(function(model) {
           // depends values set in previous test
           testModel.get('data').should.be.equal(99);
           model.get('data').should.be.equal(99);
@@ -122,7 +137,9 @@ describe('BaseModel', function() {
     });
 
     it('should inc a model attribute', function() {
-      var testModel = new TestModel({id: testId});
+      var testModel = new TestModel({
+        id: testId
+      });
       var opts = {
         inc: {
           attribute: 'data',
@@ -137,13 +154,17 @@ describe('BaseModel', function() {
     });
 
     it('should destroy model', function() {
-      var testModel = new TestModel({id: testId});
+      var testModel = new TestModel({
+        id: testId
+      });
       return testModel
         .destroy();
     });
 
-    it('should not fetch destroyed model', function () {
-      var testModel = new TestModel({id: testId});
+    it('should not fetch destroyed model', function() {
+      var testModel = new TestModel({
+        id: testId
+      });
       return testModel
         .fetch()
         .then(function() {
@@ -156,4 +177,3 @@ describe('BaseModel', function() {
 
   });
 });
-

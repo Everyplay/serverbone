@@ -3,10 +3,13 @@ var config = require('./');
 var db;
 
 var _openConnection = function(cb) {
-  var connectionString = 'mongodb://' + config.get('mongodb_host') + ':' + config.get('mongodb_port') + '/tests-serverbone';
+  var connectionString = 'mongodb://'
+    + config.get('mongodb_host')
+    + ':' + config.get('mongodb_port')
+    + '/tests-serverbone';
 
   MongoClient.connect(connectionString, function(err, database) {
-    if(err) {
+    if (err) {
       console.error('Failed to connect to:', connectionString, err);
       return cb(err);
     }
@@ -17,7 +20,7 @@ var _openConnection = function(cb) {
 };
 
 exports.connect = function(cb) {
-  if(db) return cb(null, db);
+  if (db) return cb(null, db);
   _openConnection(cb);
 };
 

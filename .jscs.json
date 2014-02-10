@@ -11,6 +11,6 @@
     "excludeFiles": ["node_modules/**"],
     "validateJSDoc": {
         "checkParamNames": true,
-        "requireParamTypes": true
+        "requireParamTypes": false
     }
 }

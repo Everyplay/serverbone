@@ -9,7 +9,7 @@ var database = new Db('test_database');
 var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
 
-var testSchema =  {
+var testSchema = {
   owner: 'user_id',
   properties: {
     id: {
@@ -25,10 +25,12 @@ var testSchema =  {
     tests: {
       type: 'relation',
       mount: true,
-      references: {test_id:"id"},
+      references: {
+        test_id: "id"
+      },
       collection: serverbone.collections.BaseCollection.extend({
         model: BaseModel.extend({
-          type:'foobar',
+          type: 'foobar',
           db: database,
           sync: Db.sync.bind(database),
           schema: {}
@@ -41,10 +43,12 @@ var testSchema =  {
       type: 'relation',
       name: 'icanhazcustoms',
       mount: true,
-      references: {test_id:"id"},
+      references: {
+        test_id: "id"
+      },
       collection: serverbone.collections.BaseCollection.extend({
         model: BaseModel.extend({
-          type:'barfoo',
+          type: 'barfoo',
           db: database,
           sync: Db.sync.bind(database),
           schema: {}
@@ -57,7 +61,7 @@ var testSchema =  {
 };
 
 var TestModel = exports.TestModel = BaseModel.extend({
-  type:'video',
+  type: 'video',
   db: database,
   sync: Db.sync.bind(database),
   schema: testSchema
@@ -95,7 +99,7 @@ exports.ProtectedCollection = serverbone.collections.BaseCollection.extend({
   sync: Db.sync.bind(database)
 });
 
-var fooSchema =  {
+var fooSchema = {
   properties: {
     id: {
       type: 'integer'
@@ -129,8 +133,7 @@ exports.TestValueIndexCollection = serverbone.collections.IndexCollection.extend
     indexKey: 'i:Value:{foo_id}:relation',
     sync: Db.sync.bind(database),
     url: 'indexed_collection'
-  }
-));
+  }));
 
 var TestJSONIndexCollection = exports.TestJSONIndexCollection = serverbone.collections.IndexCollection.extend(
   _.extend({}, serverbone.collections.JSONIndexMixin, {
@@ -139,8 +142,7 @@ var TestJSONIndexCollection = exports.TestJSONIndexCollection = serverbone.colle
     indexKey: 'i:Value:{foo_id}:relation',
     sync: Db.sync.bind(database),
     url: 'indexed_collection'
-  }
-));
+  }));
 
 var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexCollection.extend(
   _.extend({}, serverbone.collections.MultiIndexMixin, {
@@ -149,8 +151,7 @@ var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexC
       this.setupIndexes(options);
       TestMultiIndexCollection.__super__.initialize.apply(this, arguments);
     }
-  }
-));
+  }));
 
 var FailingModel = exports.FailingModel = TestModel.extend({
   preSave: function(options) {
@@ -172,7 +173,7 @@ exports.FlatTestModel = FlatModel.extend({
 
 exports.clearDb = function() {
   _.each(database.records, function(r) {
-    database.store().removeItem(r, function(){});
+    database.store().removeItem(r, function() {});
   });
   database.records = [];
 };

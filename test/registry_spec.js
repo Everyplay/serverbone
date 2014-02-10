@@ -6,7 +6,7 @@ var BaseModel = serverbone.models.BaseModel;
 var Db = require('backbone-db');
 var TestDB = new Db('registry_db');
 
-describe('Registry tests', function () {
+describe('Registry tests', function() {
   var sandbox;
 
   var TestModel = BaseModel.extend({
@@ -14,7 +14,7 @@ describe('Registry tests', function () {
     sync: Db.sync.bind(TestDB),
     afterSave: function() {
       var res = TestModel.__super__.afterSave.apply(this, arguments);
-      if(this.options.registry) {
+      if (this.options.registry) {
         this.options.registry.set(this);
       }
       return res;
@@ -29,8 +29,10 @@ describe('Registry tests', function () {
     sandbox.restore();
   });
 
-  it('should set value to Registry', function () {
-    var model = new TestModel({test: 'foo'});
+  it('should set value to Registry', function() {
+    var model = new TestModel({
+      test: 'foo'
+    });
     var registry = new serverbone.Registry();
     registry.set(model);
     var cachedModel = registry.get(model.type, model.id);

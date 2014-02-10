@@ -24,7 +24,7 @@ exports.checkCollectionOrder = function(collection, sortAttribute, checkOptions,
   collection
     .fetch(fetchOptions)
     .done(function() {
-      if(checkOptions.length) collection.length.should.equal(checkOptions.length);
+      if (checkOptions.length) collection.length.should.equal(checkOptions.length);
       var orderCheck = checkOptions.order === 'descending' ? exports.inDescendingOrder : exports.inAscendingOrder;
       var attrs = collection.pluck(sortAttribute);
       orderCheck(attrs).should.equal(true);

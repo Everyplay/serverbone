@@ -18,7 +18,7 @@ MOCHA-OPTS = --reporter $(REPORTER) \
 		--recursive \
 		--colors
 
-test: jshint
+test: jshint jscs
 	@NODE_ENV=$(ENV) $(BIN)/mocha \
 		$(MOCHA-OPTS) \
 		$(GREP_CMND)
