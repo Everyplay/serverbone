@@ -8,7 +8,7 @@
     "disallowKeywordsOnNewLine": ["else"],
     "disallowTrailingWhitespace": true,
     "maximumLineLength": 120,
-    "excludeFiles": ["node_modules/**"],
+    "excludeFiles": ["node_modules/**", "coverage/**"],
     "validateJSDoc": {
         "checkParamNames": true,
         "requireParamTypes": false
