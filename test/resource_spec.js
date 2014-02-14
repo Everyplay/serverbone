@@ -372,7 +372,7 @@ describe('Test Resource', function () {
   });
 
   describe('Relations mounting', function () {
-    it('resources for releations should have been created', function () {
+    it('resources for relations should have been created', function () {
       resource.relations.tests.should.be.ok;
       resource.relations.icanhazcustoms.should.be.ok;
     });
