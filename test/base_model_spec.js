@@ -175,5 +175,28 @@ describe('BaseModel', function() {
         });
     });
 
+    it('should return 404 error when fetched Model is not found', function() {
+      var testModel = new TestModel({id: 'foo'});
+      return testModel
+        .fetch()
+        .then(function() {
+          return when.reject('should not be found');
+        }, function(err) {
+          err.status.should.equal(404);
+          return when.resolve();
+        });
+    });
+
+    it('should return 404 if trying to destroy non-existent model', function() {
+      var testModel = new TestModel({id: 'foo'});
+      return testModel
+        .destroy()
+        .then(function() {
+          return when.reject('should not be found');
+        }, function(err) {
+          err.status.should.equal(404);
+          return when.resolve();
+        });
+    });
   });
 });
