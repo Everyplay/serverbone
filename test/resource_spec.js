@@ -5,6 +5,7 @@ var request = require('supertest');
 var sinon = require('sinon');
 var util = require('util');
 var _ = require('lodash');
+var Promises = require('backbone-promises');
 var serverbone = require('..');
 var TestModel = testSetup.TestModel;
 var ProtectedCollection = testSetup.ProtectedCollection;
@@ -15,6 +16,7 @@ describe('Test Resource', function () {
   var app;
   var id;
   var resource;
+  var sandbox;
 
   before(function () {
     app = express();
@@ -34,10 +36,11 @@ describe('Test Resource', function () {
     });
     app.use('/prot', protRes.app);
     resource.should.be.an.instanceof(serverbone.Resource);
-    //app.resources.test.should.be.an.instanceof(serverbone.Resource);
+    sandbox = sinon.sandbox.create();
   });
 
   after(function () {
+    sandbox.restore();
     testSetup.clearDb();
   });
 
@@ -346,26 +349,18 @@ describe('Test Resource', function () {
   describe('Resource listing', function () {
 
     it('should pass req.query options to Resource collection\'s fetch', function (next) {
-      var oldConstructCollection = resource._constructCollection;
-
-      var collection = resource._constructCollection();
-
-      resource._constructCollection = function () {
-        return collection;
-      };
-
-      var spy = sinon.spy(collection, 'fetch');
+      var spy = sandbox.spy(Promises.Collection.prototype, 'fetch');
       request(app)
-        .get('/test?sort=title&limit=5&offset=5')
+        .get('/test?sort=title&limit=5&offset=5&after_id=99')
         .end(function (err, res) {
-          resource._constructCollection = oldConstructCollection;
-
           res.status.should.equal(200);
           spy.called.should.equal(true);
           var args = spy.getCall(0).args[0];
           args.sort.should.equal('title');
           args.limit.should.equal(5);
           args.offset.should.equal(5);
+          args.after_id.should.equal(99);
+          sandbox.restore();
           next();
         });
     });
