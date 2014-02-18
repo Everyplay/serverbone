@@ -1,9 +1,10 @@
-require('./test_setup');
-var ACL = require('../lib/acl').ACL;
-var should = require('chai').should();
-var _ = require('lodash');
+var setup = require('./test_setup');
+require('chai').should();
 var serverbone = require('..');
-
+var ACL = serverbone.acl.ACL;
+var ACLModel = setup.ACLModel;
+var ACLUserCollection = setup.ACLUserCollection;
+var SystemUser = setup.SystemUser;
 
 describe('Test ACL', function () {
     describe('Access Roles', function () {
@@ -58,6 +59,54 @@ describe('Test ACL', function () {
       acl.assert('anyone', 'abolish').should.equal(true);
       acl.assert('anyone', 'destroye').should.equal(false);
     });
+
+    describe.only('ACLModel', function () {
+      var user, admin, model, users;
+
+      before(function(next) {
+        setup.setupDb(function() {
+          console.log(SystemUser);
+          users = new ACLUserCollection();
+          users.create(null, {actor: SystemUser}).done(function(model) {
+            user = model;
+            users.create(null, {actor: SystemUser}).done(function(adm) {
+              admin = adm;
+              next();
+            }, next);
+          }, next);
+        });
+      });
+
+      it('should set read/update/delete to options.actions on save/fetch/destroy', function() {
+        var m = new ACLModel({user_id: user.get(user.idAttribute)});
+
+        return m.save(null, {actor: user}).then(function() {
+          console.log();
+        });
+      });
+
+       /* var orig = m.canAccess;
+
+
+
+        return m.fetch({actor: m}).then(function() {
+          console.log(actions);
+          return m.save({test: 123},{actor: m}).then(function() {
+            return m.save({id: 1,test: 123}, {actor: m}).then(function() {
+              return m.destroy().then(function() {
+                actions.length.should.equal(4);
+              });
+            });
+          });
+        });*/
+    });
+
+    describe('ACLCollection', function () {
+      it('should set create to options.actions on create', function() {
+
+      });
+    });
+
   });
 });
 
