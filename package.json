@@ -1,6 +1,6 @@
 {
   "name": "serverbone",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "description": "Serverside additions to backbone to serve collections and models as express apps",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "dependencies": {
     "async": "~0.2.9",
     "backbone": "1.1.0",
-    "backbone-blueprint": "0.0.3",
+    "backbone-blueprint": "0.0.4",
     "backbone-db": "~0.4",
     "backbone-db-mongodb": "~0.1",
     "backbone-db-redis": "~0.0.9",
