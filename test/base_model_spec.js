@@ -100,6 +100,7 @@ describe('BaseModel', function() {
     it('should pass options to afterSave', function() {
       var testModel = new TestModel();
       var afterSpy = sinon.spy(testModel, 'afterSave');
+
       return testModel
         .save(null, {
           foo: 'bar'

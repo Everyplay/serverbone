@@ -1,13 +1,17 @@
 require('mocha-as-promised')();
+require('when/monitor/console');
 var _ = require('lodash');
 var serverbone = require('..');
-var when = require('when');
 var BaseModel = serverbone.models.BaseModel;
+var BaseCollection = serverbone.collections.BaseCollection;
+var ACLModel = serverbone.models.ACLModel;
 var FlatModel = serverbone.models.FlatModel;
 var Db = require('backbone-db');
 var database = new Db('test_database');
 var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
+var acl = serverbone.acl;
+var when = require('backbone-promises').when;
 
 var testSchema = {
   owner: 'user_id',
@@ -26,7 +30,7 @@ var testSchema = {
       type: 'relation',
       mount: true,
       references: {
-        test_id: "id"
+        test_id: 'id'
       },
       collection: serverbone.collections.BaseCollection.extend({
         model: BaseModel.extend({
@@ -44,7 +48,7 @@ var testSchema = {
       name: 'icanhazcustoms',
       mount: true,
       references: {
-        test_id: "id"
+        test_id: 'id'
       },
       collection: serverbone.collections.BaseCollection.extend({
         model: BaseModel.extend({
@@ -75,9 +79,9 @@ var protectedSchema = {
       type: 'string'
     }
   },
-  access: {
-    read: ['owner', 'admin'],
-    write: ['admin']
+  permissions: {
+    admin: ['*'],
+    owner: ['read']
   }
 };
 
@@ -108,6 +112,7 @@ var fooSchema = {
       type: 'string'
     }
   }
+
 };
 var FooModel = exports.FooModel = BaseModel.extend({
   type: 'indexed_foo',
@@ -154,15 +159,113 @@ var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexC
   }));
 
 var FailingModel = exports.FailingModel = TestModel.extend({
-  preSave: function(options) {
-    return when.reject(new Error('foo reason'));
+  preSave: function() {
+    console.log('rejecting');
+    var promise = when.reject(new Error('foo reason'));
+    return promise;
   }
 });
 
-var FailingCollection = exports.FailingCollection = TestCollection.extend({
+exports.FailingCollection = TestCollection.extend({
   model: FailingModel
 });
 
+exports.ACLUser = ACLModel.extend({
+  type: 'user',
+  db: database,
+  sync: database.sync,
+  schema: {
+    permissions: {
+      '*': ['create'],
+      'owner': ['read', 'update', 'delete']
+    },
+    properties: {
+      id: {
+        type: 'integer',
+        permissions: {
+          owner: ['read']
+        }
+      },
+      name: {
+        type: 'string',
+        permissions: {
+          owner: ['update','read']
+        }
+      },
+      models: {
+        type: 'relation',
+        collection: exports.ACLModelCollection,
+        references: {'id': 'id'}
+      }
+    }
+  },
+  getRoles: function(model) {
+    var roles = exports.ACLUser.__super__.getRoles.apply(this, arguments);
+    var sameType = acl.type(this.type);
+    var sameId = acl.property('id','id');
+    if (sameType(model) && sameId(this, model)) roles.push('owner');
+    return roles;
+  }
+});
+
+exports.ACLUserCollection = BaseCollection.extend({
+  model: exports.ACLUser,
+  db: database,
+  sync: database.sync
+});
+
+exports.ACLModel = ACLModel.extend({
+  type: 'model',
+  db: database,
+  sync: database.sync,
+  schema: {
+    permissions: {
+      user: ['read', 'update'],
+      '*': ['read','create'],
+      admin: ['*']
+    },
+    properties: {
+      id: {
+        type: 'integer'
+      },
+      internal_id: {
+        type: 'string',
+        permissions: {
+          '*': [],
+          user: [],
+          owner: []
+        }
+      },
+      user_id: {
+        type: 'integer',
+      },
+      user: {
+        type: 'relation',
+        roles: ['owner','user'],
+        references: {
+          id: 'user_id'
+        },
+        model: exports.ACLUser
+      },
+      description: {
+        type: 'test',
+        default: 'desc',
+        permissions: {
+          user: ['read','update']
+        }
+      }
+    }
+  }
+});
+
+exports.ACLModelCollection = BaseCollection.extend({
+  model: exports.ACLModel,
+  db: database,
+  sync: database.sync
+});
+
+exports.SystemUser = new exports.ACLUser();
+exports.SystemUser.addRoles(['system', 'admin']);
 
 exports.FlatTestModel = FlatModel.extend({
   type: 'flatmodel',
@@ -170,6 +273,10 @@ exports.FlatTestModel = FlatModel.extend({
   sync: Db.sync.bind(indexingDatabase),
   storedAttribute: 'foo'
 });
+
+exports.setupDb = function(cb) {
+  cb();
+};
 
 exports.clearDb = function() {
   _.each(database.records, function(r) {

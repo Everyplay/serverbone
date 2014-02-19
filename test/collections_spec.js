@@ -1,9 +1,10 @@
 var testSetup = require('./test_setup');
 var should = require('chai').should();
 var assert = require('chai').assert;
-var when = require('when');
+var when = require('backbone-promises').when;
 var TestCollection = testSetup.TestCollection;
 var FailingCollection = testSetup.FailingCollection;
+
 var TemplatedCollection = TestCollection.extend({
   defaultOptions: {
     where: {
@@ -11,6 +12,7 @@ var TemplatedCollection = TestCollection.extend({
     }
   }
 });
+
 var PlatformCollection = TestCollection.extend({
   defaultOptions: {
     where: {
