@@ -79,9 +79,9 @@ var protectedSchema = {
       type: 'string'
     }
   },
-  access: {
-    read: ['owner', 'admin'],
-    write: ['admin']
+  permissions: {
+    admin: ['*'],
+    owner: ['read']
   }
 };
 

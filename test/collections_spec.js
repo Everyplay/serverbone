@@ -73,7 +73,6 @@ describe('BaseCollection tests', function () {
 
     it('should fetch 2 models', function() {
       return collection.fetch().then(function() {
-                        console.log(collection);
         collection.length.should.equal(2);
         testId = collection.at(1).id;
         testId.should.be.ok;

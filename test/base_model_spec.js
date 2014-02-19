@@ -183,7 +183,6 @@ describe('BaseModel', function() {
         .then(function() {
           return when.reject('should not be found');
         }, function(err) {
-          console.log(err);
           err.status.should.equal(404);
           return when.resolve();
         });
