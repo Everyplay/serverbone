@@ -100,6 +100,7 @@ describe('BaseModel', function() {
     it('should pass options to afterSave', function() {
       var testModel = new TestModel();
       var afterSpy = sinon.spy(testModel, 'afterSave');
+
       return testModel
         .save(null, {
           foo: 'bar'
@@ -182,6 +183,7 @@ describe('BaseModel', function() {
         .then(function() {
           return when.reject('should not be found');
         }, function(err) {
+          console.log(err);
           err.status.should.equal(404);
           return when.resolve();
         });

@@ -1,7 +1,7 @@
 require('mocha-as-promised')();
+require('when/monitor/console');
 var _ = require('lodash');
 var serverbone = require('..');
-var when = require('when');
 var BaseModel = serverbone.models.BaseModel;
 var BaseCollection = serverbone.collections.BaseCollection;
 var ACLModel = serverbone.models.ACLModel;
@@ -11,6 +11,7 @@ var database = new Db('test_database');
 var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
 var acl = serverbone.acl;
+var when = require('backbone-promises').when;
 
 var testSchema = {
   owner: 'user_id',
@@ -159,7 +160,9 @@ var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexC
 
 var FailingModel = exports.FailingModel = TestModel.extend({
   preSave: function() {
-    return when.reject(new Error('foo reason'));
+    console.log('rejecting');
+    var promise = when.reject(new Error('foo reason'));
+    return promise;
   }
 });
 

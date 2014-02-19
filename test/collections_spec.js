@@ -1,9 +1,10 @@
 var testSetup = require('./test_setup');
 var should = require('chai').should();
 var assert = require('chai').assert;
-var when = require('when');
+var when = require('backbone-promises').when;
 var TestCollection = testSetup.TestCollection;
 var FailingCollection = testSetup.FailingCollection;
+
 var TemplatedCollection = TestCollection.extend({
   defaultOptions: {
     where: {
@@ -11,6 +12,7 @@ var TemplatedCollection = TestCollection.extend({
     }
   }
 });
+
 var PlatformCollection = TestCollection.extend({
   defaultOptions: {
     where: {
@@ -71,6 +73,7 @@ describe('BaseCollection tests', function () {
 
     it('should fetch 2 models', function() {
       return collection.fetch().then(function() {
+                        console.log(collection);
         collection.length.should.equal(2);
         testId = collection.at(1).id;
         testId.should.be.ok;

@@ -5,6 +5,7 @@ var ACL = serverbone.acl.ACL;
 var ACLModel = setup.ACLModel;
 var ACLUserCollection = setup.ACLUserCollection;
 var SystemUser = setup.SystemUser;
+var when = require('when');
 
 describe('Test ACL', function () {
     describe('Access Roles', function () {
@@ -60,12 +61,11 @@ describe('Test ACL', function () {
       acl.assert('anyone', 'destroye').should.equal(false);
     });
 
-    describe.only('ACLModel', function () {
+    describe('ACLModel', function () {
       var user, admin, model, users;
 
       before(function(next) {
         setup.setupDb(function() {
-          console.log(SystemUser);
           users = new ACLUserCollection();
           users.create(null, {actor: SystemUser}).done(function(model) {
             user = model;
@@ -77,36 +77,39 @@ describe('Test ACL', function () {
         });
       });
 
-      it('should set read/update/delete to options.actions on save/fetch/destroy', function() {
-        var m = new ACLModel({user_id: user.get(user.idAttribute)});
+      after(function(next) {
+        setup.clearDb();
+        next();
+      });
 
-        return m.save(null, {actor: user}).then(function() {
-          console.log();
+
+      it('should save with an actor that has access', function() {
+        model = new ACLModel({user_id: user.get(user.idAttribute)});
+        return model.save(null, {actor: user});
+      });
+
+      it('should update with an actor that has access', function() {
+        return model.save({description: 'test desription'}, {actor: user}).then(function() {
+          var m = new ACLModel({id: model.get(model.idAttribute)});
+          return m.fetch().then(function() {
+            m.get('description').should.equal('test desription');
+          });
         });
       });
 
-       /* var orig = m.canAccess;
+      it('should destroy with an actor that has access', function() {
+        return model.destroy(null, {actor: user});
+      });
 
-
-
-        return m.fetch({actor: m}).then(function() {
-          console.log(actions);
-          return m.save({test: 123},{actor: m}).then(function() {
-            return m.save({id: 1,test: 123}, {actor: m}).then(function() {
-              return m.destroy().then(function() {
-                actions.length.should.equal(4);
-              });
-            });
-          });
-        });*/
-    });
-
-    describe('ACLCollection', function () {
-      it('should set create to options.actions on create', function() {
-
+      it('should verify that the resource was deleted', function() {
+        var m = new ACLModel({id: model.get(model.idAttribute)});
+        return m.fetch().then(function() {
+          return when.reject(new Error('should not fetch a deleted model'));
+        }, function() {
+          return when.resolve();
+        });
       });
     });
-
   });
 });
 
