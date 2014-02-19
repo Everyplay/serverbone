@@ -385,7 +385,31 @@ describe('Test Resource', function () {
       request(app)
         .get('/test/' + id + '/icanhazcustoms?sort=title&limit=5&offset=5')
         .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
 
+    it('should have mounted relation as ListResource', function(next) {
+      resource.relations.listrel.should.be.ok;
+      resource.relations.listrel.should.be.an.instanceOf(serverbone.resources.ListResource);
+      request(app)
+        .get('/test/' + id + '/listrel')
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
+
+    it('should save empty model, used in next step', function() {
+      var model = new testSetup.EmptyModel({id: 5});
+      return model.save();
+    });
+
+    it('ListResource should`ve overriden put method', function(next) {
+      request(app)
+        .put('/test/' + id + '/listrel/5')
+        .end(function (err, res) {
           res.status.should.equal(200);
           next();
         });

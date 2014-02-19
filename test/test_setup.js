@@ -13,6 +13,13 @@ var indexingDatabase = new IndexingTestDb('index_database');
 var acl = serverbone.acl;
 var when = require('backbone-promises').when;
 
+var EmptyModel = exports.EmptyModel = BaseModel.extend({
+  type: 'barfoo',
+  db: database,
+  sync: Db.sync.bind(database),
+  schema: {}
+});
+
 var testSchema = {
   owner: 'user_id',
   properties: {
@@ -51,14 +58,24 @@ var testSchema = {
         test_id: 'id'
       },
       collection: serverbone.collections.BaseCollection.extend({
-        model: BaseModel.extend({
-          type: 'barfoo',
-          db: database,
-          sync: Db.sync.bind(database),
-          schema: {}
-        }),
+        model: EmptyModel,
         sync: Db.sync.bind(database),
         url: 'test_icanhazcustoms_collection'
+      })
+    },
+    listRelation: {
+      type: 'relation',
+      name: 'listrel',
+      mount: true,
+      resourceType: 'list',
+      references: {
+        foo_id: 'id'
+      },
+      collection: serverbone.collections.IndexCollection.extend({
+        model: EmptyModel,
+        sync: Db.sync.bind(database),
+        indexDb: indexingDatabase,
+        url: 'test_list_relation'
       })
     }
   }
