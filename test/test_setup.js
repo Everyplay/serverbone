@@ -5,6 +5,7 @@ var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
 var BaseCollection = serverbone.collections.BaseCollection;
 var ACLModel = serverbone.models.ACLModel;
+var ACLCollection = serverbone.collections.ACLCollection;
 var FlatModel = serverbone.models.FlatModel;
 var Db = require('backbone-db');
 var database = new Db('test_database');
@@ -177,19 +178,22 @@ exports.ACLUser = ACLModel.extend({
   schema: {
     permissions: {
       '*': ['create'],
-      'owner': ['read', 'update', 'delete']
+      owner: ['read', 'update', 'destroy', 'create'],
+      admin: ['*']
     },
     properties: {
       id: {
         type: 'integer',
         permissions: {
-          owner: ['read']
+          owner: ['read'],
+          admin: ['*']
         }
       },
       name: {
         type: 'string',
         permissions: {
-          owner: ['update','read']
+          owner: ['update','read'],
+          admin: ['*']
         }
       },
       models: {
@@ -220,7 +224,8 @@ exports.ACLModel = ACLModel.extend({
   sync: database.sync,
   schema: {
     permissions: {
-      user: ['read', 'update'],
+      user: ['read', 'update', 'destroy', 'create'],
+      owner: ['read', 'update', 'destroy', 'create'],
       '*': ['read','create'],
       admin: ['*']
     },
@@ -231,6 +236,7 @@ exports.ACLModel = ACLModel.extend({
       internal_id: {
         type: 'string',
         permissions: {
+          admin: ['*'],
           '*': [],
           user: [],
           owner: []
@@ -251,11 +257,17 @@ exports.ACLModel = ACLModel.extend({
         type: 'test',
         default: 'desc',
         permissions: {
-          user: ['read','update']
+          user: ['read','update','create']
         }
       }
     }
   }
+});
+
+exports.ACLCollection = ACLCollection.extend({
+  model: exports.ACLModel,
+  db: database,
+  sync: database.sync
 });
 
 exports.ACLModelCollection = BaseCollection.extend({
