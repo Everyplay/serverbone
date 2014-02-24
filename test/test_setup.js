@@ -1,17 +1,24 @@
 require('mocha-as-promised')();
 require('when/monitor/console');
 var _ = require('lodash');
+var when = require('backbone-promises').when;
+var MongoDb = require('backbone-db-mongodb');
+var env = process.env.ENV || 'test';
+var unitTesting = exports.unitTesting = (env === 'test');
+
 var serverbone = require('..');
-var BaseModel = serverbone.models.BaseModel;
-var BaseCollection = serverbone.collections.BaseCollection;
-var ACLModel = serverbone.models.ACLModel;
-var FlatModel = serverbone.models.FlatModel;
+var mongo = require('../config/mongo');
+var redisTestDb = require('../config/redis');
 var Db = require('backbone-db');
 var database = new Db('test_database');
 var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
+
+var BaseModel = serverbone.models.BaseModel;
+var BaseCollection = serverbone.collections.BaseCollection;
+var ACLModel = serverbone.models.ACLModel;
+var FlatModel = serverbone.models.FlatModel;
 var acl = serverbone.acl;
-var when = require('backbone-promises').when;
 
 var EmptyModel = exports.EmptyModel = BaseModel.extend({
   type: 'barfoo',
@@ -291,8 +298,36 @@ exports.FlatTestModel = FlatModel.extend({
   storedAttribute: 'foo'
 });
 
-exports.setupDb = function(cb) {
-  cb();
+var dbs = {};
+exports.setupDbs = function(cb) {
+  mongo.connect(function(err, _db) {
+    if (err) {
+      console.error(err);
+      return cb(err);
+    }
+    var db = _db;
+    var mongoTestDb = new MongoDb(db);
+    dbs = {
+      mongo: mongoTestDb,
+      redis: redisTestDb
+    };
+    cb(null, dbs);
+  });
+};
+
+/**
+ * Override Model's Db settings
+ * @param {[type]} ModelClass
+ * @param {[type]} dbId       'redis', 'mongo'
+ */
+exports.setDb = function(ModelClass, dbId, indexDbId) {
+  var db = dbs[dbId];
+  var indexDb = dbs[indexDbId || dbId];
+  ModelClass.setDbDriver({
+    db: db,
+    sync: db.constructor.sync.bind(db),
+    indexDb: indexDb
+  });
 };
 
 exports.clearDb = function() {
@@ -300,4 +335,7 @@ exports.clearDb = function() {
     database.store().removeItem(r, function() {});
   });
   database.records = [];
+  if (!unitTesting) {
+    redisTestDb.redis.flushdb();
+  }
 };

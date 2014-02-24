@@ -5,8 +5,23 @@ var FlatModel = testSetup.FlatTestModel;
 
 
 describe('FlatModel tests', function () {
+  var model;
+
+  before(function(next) {
+    testSetup.setupDbs(function(err, dbs) {
+      if (!testSetup.unitTesting) {
+        testSetup.setDb(FlatModel, 'redis');
+      }
+      next();
+    });
+  });
+
+  after(function() {
+    return model.destroy();
+  });
+
   it('should create model for storing a string', function() {
-    var model = new FlatModel('ffoo');
+    model = new FlatModel('ffoo');
     model.toJSON().should.equal('ffoo');
     return model
       .save()
@@ -21,8 +36,8 @@ describe('FlatModel tests', function () {
   });
 
   it('should read keys starting with given string', function() {
-    var model = new FlatModel('');
-    return model
+    var model2 = new FlatModel('');
+    return model2
       .findKeys('ffoo')
       .then(function(keys) {
         keys.length.should.equal(1);

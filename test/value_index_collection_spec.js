@@ -7,8 +7,15 @@ describe('Test ValueIndexCollection', function () {
   var collection;
 
   before(function(next) {
-    collection = new TestCollection();
-    next();
+    testSetup.setupDbs(function(err, dbs) {
+      if (!testSetup.unitTesting) {
+        testSetup.setDb(TestCollection, 'redis');
+        testSetup.setDb(TestCollection.prototype.model, 'redis');
+      }
+
+      collection = new TestCollection();
+      next();
+    });
   });
 
   after(function(next) {

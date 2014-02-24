@@ -26,8 +26,15 @@ describe('Test JSONIndexCollection', function () {
   ];
 
   before(function(next) {
-    collection = new TestCollection(null, {foo_id: 1});
-    next();
+    testSetup.setupDbs(function(err, dbs) {
+      if (!testSetup.unitTesting) {
+        testSetup.setDb(TestCollection, 'redis');
+        testSetup.setDb(TestCollection.prototype.model, 'redis');
+      }
+
+      collection = new TestCollection(null, {foo_id: 1});
+      next();
+    });
   });
 
   after(function(next) {
@@ -55,8 +62,14 @@ describe('Test JSONIndexCollection', function () {
       .then(function() {
         collection.length.should.equal(3);
         var json = collection.toJSON();
-        json[0].foo.should.equal('bar');
-        collection.at(1).get('hello').should.equal('world1');
+        var barFound = _.some(json, function(m) {
+          return m.foo === 'bar';
+        });
+        var world1Found = collection.some(function(m) {
+          return m.get('hello') === 'world1';
+        });
+        barFound.should.equal(true);
+        world1Found.should.equal(true);
       });
   });
 
