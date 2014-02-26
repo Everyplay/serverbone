@@ -194,7 +194,7 @@ describe('Test Resource', function () {
   });
 
   describe('CRUD', function () {
-    it('should create resource', function (next) {
+    it('should create model', function (next) {
       request(app)
         .post('/test')
         .send({
@@ -210,7 +210,7 @@ describe('Test Resource', function () {
         });
     });
 
-    it('should read resource', function (next) {
+    it('should read model', function (next) {
       request(app)
         .get('/test/' + id)
         .expect(200)
@@ -221,6 +221,18 @@ describe('Test Resource', function () {
           next();
         });
     });
+
+    it('should read only specified fields of a model', function(next) {
+      request(app)
+        .get('/test/' + id + '?fields=id')
+        .expect(200)
+        .end(function (err, res) {
+          should.exist(res.body);
+          Object.keys(res.body).length.should.equal(1);
+          should.exist(res.body.id);
+          next();
+        });
+      });
 
     it('should read list of models', function (next) {
       request(app)
