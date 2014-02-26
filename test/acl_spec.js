@@ -11,12 +11,14 @@ var when = require('when');
 describe('Test ACL', function () {
     describe('Access Roles', function () {
     var acl;
+
     before(function () {
       acl = new ACL({
         'owner': ['write', 'read', 'update'],
         '*': ['read']
       });
     });
+
     it('should be possible to make ACL assertions agains roles and actions', function () {
       acl.assert('owner', 'write').should.equal(true);
       acl.assert('public', 'write').should.equal(false);
@@ -24,6 +26,7 @@ describe('Test ACL', function () {
       acl.assert('read').should.equal(true);
       acl.assert('write').should.equal(false);
     });
+
     it('should be possible to add more rules with .allow', function () {
       acl.grant({
         'owner': ['delete'],
@@ -34,6 +37,7 @@ describe('Test ACL', function () {
       acl.assert('admin', 'nonexisting').should.equal(true);
       acl.assert('owner', 'delete').should.equal(true);
     });
+
     it('should be possible to grant and revoke access', function () {
       acl.grant({
         'tester': ['read', 'write'],
@@ -49,6 +53,7 @@ describe('Test ACL', function () {
       acl.revoke(['owner', 'user', 'tester']);
       acl.assert('owner', 'delete').should.equal(false);
     });
+
     it('should recognice the "*" selector in roles and permissions', function () {
       acl.grant({
         'test': '*'

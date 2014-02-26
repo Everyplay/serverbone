@@ -28,6 +28,16 @@ describe('BaseCollection tests', function () {
   var testId;
   var collection = new TestCollection();
 
+  before(function(next) {
+    testSetup.setupDbs(function(err, dbs) {
+      if (!testSetup.unitTesting) {
+        testSetup.setDb(TestCollection, 'redis');
+        testSetup.setDb(TestCollection.prototype.model, 'redis');
+      }
+      next();
+    });
+  });
+
   after(function(next) {
     testSetup.clearDb();
     next();

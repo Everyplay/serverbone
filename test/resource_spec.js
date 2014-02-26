@@ -7,6 +7,7 @@ var util = require('util');
 var _ = require('lodash');
 var Promises = require('backbone-promises');
 var serverbone = require('..');
+
 var TestModel = testSetup.TestModel;
 var ProtectedCollection = testSetup.ProtectedCollection;
 var TestCollection = testSetup.TestCollection;
@@ -18,25 +19,35 @@ describe('Test Resource', function () {
   var resource;
   var sandbox;
 
-  before(function () {
-    app = express();
-    app.use(express.json());
-    app.use(express.urlencoded());
-    resource = new serverbone.Resource('test', {
-      mountRelations: true,
-      collection: TestCollection
+  before(function (next) {
+    testSetup.setupDbs(function(err, dbs) {
+      if (!testSetup.unitTesting) {
+        testSetup.setDb(TestModel, 'redis');
+        testSetup.setDb(TestCollection, 'redis');
+        testSetup.setDb(ProtectedCollection, 'redis');
+        testSetup.setDb(FailingCollection, 'redis');
+      }
+
+      app = express();
+      app.use(express.json());
+      app.use(express.urlencoded());
+      resource = new serverbone.Resource('test', {
+        mountRelations: true,
+        collection: TestCollection
+      });
+      var fooRes = new serverbone.Resource('foo', {
+        collection: TestCollection
+      });
+      app.use('/test', resource.app);
+      app.use('/foo', fooRes.app);
+      var protRes = new serverbone.Resource('prot', {
+        collection: ProtectedCollection
+      });
+      app.use('/prot', protRes.app);
+      resource.should.be.an.instanceof(serverbone.Resource);
+      sandbox = sinon.sandbox.create();
+      next();
     });
-    var fooRes = new serverbone.Resource('foo', {
-      collection: TestCollection
-    });
-    app.use('/test', resource.app);
-    app.use('/foo', fooRes.app);
-    var protRes = new serverbone.Resource('prot', {
-      collection: ProtectedCollection
-    });
-    app.use('/prot', protRes.app);
-    resource.should.be.an.instanceof(serverbone.Resource);
-    sandbox = sinon.sandbox.create();
   });
 
   after(function () {
@@ -46,6 +57,7 @@ describe('Test Resource', function () {
 
   describe('Internals', function () {
     after(function () {
+      sandbox.restore();
       testSetup.clearDb();
     });
 
@@ -74,15 +86,18 @@ describe('Test Resource', function () {
         test: 'asdasd',
         title: 'foo'
       });
-      model.save().done(function () {
-        request(res.app)
-          .get('/asd/123')
-          .end(function (err, res) {
-            res.status.should.be.equal(200);
-            res.body.test.should.be.equal('asdasd');
-            next();
-          });
-      }, next);
+
+      model
+        .save()
+        .done(function () {
+          request(res.app)
+            .get('/asd/123')
+            .end(function (err, res) {
+              res.status.should.be.equal(200);
+              res.body.id.should.equal(123);
+              next();
+            });
+        }, next);
     });
 
     it('should forward all uncaught exceptions to the error handler', function (next) {
@@ -385,7 +400,31 @@ describe('Test Resource', function () {
       request(app)
         .get('/test/' + id + '/icanhazcustoms?sort=title&limit=5&offset=5')
         .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
 
+    it('should have mounted relation as ListResource', function(next) {
+      resource.relations.listrel.should.be.ok;
+      resource.relations.listrel.should.be.an.instanceOf(serverbone.resources.ListResource);
+      request(app)
+        .get('/test/' + id + '/listrel')
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
+
+    it('should save empty model, used in next step', function() {
+      var model = new testSetup.EmptyModel({id: 5});
+      return model.save();
+    });
+
+    it('ListResource should`ve overriden put method', function(next) {
+      request(app)
+        .put('/test/' + id + '/listrel/5')
+        .end(function (err, res) {
           res.status.should.equal(200);
           next();
         });

@@ -9,17 +9,27 @@ describe('Test IndexCollection', function() {
     foo_id: 'foo'
   };
 
-  before(function() {
-    collection = new TestCollection(null, opts);
-    var fns = [
-      collection.create({
-        data: 'aaa'
-      }),
-      collection.create({
-        data: 'bbb'
-      })
-    ];
-    return when.all(fns);
+  before(function(next) {
+    testSetup.setupDbs(function(err, dbs) {
+      if (!testSetup.unitTesting) {
+        testSetup.setDb(TestCollection, 'redis');
+        testSetup.setDb(TestCollection.prototype.model, 'redis');
+      }
+      collection = new TestCollection(null, opts);
+      var fns = [
+        collection.create({
+          data: 'aaa'
+        }),
+        collection.create({
+          data: 'bbb'
+        })
+      ];
+      when
+        .all(fns)
+        .done(function() {
+          next();
+        }, next);
+    });
   });
 
   after(function(next) {
