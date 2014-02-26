@@ -71,7 +71,7 @@ describe('Test ACL', function () {
       var user, admin, model, users, actor, aclmodel;
 
       before(function(next) {
-        setup.setupDb(function() {
+        setup.setupDbs(function() {
           users = new ACLUserCollection(null, {actor: SystemUser});
           users.create().done(function(model) {
             user = model;

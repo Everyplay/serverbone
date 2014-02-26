@@ -339,9 +339,10 @@ exports.setupDbs = function(cb) {
 exports.setDb = function(ModelClass, dbId, indexDbId) {
   var db = dbs[dbId];
   var indexDb = dbs[indexDbId || dbId];
+
   ModelClass.setDbDriver({
     db: db,
-    sync: db.constructor.sync.bind(db),
+    sync: db.sync,
     indexDb: indexDb
   });
 };

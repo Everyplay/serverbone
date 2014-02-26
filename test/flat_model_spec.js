@@ -12,12 +12,15 @@ describe('FlatModel tests', function () {
       if (!testSetup.unitTesting) {
         testSetup.setDb(FlatModel, 'redis');
       }
+
       next();
     });
   });
 
-  after(function() {
-    return model.destroy();
+  after(function(next) {
+    model.destroy().done(function() {
+      next();
+    }, next);
   });
 
   it('should create model for storing a string', function() {
@@ -40,6 +43,7 @@ describe('FlatModel tests', function () {
     return model2
       .findKeys('ffoo')
       .then(function(keys) {
+        console.log("GOT",keys, model2);
         keys.length.should.equal(1);
       });
   });
