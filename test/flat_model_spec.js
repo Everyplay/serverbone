@@ -43,7 +43,6 @@ describe('FlatModel tests', function () {
     return model2
       .findKeys('ffoo')
       .then(function(keys) {
-        console.log("GOT",keys, model2);
         keys.length.should.equal(1);
       });
   });

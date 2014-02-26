@@ -189,7 +189,6 @@ var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexC
 
 var FailingModel = exports.FailingModel = TestModel.extend({
   preSave: function() {
-    console.log('rejecting');
     var promise = when.reject(new Error('foo reason'));
     return promise;
   }
@@ -240,7 +239,7 @@ exports.ACLUser = ACLModel.extend({
   }
 });
 
-exports.ACLUserCollection = BaseCollection.extend({
+exports.ACLUserCollection = ACLCollection.extend({
   model: exports.ACLUser,
   db: database,
   sync: database.sync
@@ -298,7 +297,7 @@ exports.ACLCollection = ACLCollection.extend({
   sync: database.sync
 });
 
-exports.ACLModelCollection = BaseCollection.extend({
+exports.ACLModelCollection = ACLCollection.extend({
   model: exports.ACLModel,
   db: database,
   sync: database.sync
@@ -318,7 +317,6 @@ var dbs = {};
 exports.setupDbs = function(cb) {
   mongo.connect(function(err, _db) {
     if (err) {
-      console.error(err);
       return cb(err);
     }
     var db = _db;

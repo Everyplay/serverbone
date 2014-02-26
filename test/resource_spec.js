@@ -194,7 +194,13 @@ describe('Test Resource', function () {
   });
 
   describe('CRUD', function () {
-    it('should create model', function (next) {
+
+
+    after(function(next) {
+      setTimeout(function() {next();}, 500);
+    });
+
+    it('should create resource', function (next) {
       request(app)
         .post('/test')
         .send({

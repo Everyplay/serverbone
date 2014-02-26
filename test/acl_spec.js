@@ -93,62 +93,80 @@ describe('Test ACL', function () {
         aclmodel = new ACLModel(null, {actor: actor});
       });
 
-      it('should set actor and action on fetch', function() {
+      it('should set actor and action on fetch', function(next) {
         var options = {};
-        aclmodel.fetch(options);
-        options.action.should.equal('read');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
-        options = {actor: actor};
-        aclmodel = new ACLModel(null);
-        aclmodel.fetch(options).done();
-        options.action.should.equal('read');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
+        aclmodel.fetch(options).done(function() {
+          options.action.should.equal('read');
+          options.should.have.property('actor');
+          options.actor.get('id').should.equal(actor.id);
+          options = {actor: actor};
+          aclmodel = new ACLModel();
+          aclmodel.fetch(options).done(function() {
+            options.action.should.equal('read');
+            options.should.have.property('actor');
+            options.actor.get('id').should.equal(actor.id);
+            next();
+          }, next);
+        }, next);
       });
 
-      it('should set actor and action on save', function() {
+      it('should set actor and action on save', function(next) {
         var options = {};
-        aclmodel.save(null, options).done();
-        options.action.should.equal('create');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
-        aclmodel.destroy(null, options).done();
-        options = {actor: actor};
-        aclmodel = new ACLModel(null);
-        aclmodel.save(null, options).done();
-        options.action.should.equal('create');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
-        aclmodel.destroy(null, options).done();
-        options = {actor: actor};
-        aclmodel = new ACLModel({id: 123123});
-        aclmodel.save(null, options);
-        options.action.should.equal('update');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
-        aclmodel.destroy(options).done();
+        aclmodel.save(null, options).done(function() {
+          options.action.should.equal('create');
+          options.should.have.property('actor');
+          options.actor.get('id').should.equal(actor.id);
+          aclmodel.destroy(null, options).done(function() {
+            options = {actor: actor};
+            aclmodel = new ACLModel();
+            aclmodel.save(null, options).done(function() {
+              options.action.should.equal('create');
+              options.should.have.property('actor');
+              options.actor.get('id').should.equal(actor.id);
+              aclmodel.destroy(null, options).done(function() {
+                options = {actor: actor};
+                aclmodel = new ACLModel({id: 123123});
+                aclmodel.save(null, options).done(function() {
+                  options.action.should.equal('update');
+                  options.should.have.property('actor');
+                  options.actor.get('id').should.equal(actor.id);
+                  aclmodel.destroy(options).done(function() {
+                    next();
+                  }, next);
+                }, next);
+              }, next);
+            }, next);
+          }, next);
+        }, next);
       });
 
       it('should set actor and action on destroy', function() {
         var options = {};
-        aclmodel.destroy(options);
-        options.action.should.equal('destroy');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
-        options = {actor: actor};
-        aclmodel = new ACLModel(null);
-        aclmodel.destroy(options).done();
-        options.action.should.equal('destroy');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
-        options = {actor: actor};
-        aclmodel = new ACLModel({id: 123123});
-        aclmodel.destroy(options).done();
-        options.action.should.equal('destroy');
-        options.should.have.property('actor');
-        options.actor.get('id').should.equal(actor.id);
-        aclmodel.destroy(options).done();
+        return aclmodel.destroy(options).then(function() {
+          options.action.should.equal('destroy');
+          options.should.have.property('actor');
+          options.actor.get('id').should.equal(actor.id);
+          options = {actor: actor};
+          aclmodel = new ACLModel();
+          return aclmodel.save(null, options).then(function() {
+            options = {actor: actor};
+            return aclmodel.destroy(options).then(function() {
+              options.action.should.equal('destroy');
+              options.should.have.property('actor');
+              options.actor.get('id').should.equal(actor.id);
+              aclmodel = new ACLModel({id: 123123});
+              return aclmodel.save(null, options).then(function() {
+                options = {actor: actor};
+                return aclmodel.destroy(options).then(function() {
+                  options.action.should.equal('destroy');
+                  options.should.have.property('actor');
+                  options.actor.get('id').should.equal(actor.id);
+                });
+              });
+            });
+          });
+        });
+
       });
 
       it('should save with an actor that has access', function() {
@@ -157,10 +175,8 @@ describe('Test ACL', function () {
       });
 
       it('should update with an actor that has access', function() {
-        console.log(model, model.isNew(), model.get('description'));
         var options = {actor: user};
         return model.save({description: 'test desription'}, options).then(function() {
-          console.log(options);
           var m = new ACLModel({id: model.get(model.idAttribute)});
           return m.fetch({actor: user}).then(function() {
             m.get('description').should.equal('test desription');
