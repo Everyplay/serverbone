@@ -28,7 +28,7 @@
     "backbone-db": "~0.4",
     "backbone-db-mongodb": "~0.1",
     "backbone-db-redis": "~0.0.12",
-    "backbone-promises": "~0.2",
+    "backbone-promises": "git://github.com/Everyplay/backbone-promises.git",
     "debug": "~0.7.2",
     "express": "~3.4.2",
     "jsonschema": "~0.4.0",
