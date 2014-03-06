@@ -50,9 +50,10 @@ describe('Test Resource', function () {
     });
   });
 
-  after(function () {
+  after(function (next) {
     sandbox.restore();
     testSetup.clearDb();
+    setTimeout(next, 500);
   });
 
   describe('Internals', function () {
@@ -195,9 +196,8 @@ describe('Test Resource', function () {
 
   describe('CRUD', function () {
 
-
     after(function(next) {
-      setTimeout(function() {next();}, 500);
+      setTimeout(next, 500);
     });
 
     it('should create resource', function (next) {
@@ -380,7 +380,6 @@ describe('Test Resource', function () {
   });
 
   describe('Resource listing', function () {
-
     it('should pass req.query options to Resource collection\'s fetch', function (next) {
       var spy = sandbox.spy(Promises.Collection.prototype, 'fetch');
       request(app)
@@ -400,6 +399,10 @@ describe('Test Resource', function () {
   });
 
   describe('Relations mounting', function () {
+    after(function (next) {
+      setTimeout(next, 50);
+    });
+
     it('resources for relations should have been created', function () {
       resource.relations.tests.should.be.ok;
       resource.relations.icanhazcustoms.should.be.ok;
