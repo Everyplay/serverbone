@@ -28,7 +28,7 @@
     "backbone-db": "~0.4",
     "backbone-db-mongodb": "~0.1",
     "backbone-db-redis": "~0.0.12",
-    "backbone-promises": "~0.2",
+    "backbone-promises": "git://github.com/Everyplay/backbone-promises.git",
     "debug": "~0.7.2",
     "express": "~3.4.2",
     "jsonschema": "~0.4.0",
@@ -49,7 +49,8 @@
     "jshint": "~2.3.0",
     "istanbul": "~0.1.45",
     "coveralls": "~2.5.0",
-    "mocha-as-promised": "~2.0.0"
+    "mocha-as-promised": "~2.0.0",
+    "pretty-monitor": "~0.1.7"
   },
   "readmeFilename": "Readme.md",
   "bugs": {
