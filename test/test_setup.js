@@ -116,7 +116,7 @@ var protectedSchema = {
 };
 
 var ProtectedModel = exports.ProtectedModel = BaseModel.extend({
-  type: 'video',
+  type: 'protected',
   db: database,
   sync: Db.sync.bind(database),
   schema: protectedSchema
