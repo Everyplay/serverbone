@@ -1,5 +1,6 @@
 require('mocha-as-promised')();
-require('when/monitor/console');
+//require('when/monitor/console');
+require('pretty-monitor').start();
 var _ = require('lodash');
 var when = require('backbone-promises').when;
 var MongoDb = require('backbone-db-mongodb');
