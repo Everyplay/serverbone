@@ -19,6 +19,10 @@ describe('Test ACL', function () {
       });
     });
 
+    after(function (next) {
+      setTimeout(next, 50);
+    });
+
     it('should be possible to make ACL assertions agains roles and actions', function () {
       acl.assert('owner', 'write').should.equal(true);
       acl.assert('public', 'write').should.equal(false);
@@ -85,7 +89,7 @@ describe('Test ACL', function () {
 
       after(function(next) {
         setup.clearDb();
-        next();
+        setTimeout(next, 50);
       });
 
       beforeEach(function() {
@@ -201,11 +205,17 @@ describe('Test ACL', function () {
 
   describe('ACLCollection tests', function() {
     var model, collection, actor;
+
+    after(function(next) {
+      setTimeout(next, 50);
+    });
+
     beforeEach(function() {
       model = new ACLCollection.prototype.model({id: 12345});
       actor = new ACLCollection.prototype.model({id: 12346});
       collection = new ACLCollection(null, {actor: actor});
     });
+
     it('should set correct action and actor for fetch', function() {
       var options = {};
       collection.fetch(options);
@@ -241,11 +251,6 @@ describe('Test ACL', function () {
       options.should.have.property('actor');
       options.actor.get('id').should.equal(actor.id);
       options = {actor: actor};
-      collection = new ACLCollection(null);
-      collection.destroyAll(options);
-      options.action.should.equal('destroy');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
     });
   });
 });

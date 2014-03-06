@@ -53,7 +53,7 @@ describe('Test Resource', function () {
   after(function (next) {
     sandbox.restore();
     testSetup.clearDb();
-    setTimeout(next, 500);
+    setTimeout(next, 50);
   });
 
   describe('Internals', function () {
@@ -197,7 +197,7 @@ describe('Test Resource', function () {
   describe('CRUD', function () {
 
     after(function(next) {
-      setTimeout(next, 500);
+      setTimeout(next, 50);
     });
 
     it('should create resource', function (next) {
