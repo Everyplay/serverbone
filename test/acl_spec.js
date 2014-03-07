@@ -174,8 +174,16 @@ describe('Test ACL', function () {
       });
 
       it('should save with an actor that has access', function() {
-        model = new ACLModel({user_id: user.get(user.idAttribute)});
-        return model.save(null, {actor: user});
+        model = new ACLModel({
+          user_id: user.get(user.idAttribute),
+          description: 'foo'
+        });
+        var acl = model.acl;
+        return model
+          .save(null, {actor: user})
+          .then(function() {
+            model.acl.permissions['*'].should.equal(acl.permissions['*']);
+          });
       });
 
       it('should update with an actor that has access', function() {
@@ -194,6 +202,8 @@ describe('Test ACL', function () {
           .fetch({actor: anon})
           .then(function() {
             should.exist(model.get('description'));
+            var json = model.toJSON({actor: anon});
+            should.exist(json.description);
           });
       });
 

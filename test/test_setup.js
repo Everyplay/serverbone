@@ -247,7 +247,7 @@ exports.ACLUserCollection = ACLCollection.extend({
 });
 
 exports.ACLModel = ACLModel.extend({
-  type: 'model',
+  type: 'acl_model',
   db: database,
   sync: database.sync,
   schema: {
