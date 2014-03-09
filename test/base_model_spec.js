@@ -28,7 +28,7 @@ var TestModel = BaseModel.extend({
 
 describe('BaseModel', function() {
 
-  describe('Basic setup', function() {
+  describe.only('Basic setup', function() {
     it('should return template values', function() {
       var cntx = {
         type: 'video',
@@ -72,11 +72,14 @@ describe('BaseModel', function() {
         should.exist(changed.foo);
         should.exist(changed.data);
         changed.data.should.equal(2);
-
         return m.save().then(function() {
-          changed = m.changedSinceSync();
-          Object.keys(changed).length.should.equal(0);
-          return m.destroy();
+          m.set('data', 3);
+          m.previousAttributes().data.should.equal(2);
+          return m.save().then(function() {
+            changed = m.changedSinceSync();
+            Object.keys(changed).length.should.equal(0);
+            return m.destroy();
+          });
         });
 
       });
