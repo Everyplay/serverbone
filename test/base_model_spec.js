@@ -62,6 +62,25 @@ describe('BaseModel', function() {
       var m = new TestModel();
       m.url();
     });
+
+    it('should store changed attributes since last sync', function() {
+      var m = new TestModel({foo: 'bar', data: 1});
+      return m.save().then(function() {
+        m.set('foo', 'next');
+        m.set('data', 2);
+        var changed = m.changedSinceSync();
+        should.exist(changed.foo);
+        should.exist(changed.data);
+        changed.data.should.equal(2);
+
+        return m.save().then(function() {
+          changed = m.changedSinceSync();
+          Object.keys(changed).length.should.equal(0);
+          return m.destroy();
+        });
+
+      });
+    });
   });
 
   describe('CRUD', function() {
