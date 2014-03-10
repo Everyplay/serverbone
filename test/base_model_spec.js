@@ -28,7 +28,7 @@ var TestModel = BaseModel.extend({
 
 describe('BaseModel', function() {
 
-  describe.only('Basic setup', function() {
+  describe('Basic setup', function() {
     it('should return template values', function() {
       var cntx = {
         type: 'video',
