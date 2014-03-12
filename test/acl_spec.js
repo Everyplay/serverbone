@@ -286,6 +286,52 @@ describe('Test ACL', function () {
       return promise;
     });
   });
+
+  describe('ACLModel Roles', function() {
+    var TestUser = ACLModel.extend({
+      type: 'acl-test-user'
+    });
+
+    var schema = {
+      properties: {
+        id: {
+          type: 'integer'
+        },
+        user_id: {
+          type: 'integer'
+        },
+        user: {
+          type: 'relation',
+          model: TestUser,
+          roles: ['owner'],
+          references: {
+            id: 'user_id'
+          }
+        }
+      }
+    };
+
+    var TestModel = ACLModel.extend({
+      type: 'acl-test-model',
+      schema: schema
+    });
+
+    var actor;
+
+    before(function() {
+      actor = new TestUser({id: 1234});
+    });
+
+    it('should generate owner role based on relations', function() {
+      var aclmodel = new TestModel({id: 1, user_id: actor.id});
+      var roles = aclmodel.getRoles(actor);
+      roles.indexOf('owner').should.be.above( -1 );
+      aclmodel = new TestModel({id: 1, user_id: 22});
+      roles = aclmodel.getRoles(actor);
+      roles.indexOf('owner').should.equal( -1 );
+    });
+  });
+
 });
 
 
