@@ -19,10 +19,7 @@ describe('Utils tests', function() {
   it('should sendError', function() {
     var req = {};
     var res = {
-      writeHead: function() {},
-      end: function() {
-
-      }
+      json: function() {},
     };
     var err = new Error('Foo error');
     serverbone.utils.response.sendError(req, res, err);
@@ -32,10 +29,7 @@ describe('Utils tests', function() {
     var req = {};
     var res = {
       locals: {},
-      writeHead: function() {},
-      end: function() {
-
-      }
+      json: function() {},
     };
     serverbone.utils.response.sendJson(req, res);
   });

@@ -316,8 +316,7 @@ describe('Test Resource', function () {
         })
         .end(function (err, res) {
           res.status.should.equal(400);
-          res.body.status.should.equal('error');
-          res.body.message.should.be.ok;
+          res.body.error.should.be.ok;
           next();
         });
     });
@@ -348,7 +347,8 @@ describe('Test Resource', function () {
         .send({})
         .end(function (err, res) {
           res.status.should.equal(400);
-          res.body.message.should.be.ok;
+          var body = res.body;
+          body.error.should.equal('validation_error');
           next();
         });
     });

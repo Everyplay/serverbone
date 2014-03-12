@@ -27,7 +27,9 @@ describe('Test validation against schema', function() {
     var foo = new TestModel();
     var error = foo.validate();
     should.exist(error);
-    error.message.should.equal('status is required');
+    var json = error.toJSON();
+    json.error.should.equal('validation_error');
+    json.error_description.should.equal('status is required');
   });
 
   it('should give validation error if data has wrong type', function() {
@@ -36,7 +38,7 @@ describe('Test validation against schema', function() {
     });
     var error = foo.validate();
     should.exist(error);
-    error.message.should.equal('status is not of a type(s) integer');
+    error.description.should.equal('status is not of a type(s) integer');
   });
 
   it('should pass validation with correct data', function() {
