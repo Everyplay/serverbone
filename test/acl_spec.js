@@ -214,6 +214,7 @@ describe('Test ACL', function () {
           .then(function() {
             return when.reject(new Error('should not have access to destroy'));
           }, function(err) {
+            err.statusCode.should.equal(403);
             should.exist(err);
           });
       });
