@@ -304,7 +304,7 @@ describe('Test ACL', function () {
     });
   });
 
-  describe.only('ACLModel Roles', function() {
+  describe('ACLModel Roles', function() {
     var TestUser = ACLUser.extend({
     });
 
