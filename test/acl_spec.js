@@ -7,6 +7,7 @@ var ACLCollection = setup.ACLCollection;
 var ACLUserCollection = setup.ACLUserCollection;
 var SystemUser = setup.SystemUser;
 var when = require('when');
+var sequence = require('when/sequence');
 
 describe('Test ACL', function () {
   describe('Access Roles', function () {
@@ -95,6 +96,7 @@ describe('Test ACL', function () {
       beforeEach(function() {
         actor = new ACLModel({id: 1234});
         aclmodel = new ACLModel({user_id: 1234}, {actor: SystemUser});
+        return actor.save();
       });
 
       it('should set actor and action on fetch', function(next) {
@@ -113,31 +115,51 @@ describe('Test ACL', function () {
         });
       });
 
-      it('should set actor and action on save', function(next) {
+      it('should set actor and action on save', function() {
         var opt = {};
-        aclmodel.save(null, opt).done(function() {
-          opt.action.should.equal('create');
-          opt.should.have.property('actor');
-          aclmodel.destroy(opt).done(function() {
-            opt = {actor: SystemUser};
-            aclmodel = new ACLModel();
-            aclmodel.save(null, opt).done(function() {
+        function destroy() {
+          return aclmodel
+            .destroy(opt)
+            .then(function() {
+            });
+        }
+        function testOpts() {
+          return aclmodel
+            .save(null, opt)
+            .then(function() {
               opt.action.should.equal('create');
               opt.should.have.property('actor');
-              aclmodel.destroy(opt).done(function() {
-                opt = {actor: SystemUser};
-                aclmodel = new ACLModel({id: 123123}, {actor: SystemUser});
-                aclmodel.save(null, opt).done(function() {
-                  opt.action.should.equal('update');
-                  opt.should.have.property('actor');
-                  aclmodel.destroy(opt).done(function() {
-                    next();
-                  }, next);
-                }, next);
-              }, next);
-            }, next);
-          }, next);
-        }, next);
+            });
+        }
+        function saveAsSystem() {
+          aclmodel = new ACLModel();
+          opt = {actor: SystemUser};
+          return aclmodel
+            .save(null, opt)
+            .then(function() {
+              opt.action.should.equal('create');
+              opt.should.have.property('actor');
+            });
+        }
+        function updateAsSystem() {
+          opt = {actor: SystemUser};
+          aclmodel = new ACLModel({id: 123123}, {actor: SystemUser});
+          return aclmodel
+            .save(null, opt)
+            .then(function() {
+              opt.action.should.equal('update');
+              opt.should.have.property('actor');
+            });
+        }
+
+        return sequence([
+          testOpts,
+          destroy,
+          saveAsSystem,
+          destroy,
+          updateAsSystem,
+          destroy
+        ]);
       });
 
       it('should set actor and action on destroy', function() {
