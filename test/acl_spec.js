@@ -4,6 +4,7 @@ var serverbone = require('..');
 var ACL = serverbone.acl.ACL;
 var ACLModel = setup.ACLModel;
 var ACLCollection = setup.ACLCollection;
+var ACLUser = setup.ACLUser;
 var ACLUserCollection = setup.ACLUserCollection;
 var SystemUser = setup.SystemUser;
 var when = require('when');
@@ -303,9 +304,8 @@ describe('Test ACL', function () {
     });
   });
 
-  describe('ACLModel Roles', function() {
-    var TestUser = ACLModel.extend({
-      type: 'acl-test-user'
+  describe.only('ACLModel Roles', function() {
+    var TestUser = ACLUser.extend({
     });
 
     var schema = {
@@ -333,9 +333,19 @@ describe('Test ACL', function () {
     });
 
     var actor;
+    var model;
 
     before(function() {
       actor = new TestUser({id: 1234});
+      model = new ACLModel({user_id: actor.id}, {actor: actor});
+      return when.all([actor.save(), model.save()]);
+    });
+
+    after(function() {
+      var fns = [
+        actor.destroy({actor: SystemUser}),
+      ];
+      return when.all(fns);
     });
 
     it('should generate owner role based on relations', function() {
@@ -345,6 +355,36 @@ describe('Test ACL', function () {
       aclmodel = new TestModel({id: 1, user_id: 22});
       roles = aclmodel.getRoles(actor);
       roles.indexOf('owner').should.equal( -1 );
+    });
+
+    it('should not be able to update description if not owner', function() {
+      model.set('description', 'foo');
+      return model
+        .save(null, {actor: new TestUser({id: 222})})
+        .then(function() {
+          return new Error('should not be able to save');
+        }, function(err) {
+          err.statusCode.should.equal(403);
+        });
+    });
+
+    it('should be able to update description if owner', function() {
+      model.set('description', 'allowed desc');
+      return model.save({actor: actor});
+    });
+
+    it('should not be able to delete if not owner', function() {
+      return model
+        .destroy({actor: new TestUser({id: 33})})
+        .then(function() {
+          return new Error('should not be able to destroy');
+        }, function(err) {
+          err.statusCode.should.equal(403);
+        });
+    });
+
+    it('should be able to delete if owner', function() {
+      return model.destroy();
     });
   });
 
