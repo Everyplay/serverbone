@@ -167,7 +167,7 @@ describe('BaseModel Relations', function() {
   });
 
   it('should be able to fetchAll even if no relations defined', function() {
-    var user = new User();
+    var user = new User({id: 1});
     return user
       .fetchAll();
   });
