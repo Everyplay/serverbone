@@ -77,11 +77,12 @@ describe('Test ACL', function () {
       var user, admin, model, users, actor, aclmodel;
 
       before(function(next) {
+        this.timeout(5000);
         setup.setupDbs(function() {
           users = new ACLUserCollection(null, {actor: SystemUser});
           users.create().done(function(model) {
             user = model;
-            users.create(null).done(function(adm) {
+            users.create().done(function(adm) {
               admin = adm;
               next();
             }, next);
