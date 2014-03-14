@@ -97,7 +97,7 @@ describe('Test ACL', function () {
       beforeEach(function() {
         actor = new ACLModel({id: 1234});
         aclmodel = new ACLModel({user_id: 1234}, {actor: SystemUser});
-        return actor.save();
+        return aclmodel.save();
       });
 
       it('should set actor and action on fetch', function(next) {
@@ -106,7 +106,8 @@ describe('Test ACL', function () {
           aclmodel.fetch(options).done(function() {
             options.action.should.equal('read');
             options.should.have.property('actor');
-            aclmodel = new ACLModel({id: aclmodel.id}, options);
+            aclmodel = new ACLModel({id: aclmodel.id}, {actor: SystemUser});
+              options = {};
               aclmodel.fetch(options).done(function() {
               options.action.should.equal('read');
               options.should.have.property('actor');
@@ -128,7 +129,7 @@ describe('Test ACL', function () {
           return aclmodel
             .save(null, opt)
             .then(function() {
-              opt.action.should.equal('create');
+              opt.action.should.equal('update');
               opt.should.have.property('actor');
             });
         }
@@ -170,13 +171,14 @@ describe('Test ACL', function () {
           options.should.have.property('actor');
           options = {actor: SystemUser};
           aclmodel = new ACLModel(null, {actor: SystemUser});
-
+          options = {actor: SystemUser};
           return aclmodel.save(null, options).then(function() {
             options = {actor: SystemUser};
             return aclmodel.destroy(options).then(function() {
               options.action.should.equal('destroy');
               options.should.have.property('actor');
               aclmodel = new ACLModel({id: 123123}, {actor: SystemUser});
+              options = {};
               return aclmodel.save(null, options).then(function() {
                 options = {actor: SystemUser};
                 return aclmodel.destroy(options).then(function() {
@@ -336,7 +338,8 @@ describe('Test ACL', function () {
     var model;
 
     before(function() {
-      actor = new TestUser({id: 1234});
+      // need system user as the actor save effectively is an update with the id set.
+      actor = new TestUser({id: 1234}, {actor: SystemUser});
       model = new ACLModel({user_id: actor.id}, {actor: actor});
       return when.all([actor.save(), model.save()]);
     });
