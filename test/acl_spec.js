@@ -73,6 +73,40 @@ describe('Test ACL', function () {
       acl.assert('anyone', 'destroye').should.equal(false);
     });
 
+    describe('ACLModel access with roles', function() {
+      var TestUser = ACLUser.extend({
+      });
+
+      var schema = {
+        properties: {
+          id: {
+            type: 'integer'
+          },
+          user_id: {
+            type: 'integer'
+          },
+          user: {
+            type: 'relation',
+            model: TestUser,
+            roles: ['owner', 'test_role'],
+            references: {
+              id: 'user_id'
+            }
+          }
+        }
+      };
+
+      var TestModel = ACLModel.extend({
+        type: 'acl-test-model',
+        schema: schema
+      });
+
+      var actor;
+      var model;
+
+    });
+
+
     describe('ACLModel', function () {
       var user, admin, model, users, actor, aclmodel;
 
@@ -271,13 +305,13 @@ describe('Test ACL', function () {
     it('should set correct action and actor for fetch', function() {
       var options = {};
       collection.fetch(options);
-      options.action.should.equal('fetch');
+      options.action.should.equal('read');
       options.should.have.property('actor');
       options.actor.get('id').should.equal(actor.id);
       options = {actor: actor};
       collection = new ACLCollection(null);
       collection.fetch(options);
-      options.action.should.equal('fetch');
+      options.action.should.equal('read');
       options.should.have.property('actor');
       options.actor.get('id').should.equal(actor.id);
     });
@@ -322,7 +356,7 @@ describe('Test ACL', function () {
         user: {
           type: 'relation',
           model: TestUser,
-          roles: ['owner'],
+          roles: ['owner', 'test_role'],
           references: {
             id: 'user_id'
           }
@@ -352,10 +386,13 @@ describe('Test ACL', function () {
       return when.all(fns);
     });
 
-    it('should generate owner role based on relations', function() {
+    // roles are added from relation name + .roles array in relation options
+    it('should generate roles based on model relation & settings', function() {
       var aclmodel = new TestModel({id: 1, user_id: actor.id});
       var roles = aclmodel.getRoles(actor);
       roles.indexOf('owner').should.be.above( -1 );
+      roles.indexOf('user').should.be.above( -1 );
+      roles.indexOf('test_role').should.be.above( -1 );
       aclmodel = new TestModel({id: 1, user_id: 22});
       roles = aclmodel.getRoles(actor);
       roles.indexOf('owner').should.equal( -1 );
