@@ -74,6 +74,15 @@ describe('BaseCollection tests', function () {
       });
     });
 
+    it('should create models and set templated values', function() {
+      // TODO: test create when failing validation
+      var collection2 = new TemplatedCollection(null, {user_id: 1});
+      return collection2.create({test: '1', title: 'foo1'}).then(function(model) {
+        model.id.should.be.ok;
+        model.get('users').should.equal(1);
+      });
+    });
+
     it('should create another model', function() {
       return collection.create({test: '2', title: 'foo2'}).then(function(model) {
         collection.length.should.equal(2);
@@ -81,12 +90,12 @@ describe('BaseCollection tests', function () {
       });
     });
 
-    it('should fetch 2 models', function() {
+    it('should fetch 3 models', function() {
       return collection.fetch().then(function() {
-        collection.length.should.equal(2);
-        testId = collection.at(1).id;
+        collection.length.should.equal(3);
+        testId = collection.at(2).id;
         testId.should.be.ok;
-        collection.at(1).get('test').should.equal('2');
+        collection.at(2).get('test').should.equal('2');
       });
     });
 
@@ -103,7 +112,7 @@ describe('BaseCollection tests', function () {
       return m
         .destroy()
         .then(function() {
-          collection.length.should.equal(1);
+          collection.length.should.equal(2);
         });
     });
 
@@ -133,7 +142,7 @@ describe('BaseCollection tests', function () {
     });
 
     it('should destroy all models from collection', function() {
-      collection.length.should.equal(1);
+      collection.length.should.equal(2);
       return collection
         .applyToAll('destroy')
         .then(function() {
