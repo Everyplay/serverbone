@@ -399,6 +399,8 @@ describe('Test Resource', function () {
   });
 
   describe('Relations mounting', function () {
+    var subresourceId;
+
     after(function (next) {
       setTimeout(next, 50);
     });
@@ -422,6 +424,44 @@ describe('Test Resource', function () {
         .get('/test/' + id + '/icanhazcustoms?sort=title&limit=5&offset=5')
         .end(function (err, res) {
           res.status.should.equal(200);
+          next();
+        });
+    });
+
+    it('should be able to create subresource with post', function(next) {
+      request(app)
+        .post('/test/' + id + '/tests')
+        .send({foo: 'sub'})
+        .end(function (err, res) {
+          res.body.foo.should.equal('sub');
+          subresourceId = res.body.id;
+          next();
+        });
+    });
+
+    it('should fetch created subresource', function(next) {
+      request(app)
+        .get('/test/' + id + '/tests/' + subresourceId)
+        .end(function (err, res) {
+          res.body.foo.should.equal('sub');
+          next();
+        });
+    });
+
+    it('should delete subresource', function(next) {
+      request(app)
+        .del('/test/' + id + '/tests/' + subresourceId)
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
+
+    it('should not fetch deleted subresource', function(next) {
+      request(app)
+        .get('/test/' + id + '/tests/' + subresourceId)
+        .end(function (err, res) {
+          res.status.should.equal(404);
           next();
         });
     });
