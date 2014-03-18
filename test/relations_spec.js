@@ -18,6 +18,9 @@ var userSchema = {
     parent_id: {
       type: 'integer'
     },
+    username: {
+      type: 'string'
+    },
     parent: {
       type: 'relation',
       '$ref': '#',
@@ -111,7 +114,6 @@ describe('BaseModel Relations', function() {
         should.exist(model.get('owner'));
       });
   });
-
 
   it.only('should fetch nested relations', function() {
     var m = new TestModel({
