@@ -7,6 +7,7 @@ var util = require('util');
 var _ = require('lodash');
 var Promises = require('backbone-promises');
 var serverbone = require('..');
+var when = require('when');
 
 var TestModel = testSetup.TestModel;
 var ProtectedCollection = testSetup.ProtectedCollection;
@@ -17,6 +18,7 @@ describe('Test Resource', function () {
   var app;
   var id;
   var resource;
+  var projRes;
   var sandbox;
 
   before(function (next) {
@@ -38,12 +40,17 @@ describe('Test Resource', function () {
       var fooRes = new serverbone.Resource('foo', {
         collection: TestCollection
       });
-      app.use('/test', resource.app);
-      app.use('/foo', fooRes.app);
+      projRes = new serverbone.Resource('proj', {
+        collection: testSetup.TestCollection2
+      });
       var protRes = new serverbone.Resource('prot', {
         collection: ProtectedCollection
       });
+
+      app.use('/test', resource.app);
+      app.use('/foo', fooRes.app);
       app.use('/prot', protRes.app);
+      app.use('/proj', projRes.app);
       resource.should.be.an.instanceof(serverbone.Resource);
       sandbox = sinon.sandbox.create();
       next();
@@ -487,6 +494,43 @@ describe('Test Resource', function () {
         .put('/test/' + id + '/listrel/5')
         .end(function (err, res) {
           res.status.should.equal(200);
+          next();
+        });
+    });
+  });
+
+  describe('JSON', function() {
+
+    before(function() {
+      sandbox.stub(projRes.ModelClass.prototype, 'fetch', function(options) {
+        var coll = new testSetup.TestCollection2();
+        var model = new testSetup.TestModel2({id: 5});
+        coll.add(model);
+        this.set({
+          title: 'bar',
+          tests: coll
+        });
+        return when.resolve();
+      });
+    });
+
+    after(function() {
+      sandbox.restore();
+    });
+
+    it('should check default projection options', function() {
+      var model = new projRes.ModelClass();
+      var opts = model.defaultProjectionOptions();
+      opts.projection.should.be.ok;
+    });
+
+    it('should include use default projection in output', function(next) {
+      request(app)
+        .get('/proj/1')
+        .end(function (err, res) {
+          var body = res.body;
+          body.tests.length.should.equal(1);
+          should.not.exist(body.customName);
           next();
         });
     });

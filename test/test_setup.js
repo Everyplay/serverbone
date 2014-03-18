@@ -4,6 +4,7 @@ require('pretty-monitor').start();
 var _ = require('lodash');
 var when = require('backbone-promises').when;
 var MongoDb = require('backbone-db-mongodb');
+var blueprint = require('backbone-blueprint');
 var env = process.env.ENV || 'test';
 var unitTesting = exports.unitTesting = (env === 'test');
 
@@ -94,12 +95,34 @@ var testSchema = {
   }
 };
 
+var projectionSchema = blueprint.Schema.extendSchema(testSchema, {
+  defaultProjectionOptions: {
+    projection: {
+      onlyFields: ['title', 'tests']
+    },
+    recursive: true
+  }
+});
+
+
 var TestModel = exports.TestModel = BaseModel.extend({
   type: 'video',
   db: database,
   sync: Db.sync.bind(database),
   schema: testSchema
 });
+
+exports.TestModel2 = TestModel.extend({
+  type: 'test2',
+  schema: projectionSchema
+});
+
+exports.TestCollection2 = serverbone.collections.BaseCollection.extend({
+  model: exports.TestModel2,
+  sync: Db.sync.bind(database),
+  url: 'test_collection2'
+});
+
 
 var protectedSchema = {
   owner: 'user_id',
