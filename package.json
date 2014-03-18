@@ -24,7 +24,7 @@
   "dependencies": {
     "async": "~0.2.9",
     "backbone": "1.1.0",
-    "backbone-blueprint": "0.0.5",
+    "backbone-blueprint": "~0.0.7",
     "backbone-db": "~0.4",
     "backbone-db-mongodb": "~0.1",
     "backbone-db-redis": "~0.0.12",
