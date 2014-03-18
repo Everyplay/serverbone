@@ -6,13 +6,30 @@ var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
 var BaseCollection = serverbone.collections.BaseCollection;
 var assert = require('chai').assert;
+var when = require('when');
 
 var Db = require('backbone-db');
 var testDb = new Db('testdb');
 
+var userSchema = {
+  id: 'shemas/test-user',
+  type: 'object',
+  properties: {
+    parent_id: {
+      type: 'integer'
+    },
+    parent: {
+      type: 'relation',
+      '$ref': '#',
+      references: {id: 'parent_id'}
+    }
+  }
+};
+
 var User = BaseModel.extend({
   type: 'user',
-  sync: Db.sync.bind(testDb)
+  sync: Db.sync.bind(testDb),
+  schema: userSchema
 });
 
 var testSchema = {
@@ -40,14 +57,22 @@ var TestModel = BaseModel.extend({
 
 describe('BaseModel Relations', function() {
   var model;
+  var user;
+  var parent;
   var sandbox;
 
   before(function() {
     sandbox = sinon.sandbox.create();
+    parent = new User({username: 'parent'});
+    return parent.save().then(function() {
+      user = new User({username: 'user', parent_id: parent.id});
+      return user.save();
+    });
   });
 
   after(function() {
     sandbox.restore();
+    return when.all([parent.destroy(), user.destroy()]);
   });
 
   it('should init relations', function() {
@@ -85,6 +110,23 @@ describe('BaseModel Relations', function() {
       .then(function() {
         should.exist(model.get('owner'));
       });
+  });
+
+
+  it.only('should fetch nested relations', function() {
+    var m = new TestModel({
+      user_id: user.id
+    });
+    return m.save().then(function() {
+      return m
+        .fetchAll({
+          nestedRelations: [{relation: 'owner', properties: ['parent']}]
+        })
+        .then(function() {
+          console.log(m.get('owner').get('parent').attributes);
+          return m.destroy();
+        });
+    });
   });
 
   it('should fetch relations with collection helper function', function() {
