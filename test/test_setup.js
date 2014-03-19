@@ -87,7 +87,8 @@ var testSchema = {
         model: EmptyModel,
         sync: Db.sync.bind(database),
         indexDb: indexingDatabase,
-        url: 'test_list_relation'
+        url: 'test_list_relation',
+        indexKey: '{foo_id}_list'
       })
     }
   }
