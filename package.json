@@ -41,15 +41,14 @@
     "when": "~2.8.0"
   },
   "devDependencies": {
-    "mocha": "~1.13.0",
-    "chai": "~1.8.1",
+    "mocha": "~1.18",
+    "chai": "~1.9",
     "sinon": "*",
     "sinon-chai": "*",
     "supertest": "~0.8.0",
-    "jshint": "~2.3.0",
-    "istanbul": "~0.1.45",
-    "coveralls": "~2.5.0",
-    "mocha-as-promised": "~2.0.0",
+    "jshint": "~2.4",
+    "istanbul": "~0.2",
+    "coveralls": "~2.10",
     "pretty-monitor": "~0.1.7"
   },
   "readmeFilename": "Readme.md",

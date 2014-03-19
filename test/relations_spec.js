@@ -172,7 +172,7 @@ describe('BaseModel Relations', function() {
       .fetchAll();
   });
 
-  it('should be able to saveAll even if no relations defined', function(next) {
+  it('should be able to saveAll even if no relations defined', function() {
     var user = new User();
     return user.saveAll();
   });

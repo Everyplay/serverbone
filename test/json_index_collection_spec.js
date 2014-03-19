@@ -73,7 +73,7 @@ describe('Test JSONIndexCollection', function () {
       });
   });
 
-  it('should add values to another index', function(next) {
+  it('should add values to another index', function() {
     var anotherColl = new TestCollection(null, {foo_id: 2});
     return anotherColl.addToIndex({foo: 'barx'});
   });
