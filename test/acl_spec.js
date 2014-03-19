@@ -287,60 +287,6 @@ describe('Test ACL', function () {
     });
   });
 
-  describe('ACLCollection tests', function() {
-    var model, collection, actor;
-
-    after(function(next) {
-      collection.length.should.equal(0);
-      setTimeout(next, 50);
-    });
-
-    beforeEach(function() {
-      model = new ACLCollection.prototype.model({id: 12345});
-      actor = new ACLCollection.prototype.model({id: 12346});
-      actor.addRoles('owner'); // TODO: fix roles
-      collection = new ACLCollection(null, {actor: actor});
-    });
-
-    it('should set correct action and actor for fetch', function() {
-      var options = {};
-      collection.fetch(options);
-      options.action.should.equal('read');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-      options = {actor: actor};
-      collection = new ACLCollection(null);
-      collection.fetch(options);
-      options.action.should.equal('read');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-    });
-
-    it('should set correct action and actor for create', function() {
-      var options = {};
-      collection.create(null, options);
-      options.action.should.equal('create');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-      options = {actor: actor};
-      collection = new ACLCollection(null);
-      collection.create(null, options);
-      options.action.should.equal('create');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-    });
-
-    it('should set correct action and actor for destroyAll', function() {
-      var options = {};
-      var promise = collection.destroyAll(options);
-      options.action.should.equal('destroy');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-      options = {actor: actor};
-      return promise;
-    });
-  });
-
   describe('ACLModel Roles', function() {
     var TestUser = ACLUser.extend({
     });

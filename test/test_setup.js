@@ -326,6 +326,31 @@ exports.ACLModelCollection = ACLCollection.extend({
   sync: database.sync
 });
 
+exports.TestValueIndexCollection = serverbone.collections.IndexCollection.extend(
+  _.extend({}, serverbone.collections.ValueIndexMixin, {
+    model: FooModel,
+    type: FooModel.prototype.type,
+    indexDb: indexingDatabase,
+    indexKey: 'i:Value:{foo_id}:relation',
+    sync: Db.sync.bind(database),
+    url: 'indexed_collection'
+  }));
+
+
+exports.ACLIndexCollection = serverbone.collections.ACLIndexCollection.extend({
+  model: exports.ACLModel,
+  indexDb: indexingDatabase,
+  indexKey: 'i:Value:{foo_id}:relation',
+  sync: Db.sync.bind(database),
+  url: 'acl_indexed_collection',
+  permissions: {
+    admin: ['*'],
+    owner: ['create', 'update'],
+    '*': ['read']
+  }
+});
+
+
 exports.SystemUser = new exports.ACLUser();
 exports.SystemUser.addRoles(['system', 'admin']);
 
