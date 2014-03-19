@@ -26,16 +26,17 @@ var TestModel = BaseModel.extend({
   sync: RedisDb.sync.bind(testDb),
   db: testDb,
   url: function() {
-    var key = this.type;
-    if (!this.isNew()) {
-      key += ':' + this.get(this.idAttribute);
+    var key = this.dbBaseKey || this.type;
+    if (this.isNew()) {
+      return key;
+    } else {
+      return key + ':' + this.get(this.idAttribute);
     }
-    return key;
   }
 });
 
 var TestCollection = serverbone.collections.BaseCollection.extend({
-  type: TestModel.prototype.type + 's',
+  type: TestModel.prototype.type,
   model: TestModel,
   db: testDb,
   sync: RedisDb.sync.bind(testDb),
@@ -45,7 +46,7 @@ var TestCollection = serverbone.collections.BaseCollection.extend({
 });
 
 var clearDb = function(next) {
-  redis.keys('*redistestmodel*', function(err, keys) {
+  redis.keys('serverbone-tests:*', function(err, keys) {
     keys.forEach(function(key) {
       redis.del(key);
     });
@@ -61,6 +62,12 @@ describe('Integration Test: Redis sync', function() {
   });
 
   describe('#model', function() {
+    after(function(next) {
+      clearDb(function(err) {
+        next(err);
+      });
+    });
+
     var testId;
     it('should save model', function() {
       var testModel = new TestModel({
@@ -72,7 +79,6 @@ describe('Integration Test: Redis sync', function() {
         testId.should.be.ok;
       });
     });
-
 
     it('should fetch model', function() {
       var testModel = new TestModel({
