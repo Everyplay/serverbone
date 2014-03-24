@@ -41,6 +41,14 @@ test-int:
 	@$(MAKE) test ENV=test-integration
 .PHONY: test-int
 
+ACCEPTANCE_TESTS = $(shell find test_acceptance -name '*_spec.js')
+test-acceptance: start-server check-server
+	@TIMEOUT=8000 $(BIN)/mocha \
+		$(MOCHA-OPTS) \
+		$(ACCEPTANCE_TESTS) || true
+	@$(MAKE) stop-server
+.PHONY: test-acceptance
+
 jshint:
 	@$(BIN)/jshint $(SRC_FILES)
 .PHONY: jshint
@@ -61,3 +69,20 @@ check-coverage: test-coverage
 
 coveralls:
 	cat ./coverage/lcov.info | COVERALLS_SERVICE_NAME="travis-ci" ./node_modules/coveralls/bin/coveralls.js
+
+# run/stop test server
+PID_FILE = temp/serverbone_acceptance_test.pid
+
+start-server:
+	@mkdir -p temp
+	@DEBUG=* node test_acceptance/todos/app.js > temp/log 2>&1 & echo $$! > $(PID_FILE)
+
+stop-server:
+	@kill -9 `cat $(PID_FILE)`
+	@rm $(PID_FILE)
+
+check-server:
+	@node bin/check-server.js || $(MAKE) view-server-log
+
+view-server-log:
+	@cat temp/log
