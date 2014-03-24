@@ -8,6 +8,7 @@ var _ = require('lodash');
 var Promises = require('backbone-promises');
 var serverbone = require('..');
 var when = require('when');
+var assert = require('assert');
 
 var TestModel = testSetup.TestModel;
 var ProtectedCollection = testSetup.ProtectedCollection;
@@ -493,6 +494,58 @@ describe('Test Resource', function () {
       request(app)
         .put('/test/' + id + '/listrel/5')
         .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
+  });
+
+  describe('Expose schema', function () {
+    it('should expose schema', function (next) {
+      var resource = new serverbone.Resource('test', {
+        exposeSchema: true,
+        collection: TestCollection
+      });
+
+      request(resource.app)
+        .get('/schema')
+        .end(function (err, res) {
+
+          assert.deepEqual(res.body, {
+            "properties": {
+              "id": {
+                "type": "integer",
+                "required": false
+              },
+              "title": {
+                "type": "string",
+                "required": true
+              },
+              "test": {
+                "type": "string",
+                "required": false
+              },
+              "tests": {
+                "type": "array",
+                "items": {
+                  "$ref": "foobar"
+                }
+              },
+              "customName": {
+                "type": "array",
+                "items": {
+                  "$ref": "barfoo"
+                }
+              },
+              "listRelation": {
+                "type": "array",
+                "items": {
+                  "$ref": "barfoo"
+                }
+              }
+            }
+          });
+
           res.status.should.equal(200);
           next();
         });

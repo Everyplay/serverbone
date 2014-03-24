@@ -29,7 +29,7 @@ var EmptyModel = exports.EmptyModel = BaseModel.extend({
   type: 'barfoo',
   db: database,
   sync: Db.sync.bind(database),
-  schema: {}
+  schema: {id: 'barfoo'}
 });
 
 var testSchema = {
@@ -56,7 +56,7 @@ var testSchema = {
           type: 'foobar',
           db: database,
           sync: Db.sync.bind(database),
-          schema: {}
+          schema: {id: 'foobar'}
         }),
         sync: Db.sync.bind(database),
         url: 'test_foobar_collection'
