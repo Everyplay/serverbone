@@ -16,10 +16,10 @@ var testSchema = {
       type: 'integer',
     },
     _id: {
-      type: 'string'
+      type: 'any'
     },
     id: {
-      type: 'string'
+      type: 'any'
     }
   },
   indexes: [{
@@ -81,6 +81,7 @@ describe('Integration Test: MongoDb sync', function() {
 
   describe('#model', function() {
     var testId;
+
     it('should save model', function() {
       var testModel = new TestModel({
         data: 2
@@ -91,7 +92,6 @@ describe('Integration Test: MongoDb sync', function() {
         testId.should.be.ok;
       });
     });
-
 
     it('should fetch model', function() {
       var testModel = new TestModel({
