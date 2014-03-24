@@ -19,7 +19,7 @@ exports.init = function(cb) {
     Todos.prototype.sync = client.sync;
     done();
   });
-  
+
   db.mongodb(function(db) {
     User.prototype.db = db;
     User.prototype.sync = db.sync;

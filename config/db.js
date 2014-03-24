@@ -22,10 +22,11 @@ exports.mongodb = function(cb) {
   if (!connectingMongo && mongodb) {
     return cb(mongodb);
   } else if (connectingMongo && !mongodb) {
+    cbs.push(cb);
     return;
   }
-  var MongoDB = require('backbone-db-mongodb');
   cbs.push(cb);
+  var MongoDB = require('backbone-db-mongodb');
   connectingMongo = true;
   var connectionString = 'mongodb://'
     + config.get('mongodb_host')
