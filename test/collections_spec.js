@@ -99,6 +99,17 @@ describe('BaseCollection tests', function () {
       });
     });
 
+    it('should test collection toJSON', function() {
+      var coll = new testSetup.TestCollection2();
+      var m = new testSetup.TestModel2({title: 'foo', test: 'abc', id: 1});
+      coll.add(m);
+      var opts = coll.defaultProjectionOptions();
+      should.exist(opts.projection.onlyFields);
+      var json = coll.toJSON(opts);
+      json.length.should.equal(1);
+      should.not.exist(json[0].id);
+    });
+
     it('should load models created through the collection', function() {
       var m = new collection.model({id: testId});
       return m.fetch().then( function() {

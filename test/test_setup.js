@@ -198,7 +198,10 @@ var TestJSONIndexCollection = exports.TestJSONIndexCollection = serverbone.colle
     indexDb: indexingDatabase,
     indexKey: 'i:Value:{foo_id}:relation',
     sync: Db.sync.bind(database),
-    url: 'indexed_collection'
+    url: 'indexed_collection',
+    getProjectionOptionsFromModel: function() {
+      return;
+    }
   }));
 
 var TestMultiIndexCollection = exports.TestMultiIndexCollection = TestJSONIndexCollection.extend(
