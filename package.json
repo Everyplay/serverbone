@@ -30,7 +30,7 @@
     "backbone-db-redis": "~0.0.17",
     "backbone-promises": "~0.2.6",
     "debug": "~0.7.4",
-    "express": "~3.4.2",
+    "express": "3.5.1",
     "jsonschema": "~0.4.0",
     "lodash": "~2.4.1",
     "lru-cache": "~2.3.1",
