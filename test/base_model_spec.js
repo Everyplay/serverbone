@@ -153,7 +153,6 @@ describe('BaseModel', function() {
       return testModel
         .fetch()
         .then(function(model) {
-          console.log(model);
           // depends values set in previous test
           testModel.get('data').should.be.equal(99);
           model.get('data').should.be.equal(99);

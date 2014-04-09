@@ -90,4 +90,35 @@ describe('ACLCollection tests', function() {
         });
     });
   });
+
+  describe('AdminACLCollection tests', function() {
+    var collection;
+    var normal;
+    var admin;
+
+    before(function() {
+      normal = new ACLCollection.prototype.model({id: 12346});
+      admin = new ACLCollection.prototype.model({id: 12346});
+      admin.roles = ['admin'];
+      collection = new setup.AdminACLCollection();
+    });
+
+    it('should not allow user without admin role to fetch', function() {
+      return collection
+        .fetch({actor: normal})
+        .then(function() {
+          return when.reject('should not be allowed to read');
+        }, function(err) {
+          err.statusCode.should.equal(403);
+        });
+    });
+
+    it('admin should be able to fetch', function() {
+      return collection
+        .fetch({actor: admin})
+        .then(function() {
+
+        });
+    });
+  });
 });

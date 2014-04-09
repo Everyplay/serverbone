@@ -1,4 +1,4 @@
-require('pretty-monitor').start();
+//require('pretty-monitor').start();
 var _ = require('lodash');
 var when = require('backbone-promises').when;
 var MongoDb = require('backbone-db-mongodb');
@@ -353,6 +353,12 @@ exports.ACLIndexCollection = serverbone.collections.ACLIndexCollection.extend({
   }
 });
 
+exports.AdminACLCollection = exports.ACLCollection.extend({
+  permissions: {
+    admin: ['*'],
+    '*': []
+  }
+});
 
 exports.SystemUser = new exports.ACLUser();
 exports.SystemUser.addRoles(['system', 'admin']);
