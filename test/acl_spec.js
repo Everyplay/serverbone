@@ -307,12 +307,33 @@ describe('Test ACL', function () {
             id: 'user_id'
           }
         }
+      },
+      permissions: {
+        admin: ['*'],
+        owner: ['read']
       }
     };
 
     var TestModel = ACLModel.extend({
       type: 'acl-test-model',
-      schema: schema
+      schema: schema,
+      virtualProperties: {
+        foo: {
+          get: function() {
+            return 123;
+          }
+        },
+        bar: {
+          get: function() {
+            return 'bar';
+          },
+          permissions: {
+            '*': [],
+            owner: [],
+            admin: []
+          }
+        }
+      }
     });
 
     var actor;
@@ -342,6 +363,14 @@ describe('Test ACL', function () {
       aclmodel = new TestModel({id: 1, user_id: 22});
       roles = aclmodel.getRoles(actor);
       roles.indexOf('owner').should.equal( -1 );
+    });
+
+    it('should check access to virtualProperties', function() {
+      var m = new TestModel({id: 2, user_id: actor.id});
+      m.get('foo').should.equal(123);
+      var json = m.toJSON({actor: actor});
+      json.foo.should.equal(123);
+      should.not.exist(json.bar);
     });
 
     it('should not be able to update description if not owner', function() {
