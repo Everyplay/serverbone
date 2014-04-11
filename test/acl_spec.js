@@ -368,7 +368,7 @@ describe('Test ACL', function () {
     it('should check access to virtualProperties', function() {
       var m = new TestModel({id: 2, user_id: actor.id});
       m.get('foo').should.equal(123);
-      var json = m.toJSON({actor: actor});
+      var json = m.toJSON({includeVirtualProperties: true, actor: actor});
       json.foo.should.equal(123);
       should.not.exist(json.bar);
     });
