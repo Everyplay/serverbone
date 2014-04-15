@@ -1,6 +1,6 @@
 {
   "name": "serverbone",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "description": "Serverside additions to backbone to serve collections and models as express apps",
   "main": "index.js",
   "scripts": {
@@ -44,7 +44,7 @@
     "sinon": "*",
     "sinon-chai": "*",
     "supertest": "~0.8.0",
-    "jshint": "~2.4",
+    "jshint": "~2.5",
     "jscs": "~1.3",
     "istanbul": "~0.2",
     "coveralls": "~2.10",
