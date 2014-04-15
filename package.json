@@ -1,6 +1,6 @@
 {
   "name": "serverbone",
-  "version": "0.2.23",
+  "version": "0.2.24",
   "description": "Serverside additions to backbone to serve collections and models as express apps",
   "main": "index.js",
   "scripts": {
