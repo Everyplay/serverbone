@@ -23,7 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "async": "~0.7",
-    "backbone": "1.1.0",
+    "backbone": "~1.1.0",
     "backbone-blueprint": "~0.0.8",
     "backbone-db": "~0.4",
     "backbone-db-mongodb": "~0.2",
