@@ -20,7 +20,10 @@ var testSchema = {
   type: 'object',
   properties: {
     data: {
-      'type': 'integer',
+      'type': 'integer'
+    },
+    user_id: {
+      'type': 'integer'
     },
     owner: {
       type: 'relation',
@@ -38,12 +41,15 @@ var TestModel = BaseModel.extend({
   sync: Db.sync.bind(testDb)
 });
 
-describe('BaseModel Relations', function() {
+describe('BaseModelRelations', function() {
   var model;
   var sandbox;
+  var user;
 
   before(function() {
     sandbox = sinon.sandbox.create();
+    user = new User();
+    return user.save();
   });
 
   after(function() {
@@ -52,13 +58,13 @@ describe('BaseModel Relations', function() {
 
   it('should init relations', function() {
     model = new TestModel({
-      user_id: 1,
+      user_id: user.id,
       data: 666
     });
-    model.get('owner').get('id').should.equal(1);
+    model.get('owner').get('id').should.equal(user.id);
   });
 
-  it('should save relations', function() {
+  it('should save model & its relations', function() {
     var spy = sandbox.spy(model.get('owner'), 'save');
     return model
       .saveAll()
@@ -68,12 +74,20 @@ describe('BaseModel Relations', function() {
   });
 
   it('should fetch relations', function() {
-    var spy = sandbox.spy(model.get('owner'), 'fetch');
+    model = new TestModel({id: model.id});
     return model
       .fetchAll()
       .then(function() {
-        spy.called.should.equal(true);
-        model.get('owner').fetch.restore();
+        should.exist(model.get('owner'));
+      });
+  });
+
+  it('should fetch model', function() {
+    model = new TestModel({id: model.id});
+    return model
+      .fetch()
+      .then(function() {
+        model.get('user_id').should.equal(user.id);
       });
   });
 
@@ -87,21 +101,33 @@ describe('BaseModel Relations', function() {
       });
   });
 
+  it('should fetch required', function() {
+    var m = new TestModel({id: model.id});
+    return m
+      .fetchRequired({
+        onlyFields: ['data'],
+        owner: ['id']
+      })
+      .then(function() {
+        should.exist(m.get('data'));
+        should.exist(m.get('owner'));
+      });
+  });
+
   it('should fetch relations with collection helper function', function() {
     var collection = new BaseCollection();
-    collection.add(model);
-    var spy = sandbox.spy(model.get('owner'), 'fetch');
+    var m = new TestModel({id: model.id});
+    collection.add(m);
     return collection
       .fetchModelRelations()
       .then(function() {
-        spy.called.should.equal(true);
-        model.get('owner').fetch.restore();
+        should.exist(m.get('owner'));
       });
   });
 
   it('should output json based on config', function() {
     var json = model.toJSON();
-    Object.keys(json).length.should.equal(1);
+    Object.keys(json).length.should.equal(2);
 
     model.get('owner').set('name', 'Name');
     json = model.toJSON({
@@ -110,7 +136,7 @@ describe('BaseModel Relations', function() {
         owner: ['name']
       }
     });
-    Object.keys(json).length.should.equal(2);
+    Object.keys(json).length.should.equal(3);
     should.not.exist(json.owner.id);
     should.exist(json.owner.name);
 
@@ -132,7 +158,7 @@ describe('BaseModel Relations', function() {
         removeFields: ['owner']
       }
     });
-    Object.keys(json).length.should.equal(1);
+    Object.keys(json).length.should.equal(2);
     should.not.exist(json.owner);
     should.exist(json.data);
   });
