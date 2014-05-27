@@ -90,6 +90,15 @@ var testSchema = {
         url: 'test_list_relation',
         indexKey: '{foo_id}_list'
       })
+    },
+    modelRelation: {
+      type: 'relation',
+      mount: true,
+      name: 'modelrel',
+      model: EmptyModel,
+      references: {
+        id: 'id'
+      }
     }
   }
 };

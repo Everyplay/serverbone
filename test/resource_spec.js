@@ -436,6 +436,18 @@ describe('Test Resource', function () {
         });
     });
 
+    it('should have mounted a Model relation', function(next) {
+      sandbox.stub(testSetup.EmptyModel.prototype, 'fetch', function() {
+        return when.resolve();
+      });
+      request(app)
+        .get('/test/' + id + '/modelrel')
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
+
     it('should be able to create subresource with post', function(next) {
       request(app)
         .post('/test/' + id + '/tests')
@@ -510,7 +522,6 @@ describe('Test Resource', function () {
       request(resource.app)
         .get('/schema')
         .end(function (err, res) {
-
           assert.deepEqual(res.body, {
             "properties": {
               "id": {
@@ -542,6 +553,9 @@ describe('Test Resource', function () {
                 "items": {
                   "$ref": "barfoo"
                 }
+              },
+              "modelRelation": {
+                '$ref': 'barfoo'
               }
             }
           });
