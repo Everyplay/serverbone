@@ -205,7 +205,7 @@ describe('BaseModel', function() {
         .then(function() {
           return when.reject('should not be found');
         }, function(err) {
-          err.status.should.equal(404);
+          err.statusCode.should.equal(404);
           return when.resolve();
         });
     });
@@ -217,7 +217,7 @@ describe('BaseModel', function() {
         .then(function() {
           return when.reject('should not be found');
         }, function(err) {
-          err.status.should.equal(404);
+          err.statusCode.should.equal(404);
           return when.resolve();
         });
     });
