@@ -306,6 +306,17 @@ describe('Test ACL', function () {
           references: {
             id: 'user_id'
           }
+        },
+        foo: {
+          virtual: true
+        },
+        bar: {
+          virtual: true,
+          permissions: {
+            '*': [],
+            owner: [],
+            admin: []
+          }
         }
       },
       permissions: {
@@ -326,11 +337,6 @@ describe('Test ACL', function () {
         bar: {
           get: function() {
             return 'bar';
-          },
-          permissions: {
-            '*': [],
-            owner: [],
-            admin: []
           }
         }
       }
