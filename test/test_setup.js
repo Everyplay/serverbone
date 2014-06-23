@@ -14,7 +14,7 @@ var ACLCollection = serverbone.collections.ACLCollection;
 var FlatModel = serverbone.models.FlatModel;
 var mongo = require('../config/mongo');
 var redisTestDb = require('../config/redis');
-var Db = require('backbone-db');
+var Db = require('backbone-db-local');
 var database = new Db('test_database');
 var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
@@ -59,6 +59,7 @@ var testSchema = {
           schema: {id: 'foobar'}
         }),
         sync: Db.sync.bind(database),
+        db: database,
         url: 'test_foobar_collection'
       })
     },
@@ -72,6 +73,7 @@ var testSchema = {
       collection: serverbone.collections.BaseCollection.extend({
         model: EmptyModel,
         sync: Db.sync.bind(database),
+        db: database,
         url: 'test_icanhazcustoms_collection'
       })
     },
@@ -86,6 +88,7 @@ var testSchema = {
       collection: serverbone.collections.IndexCollection.extend({
         model: EmptyModel,
         sync: Db.sync.bind(database),
+        db: database,
         indexDb: indexingDatabase,
         url: 'test_list_relation',
         indexKey: '{foo_id}_list'
@@ -128,6 +131,7 @@ exports.TestModel2 = TestModel.extend({
 exports.TestCollection2 = serverbone.collections.BaseCollection.extend({
   model: exports.TestModel2,
   sync: Db.sync.bind(database),
+  db: database,
   url: 'test_collection2'
 });
 
@@ -156,12 +160,14 @@ var ProtectedModel = exports.ProtectedModel = BaseModel.extend({
 var TestCollection = exports.TestCollection = serverbone.collections.BaseCollection.extend({
   model: TestModel,
   sync: Db.sync.bind(database),
+  db: database,
   url: 'test_collection'
 });
 
 exports.ProtectedCollection = serverbone.collections.BaseCollection.extend({
   model: ProtectedModel,
-  sync: Db.sync.bind(database)
+  sync: Db.sync.bind(database),
+  db: database
 });
 
 var fooSchema = {
@@ -188,6 +194,7 @@ exports.TestIndexCollection = serverbone.collections.IndexCollection.extend({
   indexDb: indexingDatabase,
   indexKey: 'i:Foo:{foo_id}:relation',
   sync: Db.sync.bind(database),
+  db: database,
   url: 'indexed_collection'
 });
 
@@ -195,9 +202,10 @@ exports.TestValueIndexCollection = serverbone.collections.IndexCollection.extend
   _.extend({}, serverbone.collections.ValueIndexMixin, {
     model: FooModel,
     type: FooModel.prototype.type,
+    db: database,
+    sync: Db.sync.bind(database),
     indexDb: indexingDatabase,
     indexKey: 'i:Value:{foo_id}:relation',
-    sync: Db.sync.bind(database),
     url: 'indexed_collection'
   }));
 
@@ -206,6 +214,7 @@ var TestJSONIndexCollection = exports.TestJSONIndexCollection = serverbone.colle
     type: 'jsoncoll',
     indexDb: indexingDatabase,
     indexKey: 'i:Value:{foo_id}:relation',
+    db: database,
     sync: Db.sync.bind(database),
     url: 'indexed_collection',
     getProjectionOptionsFromModel: function() {
@@ -344,6 +353,7 @@ exports.TestValueIndexCollection = serverbone.collections.IndexCollection.extend
     type: FooModel.prototype.type,
     indexDb: indexingDatabase,
     indexKey: 'i:Value:{foo_id}:relation',
+    db: database,
     sync: Db.sync.bind(database),
     url: 'indexed_collection'
   }));
@@ -353,6 +363,7 @@ exports.ACLIndexCollection = serverbone.collections.ACLIndexCollection.extend({
   model: exports.ACLModel,
   indexDb: indexingDatabase,
   indexKey: 'i:Value:{foo_id}:relation',
+  db: database,
   sync: Db.sync.bind(database),
   url: 'acl_indexed_collection',
   permissions: {

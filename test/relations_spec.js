@@ -7,12 +7,13 @@ var BaseModel = serverbone.models.BaseModel;
 var BaseCollection = serverbone.collections.BaseCollection;
 var assert = require('chai').assert;
 
-var Db = require('backbone-db');
+var Db = require('backbone-db-local');
 var testDb = new Db('testdb');
 
 var User = BaseModel.extend({
   type: 'user',
-  sync: Db.sync.bind(testDb)
+  sync: Db.sync.bind(testDb),
+  db: testDb
 });
 
 var testSchema = {
@@ -38,7 +39,8 @@ var testSchema = {
 var TestModel = BaseModel.extend({
   type: 'video',
   schema: testSchema,
-  sync: Db.sync.bind(testDb)
+  sync: Db.sync.bind(testDb),
+  db: testDb
 });
 
 describe('BaseModelRelations', function() {

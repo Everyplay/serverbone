@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var Db = require('backbone-db');
+var Db = require('backbone-db-local');
 exports.TestDb = Db;
 
 exports.inAscendingOrder = function(arr) {

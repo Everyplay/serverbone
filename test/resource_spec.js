@@ -15,7 +15,7 @@ var ProtectedCollection = testSetup.ProtectedCollection;
 var TestCollection = testSetup.TestCollection;
 var FailingCollection = testSetup.FailingCollection;
 
-describe('Test Resource', function () {
+describe('ResourceTests', function () {
   var app;
   var id;
   var resource;

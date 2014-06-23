@@ -7,7 +7,7 @@ var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
 var assert = require('chai').assert;
 
-var Db = require('backbone-db');
+var Db = require('backbone-db-local');
 var testDb = new Db('testdb');
 
 var testSchema = {
@@ -23,7 +23,8 @@ var testSchema = {
 var TestModel = BaseModel.extend({
   type: 'video',
   schema: testSchema,
-  sync: Db.sync.bind(testDb)
+  sync: Db.sync.bind(testDb),
+  db: testDb
 });
 
 describe('BaseModel', function() {

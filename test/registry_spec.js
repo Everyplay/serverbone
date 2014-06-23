@@ -3,7 +3,7 @@ var should = require('chai').should();
 var sinon = require('sinon');
 var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
-var Db = require('backbone-db');
+var Db = require('backbone-db-local');
 var TestDB = new Db('registry_db');
 
 describe('Registry tests', function() {
@@ -12,6 +12,7 @@ describe('Registry tests', function() {
   var TestModel = BaseModel.extend({
     type: 'video',
     sync: Db.sync.bind(TestDB),
+    db: TestDB,
     afterSave: function() {
       var res = TestModel.__super__.afterSave.apply(this, arguments);
       if (this.options.registry) {
