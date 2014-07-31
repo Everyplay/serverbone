@@ -3,7 +3,7 @@ services:
   - redis-server
   - mongodb
 node_js:
-  0.10
+  - "0.10"
 notifications:
   email: false
   flowdock:
