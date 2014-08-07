@@ -9,7 +9,7 @@ var Promises = require('backbone-promises');
 var serverbone = require('..');
 var when = require('when');
 var assert = require('assert');
-
+var bodyParser = require('body-parser');
 var TestModel = testSetup.TestModel;
 var ProtectedCollection = testSetup.ProtectedCollection;
 var TestCollection = testSetup.TestCollection;
@@ -32,8 +32,8 @@ describe('ResourceTests', function () {
       }
 
       app = express();
-      app.use(express.json());
-      app.use(express.urlencoded());
+      app.use(bodyParser.json());
+      app.use(bodyParser.urlencoded({extended: true}));
       resource = new serverbone.Resource('test', {
         mountRelations: true,
         collection: TestCollection

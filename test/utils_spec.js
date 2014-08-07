@@ -20,6 +20,9 @@ describe('Utils tests', function() {
     var req = {};
     var res = {
       json: function() {},
+      status: function() {
+        return res;
+      }
     };
     var err = new Error('Foo error');
     serverbone.utils.response.sendError(req, res, err);
@@ -29,6 +32,9 @@ describe('Utils tests', function() {
     var req = {};
     var res = {
       locals: {},
+      status: function() {
+        return res;
+      },
       json: function() {},
     };
     serverbone.utils.response.sendJson(req, res);
