@@ -356,7 +356,7 @@ describe('ResourceTests', function () {
         .end(function (err, res) {
           res.status.should.equal(400);
           var body = res.body;
-          body.error.should.equal('validation_error');
+          body.error.should.equal('title is required');
           next();
         });
     });
