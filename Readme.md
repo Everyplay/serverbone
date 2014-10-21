@@ -77,11 +77,15 @@ Model for storing raw JSON data in the id field. Meant to be used together /w JS
 
 ## ACL
 
-TODO
+ACL permissions are defined in the Model's schema as  `role: [actions]`. Permissions may be defined in Model level (which applies to all properties) or per property (which overrides Model level permissions). For example:
 
-## Registry
+	permissions: {
+  		admin: ['*'],
+  		owner: ['update', 'destroy'],
+  		'*': ['read', 'create']
+	}
 
-Helper for caching model/collection data. Currently wip & not in use.
+This would give `admin` role permission to all verbs. `owner` can update & destroy Model. Finally `world` (indicated by `*`) can read models & create new Model instances. How roles are defined is up to the application to implement. You should override Model's `getRoles` for implementing custom functionality.
 
 ## Resource
 
