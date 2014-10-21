@@ -18,6 +18,10 @@ The goals of the framework are:
 - Mount models & collections CRUD easily into HTTP verbs by using Resource. E.g. HTTP POST should call Model.create.
 - Provide basis for implementing resource level fine grained ACL
 
+# Examples
+
+- [serverbone-example](https://github.com/mikkolehtinen/serverbone-example)
+
 ## How to develop
 
 ### Testing
