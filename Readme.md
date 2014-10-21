@@ -89,7 +89,29 @@ This would give `admin` role permission to all verbs. `owner` can update & destr
 
 ## Resource
 
-Provides mapping Model/Collection CRUD operation into HTTP verbs, thus adding routes into express application.
+Provides mapping Model/Collection CRUD operation into HTTP verbs, thus adding routes into express application. By default the following routes are added:
+
+
+#### GET /
+
+Maps to Collection.fetch.
+
+#### POST /
+
+Maps to Collection.post (creates a new model).
+
+#### GET /:id
+
+Maps to Model.fetch (fetches model with given id).
+
+#### PUT /:id
+
+Maps to Model.update (updates model with given id).
+
+#### DELETE /:id
+
+Maps to Model.delete (delete model with given id).
+
 
 ## Utils
 
