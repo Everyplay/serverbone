@@ -18,6 +18,93 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+      <div class="heading h2">
+        <a href="#failwitherror">failWithError</a>
+      </div>
+      <div class="heading h1">
+        <a href="#basemodel">BaseModel</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.initialize">BaseModel.prototype.initialize</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.url">BaseModel.prototype.url</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.sync">BaseModel.prototype.sync</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.save">BaseModel.prototype.save</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.presave">BaseModel.prototype.preSave</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.aftersave">BaseModel.prototype.afterSave</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.fetch">BaseModel.prototype.fetch</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.prefetch">BaseModel.prototype.preFetch</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.afterfetch">BaseModel.prototype.afterFetch</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.destroy">BaseModel.prototype.destroy</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.predelete">BaseModel.prototype.preDelete</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.afterdelete">BaseModel.prototype.afterDelete</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.canaccess">BaseModel.prototype.canAccess</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.getroles">BaseModel.prototype.getRoles</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.propertieswithaccess">BaseModel.prototype.propertiesWithAccess</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.tojson">BaseModel.prototype.toJSON</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.validate">BaseModel.prototype.validate</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.fetchall">BaseModel.prototype.fetchAll</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.fetchrelations">BaseModel.prototype.fetchRelations</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.fetchrequired">BaseModel.prototype.fetchRequired</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.saveall">BaseModel.prototype.saveAll</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.applytoall">BaseModel.prototype.applyToAll</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.fetchallrequired">BaseModel.prototype.fetchAllRequired</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.changedattributeswithoutrelations">BaseModel.prototype.changedAttributesWithoutRelations</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.prototype.attributeschanged">BaseModel.prototype.attributesChanged</a>
+      </div>
+      <div class="heading h2">
+        <a href="#basemodel.setdbdriver">BaseModel.setDbDriver</a>
+      </div>
+      <div class="heading h2">
+        <a href="#formatproperties">formatProperties</a>
+      </div>
     </div>
   </div>
   <div id="sidebar-toggle"></div>
@@ -62,14 +149,16 @@
 <p>Storage adapter must be changed by overriding Model's
  sync &amp; db, e.g.</p>
 
-<div class='highlight'><pre><code language=''> var redisStore = new RedisDb('serverbone-example', redis.createClient());
- var User = serverbone.models.BaseModel.extend({
-   db: redisStore,
-   sync: redisStore.sync,
-   ...
- });
 
+<div class="highlight"><pre><code> <span class="kd">var</span> <span class="nx">redisStore</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">RedisDb</span><span class="p">(</span><span class="s1">&#39;serverbone-example&#39;</span><span class="p">,</span> <span class="nx">redis</span><span class="p">.</span><span class="nx">createClient</span><span class="p">());</span>
+ <span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">serverbone</span><span class="p">.</span><span class="nx">models</span><span class="p">.</span><span class="nx">BaseModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+   <span class="nx">db</span><span class="o">:</span> <span class="nx">redisStore</span><span class="p">,</span>
+   <span class="nx">sync</span><span class="o">:</span> <span class="nx">redisStore</span><span class="p">.</span><span class="nx">sync</span><span class="p">,</span>
+   <span class="p">...</span>
+ <span class="p">});</span>
 </code></pre></div>
+
+
 
 <p>would store the Model in Redis.</p>
   </div>
@@ -96,67 +185,23 @@
 <span class="p">};</span>
 
 
-
 </pre></div>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="failwitherror">
+  <h2>
+    <a href="#failwitherror" name="failwitherror" class="pilcrow">&#182;</a>
+    failWithError
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Format 'templated' properties of object like {type: '{type}'}
-using given this-context for the actual value</p>
+
   </div>
-  <div class="body">
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name"></span>
-      <span>{Object} properties</span>
-    </div>
-    <div class="dox_tag_title">Returns</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name"></span>
-      <span class="dox_type">Object
-</span>
-      <span>{Object}</span>
-    </div>
+  <div class="body"><p>wrapper for converting error &amp; rejecting with error</p>
   </div>
 </div>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">var</span> <span class="nx">formatProperties</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">properties</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
-  <span class="kd">var</span> <span class="nx">realProperties</span> <span class="o">=</span> <span class="p">{};</span>
-
-  <span class="kd">function</span> <span class="nx">getTemplateValue</span><span class="p">(</span><span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">function</span> <span class="nx">getThisValue</span><span class="p">(</span><span class="nx">match</span><span class="p">)</span> <span class="p">{</span>
-      <span class="kd">var</span> <span class="nx">cleanedValue</span> <span class="o">=</span> <span class="nx">match</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nx">match</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
-      <span class="k">return</span> <span class="nx">self</span><span class="p">[</span><span class="nx">cleanedValue</span><span class="p">];</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="nx">property</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/{([^}]+)}+/g</span><span class="p">,</span> <span class="nx">getThisValue</span><span class="p">);</span>
-  <span class="p">}</span>
-
-  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">propertyKey</span> <span class="k">in</span> <span class="nx">properties</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">realProperties</span><span class="p">[</span><span class="nx">propertyKey</span><span class="p">]</span> <span class="o">=</span> <span class="nx">getTemplateValue</span><span class="p">(</span><span class="nx">properties</span><span class="p">[</span><span class="nx">propertyKey</span><span class="p">]);</span>
-  <span class="p">}</span>
-
-  <span class="k">return</span> <span class="nx">realProperties</span><span class="p">;</span>
-<span class="p">};</span>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
-</div>
-<p>convert error &amp; reject with error</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 <span class="kd">var</span> <span class="nx">failWithError</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
@@ -165,20 +210,48 @@ using given this-context for the actual value</p>
   <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
 <span class="p">};</span>
 
-<span class="kd">var</span> <span class="nx">BaseModel</span> <span class="o">=</span> <span class="nx">SchemaModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attributes</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
 
 </pre></div>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel">
+  <h1>
+    <a href="#basemodel" name="basemodel" class="pilcrow">&#182;</a>
+    BaseModel
+  </h1>
 </div>
-<p>debug.trace('BaseModel.initialize');</p>
+
+  </div>
+  <div class="body">
+  </div>
+</div>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">BaseModel</span> <span class="o">=</span> <span class="nx">SchemaModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.initialize">
+  <h2>
+    <a href="#basemodel.prototype.initialize" name="basemodel.prototype.initialize" class="pilcrow">&#182;</a>
+    BaseModel.prototype.initialize
+  </h2>
+</div>
+
+  </div>
+  <div class="body"><p>Init attributes &amp; set event listeners</p>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attributes</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="p">[</span><span class="nx">attributes</span><span class="p">,</span> <span class="nx">options</span><span class="p">]);</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">?</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="o">:</span> <span class="p">{};</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">_processSchema</span><span class="p">();</span>
@@ -222,14 +295,17 @@ using given this-context for the actual value</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.url">
+  <h2>
+    <a href="#basemodel.prototype.url" name="basemodel.prototype.url" class="pilcrow">&#182;</a>
+    BaseModel.prototype.url
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>url function is used by some backbone-db drivers, then it defines the database key</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p><code>url</code> function is used by some backbone-db drivers, then it defines the database key</p>
   </div>
 </div>
         </td>
@@ -248,14 +324,17 @@ using given this-context for the actual value</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.sync">
+  <h2>
+    <a href="#basemodel.prototype.sync" name="basemodel.prototype.sync" class="pilcrow">&#182;</a>
+    BaseModel.prototype.sync
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>sync method must be implemented by the Model</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>sync method must be implemented by the Model</p>
   </div>
 </div>
         </td>
@@ -269,14 +348,17 @@ using given this-context for the actual value</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.save">
+  <h2>
+    <a href="#basemodel.prototype.save" name="basemodel.prototype.save" class="pilcrow">&#182;</a>
+    BaseModel.prototype.save
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>save extends backbone-blueprint's save by adding calls to lifecycle methods</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>save extends backbone-blueprint's save by adding calls to lifecycle methods</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -335,16 +417,19 @@ since preSave may depend on changed attributes</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.presave">
+  <h2>
+    <a href="#basemodel.prototype.presave" name="basemodel.prototype.presave" class="pilcrow">&#182;</a>
+    BaseModel.prototype.preSave
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>preSave is called before main save (saving to db) is executed.
+
+  </div>
+  <div class="body"><p>preSave is called before main save (saving to db) is executed.
 This is a good place to add extended validation, ACL or other code that should be
 executed (asyncronously) before model is saved.</p>
-  </div>
-  <div class="body">
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -366,16 +451,19 @@ executed (asyncronously) before model is saved.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.aftersave">
+  <h2>
+    <a href="#basemodel.prototype.aftersave" name="basemodel.prototype.aftersave" class="pilcrow">&#182;</a>
+    BaseModel.prototype.afterSave
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>afterSave is called after model was successfully saved to db.
+
+  </div>
+  <div class="body"><p>afterSave is called after model was successfully saved to db.
 Here you can for example trigger 'hooks' that inform other parts of the application that
 model was successfully saved.</p>
-  </div>
-  <div class="body">
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -397,14 +485,17 @@ model was successfully saved.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.fetch">
+  <h2>
+    <a href="#basemodel.prototype.fetch" name="basemodel.prototype.fetch" class="pilcrow">&#182;</a>
+    BaseModel.prototype.fetch
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>fetch extends backbone-blueprint's fetch by adding calls to lifecycle methods</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>fetch extends backbone-blueprint's fetch by adding calls to lifecycle methods</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -444,14 +535,17 @@ model was successfully saved.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.prefetch">
+  <h2>
+    <a href="#basemodel.prototype.prefetch" name="basemodel.prototype.prefetch" class="pilcrow">&#182;</a>
+    BaseModel.prototype.preFetch
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>preFetch is called before main fetch (reading from db) is executed.</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>preFetch is called before main fetch (reading from db) is executed.</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -473,16 +567,19 @@ model was successfully saved.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.afterfetch">
+  <h2>
+    <a href="#basemodel.prototype.afterfetch" name="basemodel.prototype.afterfetch" class="pilcrow">&#182;</a>
+    BaseModel.prototype.afterFetch
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>afterFetch is called after main fetch (reading from db) succeeded.
+
+  </div>
+  <div class="body"><p>afterFetch is called after main fetch (reading from db) succeeded.
 Here you can for example fetch dependencies and trigger other functionality that
 depends on the data.</p>
-  </div>
-  <div class="body">
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -504,14 +601,17 @@ depends on the data.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.destroy">
+  <h2>
+    <a href="#basemodel.prototype.destroy" name="basemodel.prototype.destroy" class="pilcrow">&#182;</a>
+    BaseModel.prototype.destroy
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>fetch extends backbone-blueprint's destroy by adding calls to lifecycle methods</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>fetch extends backbone-blueprint's destroy by adding calls to lifecycle methods</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -543,15 +643,18 @@ depends on the data.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.predelete">
+  <h2>
+    <a href="#basemodel.prototype.predelete" name="basemodel.prototype.predelete" class="pilcrow">&#182;</a>
+    BaseModel.prototype.preDelete
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>preDelete is called before main destroy (deleting from db) is run.
-Here you can for example check access control dependencies.</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>preDelete is called before main destroy (deleting from db) is run.
+Here you can for example check access control dependencies.</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -591,15 +694,18 @@ Here you can for example check access control dependencies.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.afterdelete">
+  <h2>
+    <a href="#basemodel.prototype.afterdelete" name="basemodel.prototype.afterdelete" class="pilcrow">&#182;</a>
+    BaseModel.prototype.afterDelete
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>afterDelete is called after main destroy (deleting from db) succeeds.
-Here you can for example cascade delete (delete other models that depend on deleted model).</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>afterDelete is called after main destroy (deleting from db) succeeds.
+Here you can for example cascade delete (delete other models that depend on deleted model).</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -634,14 +740,17 @@ Here you can for example cascade delete (delete other models that depend on dele
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.canaccess">
+  <h2>
+    <a href="#basemodel.prototype.canaccess" name="basemodel.prototype.canaccess" class="pilcrow">&#182;</a>
+    BaseModel.prototype.canAccess
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>canAccess checks global level access to the model.</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>canAccess checks global level access to the model.</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -663,14 +772,17 @@ Here you can for example cascade delete (delete other models that depend on dele
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.getroles">
+  <h2>
+    <a href="#basemodel.prototype.getroles" name="basemodel.prototype.getroles" class="pilcrow">&#182;</a>
+    BaseModel.prototype.getRoles
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>getRoles dynamically sets roles for this model.</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>getRoles dynamically sets roles for this model.</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -693,14 +805,17 @@ Here you can for example cascade delete (delete other models that depend on dele
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.propertieswithaccess">
+  <h2>
+    <a href="#basemodel.prototype.propertieswithaccess" name="basemodel.prototype.propertieswithaccess" class="pilcrow">&#182;</a>
+    BaseModel.prototype.propertiesWithAccess
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>propertiesWithAccess return a list of properties keys of this Model which the actor has access to.</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>propertiesWithAccess return a list of properties keys of this Model which the actor has access to.</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -722,15 +837,18 @@ Here you can for example cascade delete (delete other models that depend on dele
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-24" id="section-24">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.tojson">
+  <h2>
+    <a href="#basemodel.prototype.tojson" name="basemodel.prototype.tojson" class="pilcrow">&#182;</a>
+    BaseModel.prototype.toJSON
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>toJSON is used both when returning a JSON representation of the Model to the HTTP response and
-when saving the model to database</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>toJSON is used both when returning a JSON representation of the Model to the HTTP response and
+when saving the model to database</p>
   </div>
 </div>
         </td>
@@ -746,14 +864,17 @@ when saving the model to database</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-25" id="section-25">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.validate">
+  <h2>
+    <a href="#basemodel.prototype.validate" name="basemodel.prototype.validate" class="pilcrow">&#182;</a>
+    BaseModel.prototype.validate
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>validate the Model based on JSON schema</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>validate the Model based on JSON schema</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -779,15 +900,18 @@ when saving the model to database</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-26" id="section-26">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.fetchall">
+  <h2>
+    <a href="#basemodel.prototype.fetchall" name="basemodel.prototype.fetchall" class="pilcrow">&#182;</a>
+    BaseModel.prototype.fetchAll
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Fetch current model &amp; its relations
-Need to fetch current model first in order to apply correct ids to relations</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Fetch current model &amp; its relations
+Need to fetch current model first in order to apply correct ids to relations</p>
   </div>
 </div>
         </td>
@@ -825,16 +949,28 @@ Need to fetch current model first in order to apply correct ids to relations</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.fetchrelations">
+  <h2>
+    <a href="#basemodel.prototype.fetchrelations" name="basemodel.prototype.fetchrelations" class="pilcrow">&#182;</a>
+    BaseModel.prototype.fetchRelations
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Fetches relations available based on current attributes
-if options.onlyRelations Array is specified only those relations are fetched
-e.g. fetchRelations({onlyRelations: ['user']}) will fetch only relation 'user'</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Fetches relations available based on current attributes
+if options.onlyRelations Array is specified only those relations are fetched</p>
+
+<p>e.g.</p>
+
+
+<div class="highlight"><pre><code><span class="nx">fetchRelations</span><span class="p">({</span><span class="nx">onlyRelations</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]})</span>
+</code></pre></div>
+
+
+
+<p>will fetch only relation <code>user</code></p>
   </div>
 </div>
         </td>
@@ -887,26 +1023,29 @@ e.g. fetchRelations({onlyRelations: ['user']}) will fetch only relation 'user'</
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-29" id="section-29">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.fetchrequired">
+  <h2>
+    <a href="#basemodel.prototype.fetchrequired" name="basemodel.prototype.fetchrequired" class="pilcrow">&#182;</a>
+    BaseModel.prototype.fetchRequired
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Fetch model/relations based on given projection.
+
+  </div>
+  <div class="body"><p>Fetch model/relations based on given projection.
 Tries to avoid unnecessary fetches.
 TODO: this does not support all projection options yet.</p>
-  </div>
-  <div class="body">
   </div>
   <div class="details">
     <div class="dox_tag_title">Params</div>
     <div class="dox_tag_detail">
       <span class="dox_tag_name"></span>
-      <span>{object} projection</span>
+      <span>{Qbject} projection</span>
     </div>
     <div class="dox_tag_detail">
       <span class="dox_tag_name"></span>
-      <span>{object} options</span>
+      <span>{Qbject} options</span>
     </div>
     <div class="dox_tag_title">Returns</div>
     <div class="dox_tag_detail">
@@ -963,15 +1102,18 @@ TODO: this does not support all projection options yet.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-30" id="section-30">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.saveall">
+  <h2>
+    <a href="#basemodel.prototype.saveall" name="basemodel.prototype.saveall" class="pilcrow">&#182;</a>
+    BaseModel.prototype.saveAll
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Save Model &amp; its relations
-Note: Collection relations are not saved</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Save Model &amp; its relations
+Note: Collection relations are not saved</p>
   </div>
 </div>
         </td>
@@ -995,14 +1137,17 @@ Note: Collection relations are not saved</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-31" id="section-31">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.applytoall">
+  <h2>
+    <a href="#basemodel.prototype.applytoall" name="basemodel.prototype.applytoall" class="pilcrow">&#182;</a>
+    BaseModel.prototype.applyToAll
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>applyToAll applies function to this model &amp; its relations</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>applyToAll applies function to this model &amp; its relations</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Params</div>
@@ -1043,21 +1188,24 @@ Note: Collection relations are not saved</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-32" id="section-32">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.fetchallrequired">
+  <h2>
+    <a href="#basemodel.prototype.fetchallrequired" name="basemodel.prototype.fetchallrequired" class="pilcrow">&#182;</a>
+    BaseModel.prototype.fetchAllRequired
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Check if fetchAll should be called</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Check if fetchAll should be called</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
     <div class="dox_tag_detail">
       <span class="dox_tag_name"></span>
       <span class="dox_type">Boolean</span>
-      <span>true if fetchAll should be called</span>
+      <span><code>true</code> if fetchAll should be called</span>
     </div>
   </div>
 </div>
@@ -1074,14 +1222,17 @@ Note: Collection relations are not saved</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-33" id="section-33">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.changedattributeswithoutrelations">
+  <h2>
+    <a href="#basemodel.prototype.changedattributeswithoutrelations" name="basemodel.prototype.changedattributeswithoutrelations" class="pilcrow">&#182;</a>
+    BaseModel.prototype.changedAttributesWithoutRelations
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>omits relations from changedAttributes</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>omits relations from changedAttributes</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Returns</div>
@@ -1106,15 +1257,18 @@ Note: Collection relations are not saved</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-34" id="section-34">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.prototype.attributeschanged">
+  <h2>
+    <a href="#basemodel.prototype.attributeschanged" name="basemodel.prototype.attributeschanged" class="pilcrow">&#182;</a>
+    BaseModel.prototype.attributesChanged
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Called when attributes of this model are changed. Used for keeping track of which
-attributes have been changed since this model was last synced (fetched or saved).</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Called when attributes of this model are changed. Used for keeping track of which
+attributes have been changed since this model was last synced (fetched or saved).</p>
   </div>
 </div>
         </td>
@@ -1149,7 +1303,7 @@ attributes have been changed since this model was last synced (fetched or saved)
 <div class="pilwrap">
   <a class="pilcrow" href="#section-35" id="section-35">&#182;</a>
 </div>
-<p>in context of serverbone Model.previousAttributes returns attributes that were set when last synced</p>
+<p>in context of serverbone <code>Model.previousAttributes</code> returns attributes that were set when last synced</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
   <span class="nx">previousAttributes</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -1159,18 +1313,32 @@ attributes have been changed since this model was last synced (fetched or saved)
 
 <span class="p">});</span>
 
-<span class="nx">BaseModel</span><span class="p">.</span><span class="nx">Associations</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Associations</span><span class="p">;</span>
-
 
 </pre></div>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-36" id="section-36">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel.setdbdriver">
+  <h2>
+    <a href="#basemodel.setdbdriver" name="basemodel.setdbdriver" class="pilcrow">&#182;</a>
+    BaseModel.setDbDriver
+  </h2>
 </div>
-<p>override db config during runtime</p>
+
+  </div>
+  <div class="body"><p>allows overriding db config during runtime</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">dbSettings</span>
+      <span class="dox_type">Object</span>
+      <span>object with keys  {db: ..., sync: ..., indexDb: ...}</span>
+    </div>
+  </div>
+</div>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">setDbDriver</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">dbSettings</span><span class="p">)</span> <span class="p">{</span>
@@ -1179,33 +1347,62 @@ attributes have been changed since this model was last synced (fetched or saved)
   <span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">indexDb</span> <span class="o">=</span> <span class="nx">dbSettings</span><span class="p">.</span><span class="nx">indexDb</span><span class="p">;</span>
 <span class="p">};</span>
 
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-37" id="section-37">&#182;</a>
-</div>
-<p>Instance methods</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-38" id="section-38">&#182;</a>
-</div>
-<p>Helpers</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">BaseModel</span><span class="p">;</span>
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="formatproperties">
+  <h2>
+    <a href="#formatproperties" name="formatproperties" class="pilcrow">&#182;</a>
+    formatProperties
+  </h2>
+</div>
+
+  </div>
+  <div class="body"><p>Format 'templated' properties of object like {type: '{type}'}
+using given this-context for the actual value</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} properties</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Object</span>
+      <span>formatted properties, i.e. templated values replaced by real value</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">formatProperties</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">properties</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">realProperties</span> <span class="o">=</span> <span class="p">{};</span>
+
+  <span class="kd">function</span> <span class="nx">getTemplateValue</span><span class="p">(</span><span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">getThisValue</span><span class="p">(</span><span class="nx">match</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">cleanedValue</span> <span class="o">=</span> <span class="nx">match</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nx">match</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">self</span><span class="p">[</span><span class="nx">cleanedValue</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">property</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/{([^}]+)}+/g</span><span class="p">,</span> <span class="nx">getThisValue</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">propertyKey</span> <span class="k">in</span> <span class="nx">properties</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">realProperties</span><span class="p">[</span><span class="nx">propertyKey</span><span class="p">]</span> <span class="o">=</span> <span class="nx">getTemplateValue</span><span class="p">(</span><span class="nx">properties</span><span class="p">[</span><span class="nx">propertyKey</span><span class="p">]);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">realProperties</span><span class="p">;</span>
+<span class="p">};</span>
+
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">formatProperties</span> <span class="o">=</span> <span class="nx">formatProperties</span><span class="p">;</span>
 </pre></div>
         </td>
