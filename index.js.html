@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>index.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="doc-style.css" />
+  <script src="doc-filelist.js"></script>
+  <script>
+    var relativeDir = "", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//index.js", defaultSidebar = true;
+  </script>
+  <script src="doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h1">
+        <a href="#serverbone">Serverbone</a>
+      </div>
+      <div class="heading h1">
+        <a href="#introduction">Introduction</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="serverbone">
+  <h1>
+    <a href="#serverbone" name="serverbone" class="pilcrow">&#182;</a>
+    Serverbone
+  </h1>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre></pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap" id="introduction">
+  <h1>
+    <a href="#introduction" name="introduction" class="pilcrow">&#182;</a>
+    Introduction
+  </h1>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p><a href="http://serverbonejs.org/">Serverbone.js</a> is a server-side Rest API framework that supports multiple data stores on Node.js. Especially, you can combine multiple data stores such as a document store (e.g. MongoDB using <a href="https://github.com/Everyplay/backbone-db-mongodb">backbone-db-mongodb</a>), and a key-value store for indexes (e.g. Redis using <a href="https://github.com/Everyplay/backbone-db-redis">backbone-db-redis</a>). The project is based on the following modules:</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<ul>
+<li><a href="https://github.com/Everyplay/backbone-db">Backbone DB</a>: provides interface for interacting with databases</li>
+<li><a href="https://github.com/Everyplay/backbone-promises">Backbone Promises</a>: serverbone APIs use Promises/A+ conventions.</li>
+<li><a href="https://github.com/Everyplay/backbone-blueprint">Backbone Blueprint</a>: JSON schema parsing &amp; validation, etc.</li>
+</ul>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>The goals of the framework are:</p>
+
+<ul>
+<li>Define models using JSON configuration (based on JSON Schema, implemented by <a href="https://github.com/Everyplay/backbone-blueprint">backbone-blueprint</a>)</li>
+<li>Mount models &amp; collections CRUD easily into HTTP verbs by using Resource. E.g. HTTP POST should call Model.create.</li>
+<li>Provide basis for implementing resource level fine grained ACL</li>
+</ul>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">acl</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./acl&#39;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">db</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./db&#39;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">collections</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./collections&#39;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">errors</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./errors&#39;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">middleware</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./middleware&#39;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">models</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./models&#39;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">resources</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./resources&#39;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">Resource</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">.</span><span class="nx">resources</span><span class="p">.</span><span class="nx">Resource</span><span class="p">;</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">utils</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./utils&#39;</span><span class="p">);</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

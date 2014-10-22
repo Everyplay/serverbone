@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>multi_index_mixin.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//collections/multi_index_mixin.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>multi_index_mixin.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Stores JSON data in a sorted set</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">nodefn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when/node&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">JSONModel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/json_model&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">debug</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)(</span><span class="s1">&#39;serverbone:collections:JSONIndexMixin&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">IndexMixin</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./index_mixin&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">MultiIndexMixin</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">IndexMixin</span><span class="p">,</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>indexProperties or indexKeys must be defined:
+indexProperties: [{value: 'xx'}, {value: 'yy'}]
+- used for replacing templated values in indexKey
+unionKey: 'xx'
+- key for storing set union temporarily</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>setup index keys,
+this must be called before constructor which replaces tokens in indexKey</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">setupIndexes</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKeys</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">indexProperties</span> <span class="o">||</span> <span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">indexProperties</span><span class="p">)))</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;indexProperties Array must be given as options&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKeys</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">indexKeys</span> <span class="o">=</span> <span class="p">[];</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">indexProperties</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">prop</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">indexKeys</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_replaceTemplatedVals</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKey</span><span class="p">,</span> <span class="nx">prop</span><span class="p">));</span>
+      <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">indexKeys</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKeys</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_replaceTemplatedVals</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+      <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">unionKey</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_replaceTemplatedVals</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">unionKey</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>override readFromIndex to read from multiple indexes</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">readFromIndex</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">indexDb</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;indexDb must be defined&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">indexDb</span><span class="p">.</span><span class="nx">readFromIndexes</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;indexDb does not support reading from multiple indexes&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">?</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="o">:</span> <span class="p">{};</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">indexKeys</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">indexKeys</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKey</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">indexKeys</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKey</span><span class="p">)</span> <span class="o">===</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">indexKeys</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKey</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">unionKey</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">unionKey</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[</span><span class="k">this</span><span class="p">,</span> <span class="nx">options</span><span class="p">];</span>
+    <span class="k">return</span> <span class="nx">nodefn</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">indexDb</span><span class="p">.</span><span class="nx">readFromIndexes</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">indexDb</span><span class="p">),</span> <span class="nx">args</span><span class="p">);</span>
+  <span class="p">},</span>
+
+<span class="p">});</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">MultiIndexMixin</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

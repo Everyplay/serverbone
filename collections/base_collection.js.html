@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>base_collection.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//collections/base_collection.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>base_collection.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Promises</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone-promises&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">PromisesCollection</span> <span class="o">=</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">Collection</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">SchemaCollection</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone-blueprint&#39;</span><span class="p">).</span><span class="nx">Collection</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">parallel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when/parallel&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">BaseModel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/base_model&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">BaseCollection</span> <span class="o">=</span> <span class="nx">SchemaCollection</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="o">:</span> <span class="nx">BaseModel</span><span class="p">,</span>
+  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">models</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">BaseCollection</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">setupDefaultOptions</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
+  <span class="p">},</span>
+
+  <span class="nx">setupDefaultOptions</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">);</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>replace templated properties in where field</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">val</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_replaceTemplatedVals</span><span class="p">(</span><span class="nx">val</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span><span class="p">(</span><span class="nx">val</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">val</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">objVal</span><span class="p">,</span> <span class="nx">objKey</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span><span class="p">[</span><span class="nx">key</span><span class="p">]);</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span><span class="p">[</span><span class="nx">key</span><span class="p">][</span><span class="nx">objKey</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_replaceTemplatedVals</span><span class="p">(</span><span class="nx">objVal</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+        <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+  <span class="p">},</span>
+
+  <span class="nx">url</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">type</span> <span class="o">||</span> <span class="s1">&#39;base_collection&#39;</span><span class="p">;</span>
+  <span class="p">},</span>
+
+  <span class="nx">create</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span><span class="p">.</span><span class="nx">where</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">val</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span><span class="p">(</span><span class="nx">val</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">data</span> <span class="k">instanceof</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">data</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">val</span><span class="p">);</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">data</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">data</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">val</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">&amp;&amp;</span> <span class="nx">val</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">name</span> <span class="o">===</span> <span class="s1">&#39;ObjectID&#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">data</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">PromisesCollection</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">create</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">opts</span><span class="p">);</span>
+  <span class="p">},</span>
+
+  <span class="nx">fetch</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span> <span class="o">||</span> <span class="p">{},</span> <span class="nx">options</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">after_id</span><span class="p">)</span> <span class="nx">options</span><span class="p">.</span><span class="nx">after_id</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_convertId</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">after_id</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">before_id</span><span class="p">)</span> <span class="nx">options</span><span class="p">.</span><span class="nx">before_id</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_convertId</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">before_id</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">PromisesCollection</span><span class="p">.</span><span class="nx">prototype</span>
+      <span class="p">.</span><span class="nx">fetch</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">fetchStatus</span> <span class="o">=</span> <span class="s1">&#39;fetched&#39;</span><span class="p">;</span>
+      <span class="p">});</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>Convert ids according to Model's schema</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">_convertId</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">id</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">idAttr</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">idAttribute</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">attrs</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="nx">attrs</span><span class="p">[</span><span class="nx">idAttr</span><span class="p">]</span> <span class="o">=</span> <span class="nx">id</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">converted</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">_convertAttributes</span><span class="p">(</span><span class="nx">attrs</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">converted</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">idAttr</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">converted</span><span class="p">[</span><span class="nx">idAttr</span><span class="p">];</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Helper function for calling fetchAll to all models in the collection</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetchModelRelations</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[];</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">fns</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">model</span><span class="p">.</span><span class="nx">fetchAll</span><span class="p">,</span> <span class="nx">model</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">options</span> <span class="o">||</span><span class="err"> </span><span class="p">{},</span> <span class="p">{</span><span class="nx">action</span><span class="o">:</span> <span class="s1">&#39;read&#39;</span><span class="p">})));</span>
+    <span class="p">});</span>
+
+    <span class="k">return</span> <span class="nx">parallel</span><span class="p">(</span><span class="nx">fns</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Destroys all models from collection</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">destroyAll</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">applyToAll</span><span class="p">(</span><span class="s1">&#39;destroy&#39;</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Apply given function to all models</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">applyToAll</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">fetchFn</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">fetchStatus</span> <span class="o">!==</span> <span class="s1">&#39;fetched&#39;</span>
+      <span class="o">?</span> <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">fetch</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">options</span><span class="p">,</span> <span class="p">{</span><span class="nx">action</span><span class="o">:</span> <span class="s1">&#39;read&#39;</span><span class="p">}))</span>
+      <span class="o">:</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">fetchFn</span><span class="p">()</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[];</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">models</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">fns</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">model</span><span class="p">[</span><span class="nx">fn</span><span class="p">],</span> <span class="nx">model</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)));</span>
+        <span class="p">});</span>
+        <span class="k">return</span> <span class="nx">parallel</span><span class="p">(</span><span class="nx">fns</span><span class="p">);</span>
+      <span class="p">});</span>
+  <span class="p">},</span>
+
+  <span class="nx">_replaceTemplatedVals</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span> <span class="o">||</span> <span class="o">!</span><span class="nx">value</span><span class="p">)</span> <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">value</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">val</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">val</span><span class="p">))</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">options</span><span class="p">[</span><span class="nx">val</span><span class="p">];</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">value</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">value</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/{([^}]+)}+/g</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">val</span> <span class="o">=</span> <span class="nx">v</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nx">options</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="o">?</span> <span class="nx">options</span><span class="p">[</span><span class="nx">val</span><span class="p">]</span> <span class="o">:</span> <span class="nx">v</span><span class="p">;</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">BaseCollection</span><span class="p">.</span><span class="nx">setDbDriver</span> <span class="o">=</span> <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">setDbDriver</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">BaseCollection</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>domain.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//middleware/domain.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>domain.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">domain</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;domain&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">debug</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)(</span><span class="s1">&#39;serverbone:middleware:domain&#39;</span><span class="p">);</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>express error domain, handles any uncaught exceptions thrown after this middleware.</p>
+  </div>
+  <div class="body"><p>Calls next(err); for any exceptions not caught and forward them to the proper express error handler.
+Purpose is to isolate errors and handle them gracefully for this application and not let them to take down
+any other possible apps running in the same process.</p>
+
+<p>With this middleware it is safe to throw from asynchronous blocks to get the error to express error handler.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Function
+</span>
+      <span>{Function}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">requestDomain</span> <span class="o">=</span> <span class="nx">domain</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+    <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;creating request domain for request to %s&#39;</span><span class="p">,</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+    <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;finish&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;request to %s finished, disposing domain&#39;</span><span class="p">,</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+      <span class="nx">requestDomain</span><span class="p">.</span><span class="nx">dispose</span><span class="p">();</span>
+    <span class="p">});</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;response to %s closed, disposing domain&#39;</span><span class="p">,</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+      <span class="nx">requestDomain</span><span class="p">.</span><span class="nx">dispose</span><span class="p">();</span>
+    <span class="p">});</span>
+    <span class="nx">requestDomain</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;rrequest to %s errored, calling next with error&#39;</span><span class="p">,</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+      <span class="nx">requestDomain</span><span class="p">.</span><span class="nx">dispose</span><span class="p">();</span>
+      <span class="k">return</span> <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;running next() in domain for %s&#39;</span><span class="p">,</span><span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+    <span class="nx">requestDomain</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="nx">next</span><span class="p">);</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>index_collection.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//collections/index_collection.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>index_collection.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Collection which stores indexes separately.</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">sequence</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when/sequence&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">BaseCollection</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./base_collection&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">IndexMixin</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./index_mixin&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">IndexCollection</span> <span class="o">=</span> <span class="nx">BaseCollection</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span>
+  <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">IndexMixin</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">defaultOptions</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">$in</span><span class="o">:</span> <span class="s1">&#39;{ids}&#39;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">models</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">IndexCollection</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">indexKey</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_replaceTemplatedVals</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">indexKey</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+    <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Ids were fetched from index, read models from the main store</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">modelsFetch</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">ids</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">pluck</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">?</span> <span class="nx">id</span> <span class="o">:</span> <span class="nb">Number</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+      <span class="p">});</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">ids</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">defaultOptions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">$in</span><span class="o">:</span> <span class="nx">ids</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">comparator</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">comparator</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nx">ids</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">model</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+        <span class="p">};</span>
+      <span class="p">}</span>
+
+      <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[</span><span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="p">[</span><span class="nx">IndexCollection</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">fetch</span><span class="p">,</span> <span class="k">this</span><span class="p">].</span><span class="nx">concat</span><span class="p">(</span><span class="nx">arguments</span><span class="p">))];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">filterModels</span><span class="p">)</span> <span class="nx">fns</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">filterModels</span><span class="p">,</span> <span class="k">this</span><span class="p">));</span>
+      <span class="k">return</span> <span class="nx">sequence</span><span class="p">(</span><span class="nx">fns</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>need to sort models here, since there is no way to guarantee of order of documents
+fetched from MongoDB /w $in query</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+          <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">comparator</span><span class="p">)</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sort</span><span class="p">();</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+  <span class="p">})</span>
+<span class="p">);</span>
+<span class="nx">IndexCollection</span><span class="p">.</span><span class="nx">setDbDriver</span> <span class="o">=</span> <span class="nx">BaseCollection</span><span class="p">.</span><span class="nx">setDbDriver</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">IndexCollection</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

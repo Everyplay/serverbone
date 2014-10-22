@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>validation_error.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//errors/validation_error.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>validation_error.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">util</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;util&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">BaseError</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./base_error&#39;</span><span class="p">);</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>convert errors given by jsonschema</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">getErrorMessage</span><span class="p">(</span><span class="nx">errors</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">errors</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">uniq</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">pluck</span><span class="p">(</span><span class="nx">errors</span><span class="p">,</span> <span class="s1">&#39;stack&#39;</span><span class="p">)).</span><span class="nx">join</span><span class="p">().</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/instance./g</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">errors</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">message</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">ValidationError</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">description</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isString</span><span class="p">(</span><span class="nx">options</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">description</span> <span class="o">=</span> <span class="nx">options</span><span class="p">;</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="nx">options</span><span class="p">.</span><span class="nx">statusCode</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">statusCode</span> <span class="o">||</span> <span class="mi">400</span><span class="p">;</span>
+  <span class="nx">options</span><span class="p">.</span><span class="nx">description</span> <span class="o">=</span> <span class="nx">description</span> <span class="o">||</span> <span class="nx">getErrorMessage</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">errors</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">msg</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">description</span> <span class="o">||</span> <span class="s1">&#39;validation_error&#39;</span><span class="p">;</span>
+  <span class="nx">ValidationError</span><span class="p">.</span><span class="nx">super_</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">msg</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="nx">util</span><span class="p">.</span><span class="nx">inherits</span><span class="p">(</span><span class="nx">ValidationError</span><span class="p">,</span> <span class="nx">BaseError</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">ValidationError</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

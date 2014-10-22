@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>acl_model.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//models/acl_model.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>acl_model.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>extends BaseModel with ACL functionality.</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">BaseModel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./base_model&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">_debug</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">logId</span> <span class="o">=</span> <span class="s1">&#39;serverbone:models:acl&#39;</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">acl</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../acl&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">errors</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../errors&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">util</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;util&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">debug</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">trace</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:trace&#39;</span><span class="p">),</span>
+  <span class="nx">log</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:log&#39;</span><span class="p">),</span>
+  <span class="nx">warn</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:warn&#39;</span><span class="p">),</span>
+  <span class="nx">error</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:error&#39;</span><span class="p">)</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">ACLModel</span> <span class="o">=</span> <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">args</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">ACLModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="err"> </span><span class="p">{};</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_processPermissions</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">addRoles</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">roles</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">actor</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">actor</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Check access before proceeding with save</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">save</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">val</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">opts</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="err"> </span><span class="p">{};</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">key</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="k">typeof</span> <span class="nx">key</span> <span class="o">===</span> <span class="s1">&#39;object&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">opts</span> <span class="o">=</span> <span class="nx">val</span> <span class="o">||</span> <span class="err"> </span><span class="p">{};</span>
+    <span class="p">}</span>
+    <span class="nx">opts</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">action</span> <span class="o">||</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isNew</span><span class="p">()</span> <span class="o">?</span> <span class="s1">&#39;create&#39;</span> <span class="o">:</span> <span class="s1">&#39;update&#39;</span><span class="p">);</span>
+    <span class="nx">opts</span><span class="p">.</span><span class="nx">actor</span> <span class="o">=</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">actor</span> <span class="o">||</span> <span class="err"> </span><span class="k">this</span><span class="p">.</span><span class="nx">actor</span><span class="p">;</span>
+    <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;ACLModel(%s).save %s actor present: %d&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">type</span> <span class="o">||</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">actor</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">ACLModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">save</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">opts</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Check access before proceeding with fetchAll</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetchAll</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="err"> </span><span class="p">{};</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="s1">&#39;read&#39;</span><span class="p">;</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">||</span> <span class="err"> </span><span class="k">this</span><span class="p">.</span><span class="nx">actor</span><span class="p">;</span>
+    <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;ACLModel(%s).fetchAll %s actor present: %d&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">type</span> <span class="o">||</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">ACLModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">fetchAll</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Check access before proceeding with fetch</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetch</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="err"> </span><span class="p">{};</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="s1">&#39;read&#39;</span><span class="p">;</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">||</span> <span class="err"> </span><span class="k">this</span><span class="p">.</span><span class="nx">actor</span><span class="p">;</span>
+    <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;ACLModel(%s).fetch %s actor present: %d&#39;</span><span class="p">,</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">type</span> <span class="o">||</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">ACLModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">fetch</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>fetchACLDependencies should be implemented if role resolving needs data e.g. from other model</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} options options for fetch the dependencies</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise
+</span>
+      <span>{Promise}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetchACLDependencies</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Check access before proceeding with destroy</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">destroy</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="err"> </span><span class="p">{};</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="s1">&#39;destroy&#39;</span><span class="p">;</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">actor</span><span class="p">;</span>
+    <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;ACLModel(%s).destroy %s actor present: %d&#39;</span><span class="p">,</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">type</span> <span class="o">||</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="k">this</span>
+      <span class="p">.</span><span class="nx">fetchACLDependencies</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">canAccess</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">canAccess</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">canAccess</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">errorMsg</span> <span class="o">=</span> <span class="nx">util</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span>
+            <span class="s1">&#39;No access to %s: %s (%s)&#39;</span><span class="p">,</span>
+            <span class="nx">options</span><span class="p">.</span><span class="nx">action</span><span class="p">,</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">type</span> <span class="o">||</span> <span class="nx">self</span><span class="p">.</span><span class="nx">indexKey</span><span class="p">,</span>
+            <span class="nx">self</span><span class="p">.</span><span class="nx">id</span>
+          <span class="p">);</span>
+          <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">ForbiddenError</span><span class="p">(</span><span class="nx">errorMsg</span><span class="p">));</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">ACLModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">destroy</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+      <span class="p">});</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Add role/roles to this instance of the Model</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object|Array} roles</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">addRoles</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">roles</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+</div>
+<p>debug.trace('ACLModel(%s).addRoles %s', this.type || '', JSON.stringify(roles || []));</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">this</span><span class="p">.</span><span class="nx">roles</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">roles</span> <span class="o">||</span> <span class="err"> </span><span class="p">[];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">roles</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">roles</span><span class="p">))</span> <span class="nx">roles</span> <span class="o">=</span> <span class="p">[</span><span class="nx">roles</span><span class="p">];</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<p>debug.log('Adding roles %s to model %s', _.uniq(this.roles.concat(roles)), this.url());</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">this</span><span class="p">.</span><span class="nx">roles</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">uniq</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">roles</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">roles</span><span class="p">));</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Return roles for actor accessing this Model.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} actor</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Array
+</span>
+      <span>{Array}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">getRoles</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">actor</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+</div>
+<p>debug.trace('ACLModel(%s).getRoles for model type %s, self.id: %s, actor.id: %s',
+ this.type || '', (actor || {}).type || '', this.id, (actor || {}).id);
+debug.log('Model %s asking roles from %s',actor ? actor.url() : '', this.url());</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="kd">var</span> <span class="nx">roles</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">actor</span><span class="p">)</span> <span class="k">return</span> <span class="nx">roles</span><span class="p">;</span>
+
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">relationDefinitions</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">refs</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">pairs</span><span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">references</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">value</span><span class="p">.</span><span class="nx">references</span> <span class="o">||</span> <span class="o">!</span><span class="nx">value</span><span class="p">.</span><span class="nx">Class</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">relation</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">relation</span>
+        <span class="o">&amp;&amp;</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="nx">relation</span><span class="p">.</span><span class="nx">type</span>
+        <span class="o">&amp;&amp;</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">refs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">refs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="o">&amp;&amp;</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">refs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">===</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">refs</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="nx">roles</span> <span class="o">=</span> <span class="nx">roles</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">roles</span> <span class="o">||</span> <span class="nx">key</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+
+    <span class="nx">roles</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">uniq</span><span class="p">((</span><span class="nx">actor</span><span class="p">.</span><span class="nx">roles</span> <span class="o">||</span> <span class="p">[]).</span><span class="nx">concat</span><span class="p">(</span><span class="nx">roles</span><span class="p">));</span>
+    <span class="k">return</span> <span class="nx">roles</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>init ACL</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">_processPermissions</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">permissions</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">schema</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">.</span><span class="nx">permissions</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">permissions</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">.</span><span class="nx">permissions</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">acl</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">acl</span><span class="p">.</span><span class="nx">ACL</span><span class="p">(</span><span class="nx">permissions</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Filters data in JSON to include only properties that actor has access to</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} options options for reading the JSON, should contain at least actor object</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Object
+</span>
+      <span>{Object}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">toJSON</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">json</span> <span class="o">=</span> <span class="nx">ACLModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">json</span><span class="p">)</span> <span class="k">return</span> <span class="nx">json</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">user</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">actor</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">user</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">actor</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">acl</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">action</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">||</span> <span class="s1">&#39;read&#39;</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">readableFields</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">propertiesWithAccess</span><span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span><span class="p">);</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">json</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">readableFields</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="o">===</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">delete</span> <span class="nx">json</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">json</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+</div>
+<p>check access to this model</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">canAccess</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+</div>
+<p>debug.trace('canAccess %s(%s): %s', model ? model.type : '', model ? model.id : '', action);</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">acl</span><span class="p">)</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">action</span> <span class="o">===</span> <span class="s1">&#39;validate&#39;</span><span class="p">)</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">debug</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;using default access model&#39;</span><span class="p">);</span>
+      <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ACLModel</span><span class="p">();</span>
+    <span class="p">}</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
+</div>
+<p>debug.log('canAccess %s %s', action, model.url());</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">acl</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getRoles</span><span class="p">(</span><span class="nx">model</span><span class="p">),</span> <span class="nx">action</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+</div>
+<p>Field level access: get properties which user has permissions
+field can override object level access mask</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">propertiesWithAccess</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">debug</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;using default access model&#39;</span><span class="p">);</span>
+      <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ACLModel</span><span class="p">();</span>
+    <span class="p">}</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+</div>
+<p>debug.trace('propertiesWithAccess to action %s with model %s', action, model.toJSON());</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="kd">var</span> <span class="nx">objectAccess</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">canAccess</span><span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">model</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">keys</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">schema</span> <span class="o">||</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">.</span><span class="nx">properties</span><span class="p">)</span> <span class="k">return</span> <span class="nx">keys</span><span class="p">;</span>
+
+    <span class="kd">function</span> <span class="nx">grantAccess</span><span class="p">(</span><span class="nx">properyList</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">properyList</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">prop</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">prop</span><span class="p">.</span><span class="nx">permissions</span> <span class="o">&amp;&amp;</span> <span class="nx">objectAccess</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">keys</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">prop</span><span class="p">.</span><span class="nx">permissions</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">mask</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">acl</span><span class="p">.</span><span class="nx">ACL</span><span class="p">(</span><span class="nx">prop</span><span class="p">.</span><span class="nx">permissions</span><span class="p">);</span>
+          <span class="kd">var</span> <span class="nx">roles</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">getRoles</span><span class="p">(</span><span class="nx">model</span><span class="p">);</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">mask</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="nx">roles</span><span class="p">,</span> <span class="nx">action</span><span class="p">))</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+</div>
+<p>debug.log('adding key %s because of %s for mask %s', key, roles.join(','), JSON.stringify(mask));</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+            <span class="nx">keys</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="nx">grantAccess</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">.</span><span class="nx">properties</span><span class="p">);</span>
+
+    <span class="nx">debug</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;propertiesWithAccess giving out keys: %s to %s(%s) to %s(%s)&#39;</span><span class="p">,</span>
+      <span class="nx">keys</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">),</span> <span class="nx">model</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span> <span class="nx">model</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">self</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span> <span class="nx">self</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">keys</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Override default validation by adding ACL check. Checks if actor has access to proceed with given action.</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">validate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">changedAttrs</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">changedSinceSync</span> <span class="o">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">changedSinceSync</span><span class="p">()</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">changedAttributes</span><span class="p">();</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">?</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="o">:</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">action</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">||</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isNew</span><span class="p">()</span> <span class="o">?</span> <span class="s1">&#39;create&#39;</span> <span class="o">:</span> <span class="s1">&#39;update&#39;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">actor</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">actor</span> <span class="o">||</span> <span class="nx">options</span><span class="p">.</span><span class="nx">user</span> <span class="o">||</span> <span class="nx">options</span><span class="p">.</span><span class="nx">model</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">actor</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">oldAttrs</span> <span class="o">=</span> <span class="nx">action</span> <span class="o">===</span> <span class="s1">&#39;update&#39;</span> <span class="o">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">previousAttributes</span><span class="p">()</span> <span class="o">:</span> <span class="nx">attrs</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">acl</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">canAccess</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">canAccess</span><span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">actor</span><span class="p">);</span>
+      <span class="kd">var</span> <span class="nx">noAccessTo</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">changedProps</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">canAccess</span> <span class="o">&amp;&amp;</span> <span class="nx">changedAttrs</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">schemaProps</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">.</span><span class="nx">properties</span><span class="p">);</span>
+        <span class="nx">changedProps</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">changedAttrs</span><span class="p">);</span>
+        <span class="nx">changedProps</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">changedProps</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">prop</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kd">var</span> <span class="nx">oldValue</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isDate</span><span class="p">(</span><span class="nx">oldAttrs</span><span class="p">[</span><span class="nx">prop</span><span class="p">])</span> <span class="o">?</span> <span class="nx">oldAttrs</span><span class="p">[</span><span class="nx">prop</span><span class="p">].</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">:</span> <span class="nx">oldAttrs</span><span class="p">[</span><span class="nx">prop</span><span class="p">];</span>
+          <span class="kd">var</span> <span class="nx">newValue</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isDate</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">prop</span><span class="p">))</span> <span class="o">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">prop</span><span class="p">).</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">prop</span><span class="p">);</span>
+          <span class="k">return</span> <span class="nx">schemaProps</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">prop</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="nx">oldValue</span> <span class="o">!==</span> <span class="nx">newValue</span><span class="p">;</span>
+        <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">canActProps</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">propertiesWithAccess</span><span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">actor</span><span class="p">);</span>
+        <span class="nx">noAccessTo</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">difference</span><span class="p">(</span><span class="nx">changedProps</span><span class="p">,</span> <span class="nx">canActProps</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">((</span><span class="o">!</span><span class="nx">canAccess</span> <span class="o">&amp;&amp;</span> <span class="nx">changedAttrs</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="nx">noAccessTo</span> <span class="o">&amp;&amp;</span> <span class="nx">noAccessTo</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">action</span> <span class="o">!==</span> <span class="s1">&#39;validate&#39;</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">debug</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Failing validation, no access with actor: %s roles %s - action %s to fields %s&#39;</span><span class="p">,</span>
+          <span class="nx">actor</span> <span class="o">&amp;&amp;</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">getRoles</span><span class="p">(</span><span class="nx">actor</span><span class="p">),</span>
+          <span class="nx">action</span><span class="p">,</span>
+          <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">noAccessTo</span><span class="p">)</span>
+        <span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">errorMsg</span> <span class="o">=</span> <span class="nx">util</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="s1">&#39;No access to %s %s (%s)&#39;</span><span class="p">,</span> <span class="nx">action</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">noAccessTo</span><span class="p">)</span> <span class="nx">errorMsg</span> <span class="o">+=</span> <span class="s1">&#39; fields:&#39;</span> <span class="o">+</span> <span class="nx">noAccessTo</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">error</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">ForbiddenError</span><span class="p">(</span><span class="nx">errorMsg</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">options</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">options</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">options</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">error</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">ACLModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">validate</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">ACLModel</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

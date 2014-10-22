@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>acl.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="doc-style.css" />
+  <script src="doc-filelist.js"></script>
+  <script>
+    var relativeDir = "", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//acl.js", defaultSidebar = true;
+  </script>
+  <script src="doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>acl.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">debug</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)(</span><span class="s1">&#39;serverbone:acl&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Serverbone ACL</p>
+  </div>
+  <div class="body"><p>Serverbone ACL provides a simple inline RBAC that can be easily extented to be used with normal user/pass
+authentication or token based authentication.</p>
+
+<p>Roles can be granted several ways,</p>
+
+<ul>
+<li>Directly to a model (like User model instance) via .grant(roles)</li>
+<li>Based on schema relations, grant 'owner, user' to user model that has its id in this.get('user_id') as seen below.</li>
+<li>via overriding getRoles(model) in ACLModel subclass, like seen also below.</li>
+</ul>
+
+<p>var MyModel = BaseModel.extend({
+  schema: {
+    permissions: {
+      "<em>": ["read","create"],
+      owner: ["update","delete"],
+      admin: ["</em>"]
+    },
+    properties: {
+      hidden_id: {
+        type: "integer",
+        permissions: {
+          "<em>": [], owner:[]
+        }
+      },
+      hiddent_text: {
+        type: "string",
+        permissions: {
+          "</em>": [],
+          "hidden": ["read","update"]
+        }
+      },
+      user_id: {"type":"integer"},
+      user: {
+        "type": "relation",
+        "roles": ["owner"],
+        "references": {
+          id: 'user_id'
+        }
+      }
+    }
+  },
+  getRoles: function(model) {
+    // returns function that matches model type against 'user'
+    var isUser = acl.type('user');
+    // returns function that matches this.get('hidden_id') against model.get('hidden_id')
+    var isIdMatch = acl.property('hidden_id', 'hidden_id');
+    var roles = [];
+    if(isUser(model) &amp;&amp; isIdMatch(this, model)) {
+      // grant model 'hidden' role against this model to allow access to hidden_text
+      roles.push('hidden');
+    }
+    return roles;
+  }
+});</p>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>Default role permission sets that are implicit</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">Permissions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">owner</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;update&#39;</span><span class="p">],</span>
+  <span class="nx">admin</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">]</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Create new ACL with passed in roles and attached permissions.</p>
+  </div>
+  <div class="body"><p>permissions are in the form of {"role":["action1","action2"]}</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">permissions
+</span>
+      <span class="dox_type">Object</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">ACL</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">permissions</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>Permissions map roles to array of actions: {"user":["read"],"admin":["write"]}</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="k">this</span><span class="p">.</span><span class="nx">permissions</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">Permissions</span><span class="p">,</span> <span class="nx">permissions</span><span class="p">);</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>debug('new ACL: %s', JSON.stringify(this.permissions));</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="p">};</span>
+
+
+<span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">exports</span><span class="p">.</span><span class="nx">ACL</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>allows additional permissions for this acl</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} permissions</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">grant</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">permissions</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">merge</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">permissions</span><span class="p">,</span> <span class="nx">permissions</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="o">?</span> <span class="nx">a</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span> <span class="o">:</span> <span class="kc">undefined</span><span class="p">;</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+  <span class="p">},</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Revoke a role</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{String|Array} roles a role or roles to revoke</span>
+    </div>
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">public
+</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">ACL</span>
+      <span>this for chaining</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">revoke</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">roles</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">roles</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nx">roles</span> <span class="o">=</span> <span class="p">[</span><span class="nx">roles</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">permissions</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">permissions</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">actions</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">roles</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="o">===</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">result</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">actions</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="p">},</span> <span class="p">{});</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+  <span class="p">},</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Assert access to this acl's 'action' with role(s)</p>
+  </div>
+  <div class="body"><p>Can I write here with these roles?</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{String|Array} roles</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{String} action</span>
+    </div>
+    <div class="dox_tag_title">example
+
+var</div>
+    <div class="dox_tag_detail">
+      <span>ownerReading = acl.assert(['<em>','owner'], 'read')
+var someoneWriting = acl.assert(['</em>']‚ 'write')</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Boolean
+</span>
+      <span>{Boolean}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">assert</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">roles</span><span class="p">,</span> <span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">action</span> <span class="o">=</span> <span class="nx">roles</span><span class="p">;</span>
+      <span class="nx">roles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">roles</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nx">roles</span> <span class="o">=</span> <span class="p">[</span><span class="nx">roles</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="nx">roles</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<p>debug('asseting %s to perform %s against %s', roles.join(','), action, JSON.stringify(this.permissions));</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="kd">var</span> <span class="nx">matches</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">roles</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">role</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">actions</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">permissions</span><span class="p">[</span><span class="nx">role</span><span class="p">]</span> <span class="o">||</span> <span class="nx">self</span><span class="p">.</span><span class="nx">permissions</span><span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">];</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+</div>
+<p>debug('Asserting %s -> %s agains %s: %s', role, action, JSON.stringify(actions),
+actions.indexOf(action) !== -1 || actions.indexOf('*') !== -1);</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+      <span class="k">return</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="o">!==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span> <span class="o">!==</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">matches</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Asserts actorModel.type == type || actorModel.get('type') == type</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{[type]} type</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">[type]
+</span>
+      <span>{[type]}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">actor</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">actor</span><span class="p">)</span> <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">?</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">===</span> <span class="nx">type</span> <span class="o">:</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="nx">type</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Asserts actorModel.has(key) &amp;&amp; actorModel.get(key) === value</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{String} attr</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} value</span>
+    </div>
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">public</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Boolean
+</span>
+      <span>{Boolean}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">attribute</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">attr</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">model</span><span class="p">,</span> <span class="nx">actor</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;Asserting actor.get(%s) -&gt; %s == %s&#39;</span><span class="p">,</span> <span class="nx">attr</span><span class="p">,</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">attr</span><span class="p">),</span> <span class="nx">value</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">attr</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">attr</span><span class="p">)</span> <span class="o">===</span> <span class="nx">value</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Asserts model.has(key) &amp;&amp; actorModel.has(key) &amp;&amp; actorModel.get(key) === model.get(key)</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{String} key</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} actorKey</span>
+    </div>
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">public</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Boolean
+</span>
+      <span>{Boolean}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">property</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">actorKey</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">model</span><span class="p">,</span> <span class="nx">actor</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;Asserting model.get(%s) against actor.get(%s) -&gt; %s == %s&#39;</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">actorKey</span><span class="p">,</span>
+      <span class="nx">model</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">key</span><span class="p">),</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">actorKey</span><span class="p">));</span>
+    <span class="k">return</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">actorKey</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">model</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">model</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="o">===</span> <span class="nx">actor</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">actorKey</span><span class="p">);</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">AdminOnly</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">admin</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">],</span>
+  <span class="nx">user</span><span class="o">:</span> <span class="p">[],</span>
+  <span class="nx">owner</span><span class="o">:</span> <span class="p">[]</span>
+<span class="p">};</span>
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">adminAndOwner</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">admin</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">],</span>
+  <span class="nx">owner</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;update&#39;</span><span class="p">,</span><span class="s1">&#39;read&#39;</span><span class="p">]</span>
+<span class="p">};</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>

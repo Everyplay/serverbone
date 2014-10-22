@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>base_model.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "Users/mikko/Work/Projects/Applifier/serverbone//models/base_model.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>base_model.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>BaseModel extends <a href="https://github.com/Everyplay/backbone-blueprint">backbone-blueprint</a>'s ValidatingModel providing e.g. Model lifecycle conventions, ACL related functionality &amp; CRUD helpers.</p>
+  </div>
+  <div class="body"><p>Defining a new model requires defining schema &amp; type:</p>
+
+
+<div class="highlight"><pre><code>  <span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">serverbone</span><span class="p">.</span><span class="nx">models</span><span class="p">.</span><span class="nx">BaseModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span>
+    <span class="nx">schema</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">id</span><span class="o">:</span> <span class="s1">&#39;schemas/user&#39;</span><span class="p">,</span>
+      <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;object&#39;</span><span class="p">,</span>
+      <span class="nx">properties</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;integer&#39;</span>
+        <span class="p">},</span>
+        <span class="nx">username</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">});</span>
+</code></pre></div>
+
+
+
+<p>Storage adapter must be changed by overriding Model's
+ sync &amp; db, e.g.</p>
+
+<div class='highlight'><pre><code language=''> var redisStore = new RedisDb('serverbone-example', redis.createClient());
+ var User = serverbone.models.BaseModel.extend({
+   db: redisStore,
+   sync: redisStore.sync,
+   ...
+ });
+
+</code></pre></div>
+
+<p>would store the Model in Redis.</p>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">parallel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when/parallel&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">sequence</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when/sequence&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">Promises</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone-promises&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">when</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">PromisedModel</span> <span class="o">=</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">Model</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">SchemaModel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone-blueprint&#39;</span><span class="p">).</span><span class="nx">ValidatingModel</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">ValidationError</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../errors&#39;</span><span class="p">).</span><span class="nx">ValidationError</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">logId</span> <span class="o">=</span> <span class="s1">&#39;serverbone:models:base&#39;</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">_debug</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">when</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">debug</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">trace</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:trace&#39;</span><span class="p">),</span>
+  <span class="nx">log</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:log&#39;</span><span class="p">),</span>
+  <span class="nx">warn</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:warn&#39;</span><span class="p">),</span>
+  <span class="nx">error</span><span class="o">:</span> <span class="nx">_debug</span><span class="p">(</span><span class="nx">logId</span> <span class="o">+</span> <span class="s1">&#39;:error&#39;</span><span class="p">)</span>
+<span class="p">};</span>
+
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Format 'templated' properties of object like {type: '{type}'}
+using given this-context for the actual value</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} properties</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Object
+</span>
+      <span>{Object}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">formatProperties</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">properties</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">realProperties</span> <span class="o">=</span> <span class="p">{};</span>
+
+  <span class="kd">function</span> <span class="nx">getTemplateValue</span><span class="p">(</span><span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">getThisValue</span><span class="p">(</span><span class="nx">match</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">cleanedValue</span> <span class="o">=</span> <span class="nx">match</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nx">match</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">self</span><span class="p">[</span><span class="nx">cleanedValue</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">property</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/{([^}]+)}+/g</span><span class="p">,</span> <span class="nx">getThisValue</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">propertyKey</span> <span class="k">in</span> <span class="nx">properties</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">realProperties</span><span class="p">[</span><span class="nx">propertyKey</span><span class="p">]</span> <span class="o">=</span> <span class="nx">getTemplateValue</span><span class="p">(</span><span class="nx">properties</span><span class="p">[</span><span class="nx">propertyKey</span><span class="p">]);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">realProperties</span><span class="p">;</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+</div>
+<p>convert error &amp; reject with error</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">failWithError</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">ignoreFailures</span><span class="p">)</span> <span class="k">return</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">BaseModel</span> <span class="o">=</span> <span class="nx">SchemaModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attributes</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>debug.trace('BaseModel.initialize');</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="p">[</span><span class="nx">attributes</span><span class="p">,</span> <span class="nx">options</span><span class="p">]);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">?</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="o">:</span> <span class="p">{};</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_processSchema</span><span class="p">();</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+</div>
+<p>attributes which have changed since this model was synced</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_changedSinceSync</span> <span class="o">=</span> <span class="p">{};</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+</div>
+<p>attributes which this model had when last synced</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_attributesOnSync</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;change&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">attributesChanged</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;sync&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">modelSynced</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+  <span class="p">},</span>
+
+  <span class="nx">_processSchema</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">indexes</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">.</span><span class="nx">indexes</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>url function is used by some backbone-db drivers, then it defines the database key</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">url</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">dbBaseKey</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">type</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">isNew</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">key</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">key</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">idAttribute</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>sync method must be implemented by the Model</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">sync</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;sync method should be overridden!&#39;</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>save extends backbone-blueprint's save by adding calls to lifecycle methods</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise
+</span>
+      <span>{Promise}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">save</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">val</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">opts</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span><span class="err"> </span><span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">attrs</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">key</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="k">typeof</span> <span class="nx">key</span> <span class="o">===</span> <span class="s1">&#39;object&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">opts</span> <span class="o">=</span> <span class="nx">val</span> <span class="o">||</span><span class="err"> </span><span class="p">{};</span>
+      <span class="nx">attrs</span> <span class="o">=</span> <span class="nx">key</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+      <span class="p">(</span><span class="nx">attrs</span> <span class="o">=</span> <span class="p">{})[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+    <span class="p">}</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+</div>
+<p>if saving only specified attributes, call set,
+since preSave may depend on changed attributes</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span> <span class="nx">opts</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kd">var</span> <span class="nx">error</span> <span class="o">=</span> <span class="nx">opts</span><span class="p">.</span><span class="nx">error</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">preSave</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">opts</span><span class="p">),</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">PromisedModel</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">save</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">opts</span><span class="p">),</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">afterSave</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">opts</span><span class="p">)</span>
+    <span class="p">];</span>
+    <span class="k">return</span> <span class="nx">sequence</span><span class="p">(</span><span class="nx">fns</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">results</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="nx">error</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">opts</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">err</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">failWithError</span><span class="p">(</span><span class="nx">opts</span><span class="p">,</span> <span class="nx">err</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>preSave is called before main save (saving to db) is executed.
+This is a good place to add extended validation, ACL or other code that should be
+executed (asyncronously) before model is saved.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>resolves immediately unless implemented by Model</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">preSave</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>afterSave is called after model was successfully saved to db.
+Here you can for example trigger 'hooks' that inform other parts of the application that
+model was successfully saved.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>resolves immediately unless implemented by Model</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">afterSave</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>fetch extends backbone-blueprint's fetch by adding calls to lifecycle methods</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise
+</span>
+      <span>{Promise}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetch</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span><span class="err"> </span><span class="p">{};</span>
+
+    <span class="kd">var</span> <span class="nx">error</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">error</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">preFetch</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">options</span><span class="p">),</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">PromisedModel</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">fetch</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">options</span><span class="p">),</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">afterFetch</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    <span class="p">];</span>
+    <span class="k">return</span> <span class="nx">sequence</span><span class="p">(</span><span class="nx">fns</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="nx">self</span><span class="p">.</span><span class="nx">fetchStatus</span> <span class="o">=</span> <span class="s1">&#39;fetched&#39;</span><span class="p">;</span>
+      <span class="k">return</span> <span class="nx">self</span><span class="p">;</span>
+    <span class="p">},</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="nx">error</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">err</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">failWithError</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="nx">err</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>preFetch is called before main fetch (reading from db) is executed.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>resolves immediately unless implemented by Model</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">preFetch</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>afterFetch is called after main fetch (reading from db) succeeded.
+Here you can for example fetch dependencies and trigger other functionality that
+depends on the data.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>resolves immediately unless implemented by Model</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">afterFetch</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>fetch extends backbone-blueprint's destroy by adding calls to lifecycle methods</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise
+</span>
+      <span>{Promise}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">destroy</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span>  <span class="nx">options</span> <span class="o">||</span><span class="err"> </span><span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">preDelete</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)),</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">PromisedModel</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">destroy</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="nx">options</span><span class="p">),</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">afterDelete</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    <span class="p">];</span>
+    <span class="k">return</span> <span class="nx">sequence</span><span class="p">(</span><span class="nx">fns</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">results</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+      <span class="p">},</span> <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">failWithError</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">options</span><span class="p">));</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>preDelete is called before main destroy (deleting from db) is run.
+Here you can for example check access control dependencies.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>by default fetches all relations before deleting.</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">preDelete</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">fetchAllRequired</span><span class="p">())</span> <span class="p">{</span>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">ignoreFailures</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+</div>
+<p>no need load collection models</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+      <span class="nx">options</span><span class="p">.</span><span class="nx">skipModelsFetch</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">fetchAll</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>afterDelete is called after main destroy (deleting from db) succeeds.
+Here you can for example cascade delete (delete other models that depend on deleted model).</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>resolves immediately unless implemented by Model</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">afterDelete</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+</div>
+<p>These ACL methods provide just the interface, default implementation is in ACLModel:</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>canAccess checks global level access to the model.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Boolean</span>
+      <span>by default true this is just a stub, everyone can access</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">canAccess</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>getRoles dynamically sets roles for this model.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Array</span>
+      <span>returns empty array by default</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">getRoles</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">roles</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="k">return</span> <span class="nx">roles</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>propertiesWithAccess return a list of properties keys of this Model which the actor has access to.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Array</span>
+      <span>array of keys. By default return all keys.</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">propertiesWithAccess</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">schema</span><span class="p">.</span><span class="nx">properties</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-24" id="section-24">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>toJSON is used both when returning a JSON representation of the Model to the HTTP response and
+when saving the model to database</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">toJSON</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">json</span> <span class="o">=</span> <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">json</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-25" id="section-25">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>validate the Model based on JSON schema</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">ValidationError</span>
+      <span>return ValidationError if there were errors</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">validate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">validationErrors</span> <span class="o">=</span> <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">validate</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">validationErrors</span><span class="p">)</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">ValidationError</span><span class="p">({</span>
+      <span class="nx">errors</span><span class="o">:</span> <span class="nx">validationErrors</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-26" id="section-26">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Fetch current model &amp; its relations
+Need to fetch current model first in order to apply correct ids to relations</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetchAll</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;fetchAll %s&#39;</span><span class="p">,</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">options</span><span class="p">));</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">||</span> <span class="s1">&#39;read&#39;</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">when</span><span class="p">;</span>
+    <span class="nx">options</span><span class="p">.</span><span class="nx">action</span> <span class="o">=</span> <span class="s1">&#39;read&#39;</span><span class="p">;</span>
+    <span class="kd">function</span> <span class="nx">handleError</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">ignoreFailures</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">self</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">this</span>
+      <span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">self</span><span class="p">.</span><span class="nx">relationDefinitions</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nx">self</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">self</span>
+          <span class="p">.</span><span class="nx">fetchRelations</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+          <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">self</span><span class="p">;</span>
+          <span class="p">},</span> <span class="nx">handleError</span><span class="p">);</span>
+      <span class="p">},</span> <span class="nx">handleError</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Fetches relations available based on current attributes
+if options.onlyRelations Array is specified only those relations are fetched
+e.g. fetchRelations({onlyRelations: ['user']}) will fetch only relation 'user'</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetchRelations</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">when</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">relationDefinitions</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">relationAttributes</span><span class="p">,</span> <span class="nx">relationKey</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">onlyRelations</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">onlyRelations</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">relationKey</span><span class="p">)</span> <span class="o">===</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="kd">var</span> <span class="nx">relation</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">relationKey</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">relation</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">relation</span><span class="p">.</span><span class="nx">url</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">relation</span> <span class="o">&amp;&amp;</span> <span class="nx">relation</span><span class="p">.</span><span class="nx">fetch</span><span class="p">)</span> <span class="p">{</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-28" id="section-28">&#182;</a>
+</div>
+<p>When the run is parallel, clone the options so no shared promises happen.</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+        <span class="nx">fns</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">relation</span><span class="p">.</span><span class="nx">fetch</span><span class="p">,</span> <span class="nx">relation</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)));</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="nx">parallel</span><span class="p">(</span><span class="nx">fns</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="nx">relationsFetched</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">self</span><span class="p">.</span><span class="nx">fetchStatus</span> <span class="o">=</span> <span class="s1">&#39;all_fetched&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">self</span><span class="p">;</span>
+      <span class="p">},</span> <span class="kd">function</span> <span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">ignoreFailures</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">self</span><span class="p">.</span><span class="nx">fetchStatus</span> <span class="o">=</span> <span class="s1">&#39;all_fetched&#39;</span><span class="p">;</span>
+          <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">self</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+      <span class="p">});</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-29" id="section-29">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Fetch model/relations based on given projection.
+Tries to avoid unnecessary fetches.
+TODO: this does not support all projection options yet.</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{object} projection</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{object} options</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise
+</span>
+      <span>{Promise}</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetchRequired</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">projection</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">requiredProperties</span> <span class="o">=</span> <span class="nx">projection</span><span class="p">.</span><span class="nx">onlyFields</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">fetchRequired</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">requiredProperties</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">prop</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">prop</span><span class="p">)</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">;</span>
+    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">relationsToBeFetched</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="kd">var</span> <span class="nx">relations</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">omit</span><span class="p">(</span>
+      <span class="nx">projection</span><span class="p">,</span>
+      <span class="s1">&#39;onlyFields&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;removeFields&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;actor&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;requiredDependencies&#39;</span>
+    <span class="p">);</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">relations</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span> <span class="nx">relKey</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">relKey</span><span class="p">);</span>
+      <span class="kd">var</span> <span class="nx">missingKeys</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">any</span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">r</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span><span class="p">.</span><span class="nx">get</span> <span class="o">&amp;&amp;</span> <span class="nx">r</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">attr</span><span class="p">)</span> <span class="o">===</span> <span class="kc">undefined</span><span class="p">;</span>
+      <span class="p">});</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">r</span> <span class="o">||</span> <span class="nx">missingKeys</span><span class="p">)</span> <span class="nx">relationsToBeFetched</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">relKey</span><span class="p">);</span>
+    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">relationsToBeFetched</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="nx">fetchRequired</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">forceFetch</span><span class="p">)</span> <span class="nx">fetchRequired</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">fetchRequired</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;no fetch required&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">when</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">relationsToBeFetched</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">fetchOpts</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">options</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">onlyRelations</span><span class="o">:</span> <span class="nx">relationsToBeFetched</span>
+      <span class="p">});</span>
+      <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;fetchRequired&#39;</span><span class="p">,</span> <span class="nx">relationsToBeFetched</span><span class="p">);</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">fetchAll</span><span class="p">(</span><span class="nx">fetchOpts</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nx">debug</span><span class="p">.</span><span class="nx">trace</span><span class="p">(</span><span class="s1">&#39;fetchRequired, just model&#39;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">));</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-30" id="section-30">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Save Model &amp; its relations
+Note: Collection relations are not saved</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">saveAll</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">save</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    <span class="p">];</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">relationDefinitions</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">relationAttributes</span><span class="p">,</span> <span class="nx">relationKey</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">relation</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">relationKey</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">relation</span> <span class="o">&amp;&amp;</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span><span class="p">(</span><span class="nx">relation</span><span class="p">.</span><span class="nx">save</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">fns</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">relation</span><span class="p">.</span><span class="nx">save</span><span class="p">,</span> <span class="nx">relation</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">options</span><span class="p">)));</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">sequence</span><span class="p">(</span><span class="nx">fns</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-31" id="section-31">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>applyToAll applies function to this model &amp; its relations</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{String} fnStr   which function to call</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{Object} options pass options to the called function</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>return a joined promise of the called functions</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">applyToAll</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fnStr</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+    <span class="kd">var</span> <span class="nx">fns</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="k">this</span><span class="p">[</span><span class="nx">fnStr</span><span class="p">].</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="p">[</span><span class="nx">options</span><span class="p">])</span>
+    <span class="p">];</span>
+    <span class="nx">_</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">relationDefinitions</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">relationAttributes</span><span class="p">,</span> <span class="nx">relationKey</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">relation</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">relationKey</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">relation</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">fns</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">relation</span><span class="p">[</span><span class="nx">fnStr</span><span class="p">](</span><span class="nx">options</span><span class="p">));</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">Promises</span><span class="p">.</span><span class="nx">when</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="nx">fns</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-32" id="section-32">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Check if fetchAll should be called</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Boolean</span>
+      <span>true if fetchAll should be called</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">fetchAllRequired</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">relationDefinitions</span>
+      <span class="o">&amp;&amp;</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">relationDefinitions</span><span class="p">).</span><span class="nx">length</span>
+      <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">fetchStatus</span> <span class="o">!==</span> <span class="s1">&#39;all_fetched&#39;</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-33" id="section-33">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>omits relations from changedAttributes</p>
+  </div>
+  <div class="body">
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Object</span>
+      <span>object containing changed attributes</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">changedAttributesWithoutRelations</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">attrs</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">changedAttributes</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">relationKeys</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">relationDefinitions</span> <span class="o">?</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">relationDefinitions</span><span class="p">)</span> <span class="o">:</span> <span class="p">[];</span>
+    <span class="nx">attrs</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">omit</span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span> <span class="nx">relationKeys</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">attrs</span><span class="p">;</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-34" id="section-34">&#182;</a>
+</div>
+<div class="dox">
+  <div class="summary"><p>Called when attributes of this model are changed. Used for keeping track of which
+attributes have been changed since this model was last synced (fetched or saved).</p>
+  </div>
+  <div class="body">
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">attributesChanged</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">model</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">attrs</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">changedAttributesWithoutRelations</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_changedSinceSync</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="k">this</span><span class="p">.</span><span class="nx">_changedSinceSync</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">);</span>
+  <span class="p">},</span>
+
+  <span class="nx">modelSynced</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">model</span><span class="p">,</span> <span class="nx">resp</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">_attributesOnSync</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">_attributesOnSync</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">attributes</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+
+  <span class="nx">changedSinceSync</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_changedSinceSync</span><span class="p">;</span>
+  <span class="p">},</span>
+
+  <span class="nx">parse</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">resp</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_changedSinceSync</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">_attributesOnSync</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">BaseModel</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">parse</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+  <span class="p">},</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-35" id="section-35">&#182;</a>
+</div>
+<p>in context of serverbone Model.previousAttributes returns attributes that were set when last synced</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="nx">previousAttributes</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_attributesOnSync</span><span class="p">)</span> <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_attributesOnSync</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_previousAttributes</span><span class="p">);</span>
+  <span class="p">}</span>
+
+<span class="p">});</span>
+
+<span class="nx">BaseModel</span><span class="p">.</span><span class="nx">Associations</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Associations</span><span class="p">;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-36" id="section-36">&#182;</a>
+</div>
+<p>override db config during runtime</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="nx">BaseModel</span><span class="p">.</span><span class="nx">setDbDriver</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">dbSettings</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">db</span> <span class="o">=</span> <span class="nx">dbSettings</span><span class="p">.</span><span class="nx">db</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">sync</span> <span class="o">=</span> <span class="nx">dbSettings</span><span class="p">.</span><span class="nx">sync</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">indexDb</span> <span class="o">=</span> <span class="nx">dbSettings</span><span class="p">.</span><span class="nx">indexDb</span><span class="p">;</span>
+<span class="p">};</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-37" id="section-37">&#182;</a>
+</div>
+<p>Instance methods</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-38" id="section-38">&#182;</a>
+</div>
+<p>Helpers</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">BaseModel</span><span class="p">;</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">formatProperties</span> <span class="o">=</span> <span class="nx">formatProperties</span><span class="p">;</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>
