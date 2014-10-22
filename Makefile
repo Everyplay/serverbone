@@ -61,3 +61,8 @@ check-coverage: test-coverage
 
 coveralls:
 	cat ./coverage/lcov.info | COVERALLS_SERVICE_NAME="travis-ci" ./node_modules/coveralls/bin/coveralls.js
+
+## expects that gh-pages branch is checked out at ../serverbone_gh-pages
+docs:
+	$(BIN)/docker -o ../serverbone_gh-pages -i lib
+	cp ../serverbone_gh-pages/index.js.html ../serverbone_gh-pages/index.html
