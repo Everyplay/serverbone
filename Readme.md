@@ -22,22 +22,21 @@ The goals of the framework are:
 
 - [serverbone-example](https://github.com/mikkolehtinen/serverbone-example)
 
-## How to develop
+# Components
 
-### Testing
+## Models
 
-  ``` shell
-  make test
-  ```
+### BaseModel
 
-### View code coverage reports
+BaseModel extends [backbone-blueprint](https://github.com/Everyplay/backbone-blueprint)'s ValidatingModel providing e.g. Model lifecycle conventions, ACL related functionality & CRUD helpers.
 
-  ``` shell
-  make check-coverage
-  open coverage/lcov-report/index.html
-  ```
+### FlatModel
 
-# Architecture
+Model for storing strings/numbers. Meant to be used together with ValueIndexMixin.
+
+### JSONModel
+
+Model for storing raw JSON data in the id field. Meant to be used together /w JSONIndexMixin.
 
 ## Collections
 
@@ -64,20 +63,6 @@ Mixin for reading values from multiple indexes, i.e. joins multiple Redis sets.
 ### ValueIndexMixin
 
 Mixin for Collections that store plain strings into Redis sets.
-
-## Models
-
-### BaseModel
-
-BaseModel extends [backbone-blueprint](https://github.com/Everyplay/backbone-blueprint)'s ValidatingModel providing e.g. Model lifecycle conventions, ACL related functionality & CRUD helpers.
-
-### FlatModel
-
-Model for storing strings/numbers. Meant to be used together with ValueIndexMixin.
-
-### JSONModel
-
-Model for storing raw JSON data in the id field. Meant to be used together /w JSONIndexMixin.
 
 ## ACL
 
@@ -128,3 +113,17 @@ Helpers for running async functions.
 Handles sending JSON/error responses.
 
  
+## How to develop
+
+### Testing
+
+  ``` shell
+  make test
+  ```
+
+### View code coverage reports
+
+  ``` shell
+  make check-coverage
+  open coverage/lcov-report/index.html
+  ```
