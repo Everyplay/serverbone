@@ -64,5 +64,5 @@ coveralls:
 
 ## expects that gh-pages branch is checked out at ../serverbone_gh-pages
 docs:
-	$(BIN)/docker -o ../serverbone_gh-pages -i lib
+	$(BIN)/docker -o ../serverbone_gh-pages -i lib -c manni
 	cp ../serverbone_gh-pages/index.js.html ../serverbone_gh-pages/index.html
