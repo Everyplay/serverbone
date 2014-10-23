@@ -3,6 +3,8 @@ REPORTER = spec
 BIN = node_modules/.bin
 SRC_FILES = $(shell find .  -type f \( -name "*.js" ! \
 	-path "*node_modules*" ! -path "*lcov-report*" \))
+DOCDIR = ../serverbone_gh-pages
+DOCKER_OPTS = -u
 
 # Use grep to run only tests with keywords:
 # make test-server GREP=events
@@ -62,7 +64,9 @@ check-coverage: test-coverage
 coveralls:
 	cat ./coverage/lcov.info | COVERALLS_SERVICE_NAME="travis-ci" ./node_modules/coveralls/bin/coveralls.js
 
-## expects that gh-pages branch is checked out at ../serverbone_gh-pages
+## expects that gh-pages branch is checked out at $(DOCDIR)
 docs:
-	$(BIN)/docker -o ../serverbone_gh-pages -i lib -c manni
-	cp ../serverbone_gh-pages/index.js.html ../serverbone_gh-pages/index.html
+	mkdir -p $(DOCDIR)
+	$(BIN)/docker $(DOCKER_OPTS) -o $(DOCDIR) -i lib -c manni
+	cp $(DOCDIR)/index.js.html $(DOCDIR)/index.html
+.PHONY: docs
