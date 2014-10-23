@@ -18,6 +18,9 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+      <div class="heading h1">
+        <a href="#jsonmodel">JSONModel</a>
+      </div>
     </div>
   </div>
   <div id="sidebar-toggle"></div>
@@ -25,22 +28,30 @@
 <table cellpadding="0" cellspacing="0">
   <tbody>
       <tr>
-        <td class="docs">
-          <h1>json_model.js</h1>
-        </td>
-        <td class="code highlight"></td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="jsonmodel">
+  <h1>
+    <a href="#jsonmodel" name="jsonmodel" class="pilcrow">&#182;</a>
+    JSONModel
+  </h1>
 </div>
-<div class="dox">
-  <div class="summary"><p>Wraps Backbone.Model so that JSON data can be stored in the id attribute
-e.g. { id: '{"foo":"bar"}' }
-then .get('foo') returns 'bar'</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p><code>JSONModel</code> Wraps Backbone.Model so that encoded JSON data can be stored in the id attribute (in Redis).
+Not meant to be used as is but as a Model for Collections using <code>JSONIndexMixin</code>.</p>
+
+<p>e.g.</p>
+
+
+<div class="highlight"><pre><code><span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">JSONModel</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="s1">&#39;{&quot;foo&quot;:&quot;bar&quot;}&#39;</span>
+<span class="p">});</span>
+<span class="nx">j</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
+<span class="s1">&#39;bar&#39;</span>
+</code></pre></div>
+
+
   </div>
 </div>
         </td>

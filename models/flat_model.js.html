@@ -18,6 +18,12 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+      <div class="heading h1">
+        <a href="#flatmodel">FlatModel</a>
+      </div>
+      <div class="heading h2">
+        <a href="#flatmodel.prototype.findkeys">FlatModel.prototype.findKeys</a>
+      </div>
     </div>
   </div>
   <div id="sidebar-toggle"></div>
@@ -25,20 +31,38 @@
 <table cellpadding="0" cellspacing="0">
   <tbody>
       <tr>
-        <td class="docs">
-          <h1>flat_model.js</h1>
-        </td>
-        <td class="code highlight"></td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="flatmodel">
+  <h1>
+    <a href="#flatmodel" name="flatmodel" class="pilcrow">&#182;</a>
+    FlatModel
+  </h1>
 </div>
-<div class="dox">
-  <div class="summary"><p>FlatModel is a Model for storing flat strings/numbers</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>FlatModel is a Model for storing flat strings/numbers. Mainly used as a wrapper model when storing strings
+or numbers in Redis.</p>
+
+<p>Example:</p>
+
+
+<div class="highlight"><pre><code><span class="kd">var</span> <span class="nx">Flat</span> <span class="o">=</span> <span class="nx">serverbone</span><span class="p">.</span><span class="nx">models</span><span class="p">.</span><span class="nx">FlatModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+   <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;flat&#39;</span>
+<span class="p">});</span>
+<span class="kd">var</span> <span class="nx">f</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Flat</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
+<span class="nx">f</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+</code></pre></div>
+
+
+
+<p>then see Redis:</p>
+
+<div class='highlight'><pre><code language=''>127.0.0.1:6379&gt; keys *
+1) "flat:foo"
+127.0.0.1:6379&gt; get flat:foo
+"\"foo\""
+</code></pre></div>
   </div>
 </div>
         </td>
@@ -63,6 +87,33 @@
     <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span>
   <span class="p">},</span>
 
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="flatmodel.prototype.findkeys">
+  <h2>
+    <a href="#flatmodel.prototype.findkeys" name="flatmodel.prototype.findkeys" class="pilcrow">&#182;</a>
+    FlatModel.prototype.findKeys
+  </h2>
+</div>
+
+  </div>
+  <div class="body"><p>Find all models starting with given key. Basically calls redis <code>keys</code> with given key.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{String} startingWithKey</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
   <span class="nx">findKeys</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">startingWithKey</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{</span>
       <span class="nx">keys</span><span class="o">:</span> <span class="nx">startingWithKey</span>

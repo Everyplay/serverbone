@@ -18,6 +18,9 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+      <div class="heading h1">
+        <a href="#basemodel">BaseModel</a>
+      </div>
       <div class="heading h2">
         <a href="#failwitherror">failWithError</a>
       </div>
@@ -112,20 +115,19 @@
 <table cellpadding="0" cellspacing="0">
   <tbody>
       <tr>
-        <td class="docs">
-          <h1>base_model.js</h1>
-        </td>
-        <td class="code highlight"></td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="basemodel">
+  <h1>
+    <a href="#basemodel" name="basemodel" class="pilcrow">&#182;</a>
+    BaseModel
+  </h1>
 </div>
-<div class="dox">
-  <div class="summary"><p>BaseModel extends <a href="https://github.com/Everyplay/backbone-blueprint">backbone-blueprint</a>'s ValidatingModel providing e.g. Model lifecycle conventions, ACL related functionality &amp; CRUD helpers.</p>
+
   </div>
-  <div class="body"><p>Defining a new model requires defining schema &amp; type:</p>
+  <div class="body"><p>BaseModel extends <a href="https://github.com/Everyplay/backbone-blueprint">backbone-blueprint</a>'s ValidatingModel providing e.g. Model lifecycle conventions, ACL related functionality &amp; CRUD helpers.</p>
+
+<p>Defining a new model requires defining schema &amp; type:</p>
 
 
 <div class="highlight"><pre><code>  <span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">serverbone</span><span class="p">.</span><span class="nx">models</span><span class="p">.</span><span class="nx">BaseModel</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
