@@ -4,7 +4,8 @@
   "description": "Serverside additions to backbone to serve collections and models as express apps",
   "main": "index.js",
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "precommit": "./precommit.sh"
   },
   "author": {
     "name": "Mikko Lehtinen",
@@ -44,6 +45,7 @@
     "chai": "^1.9.1",
     "coveralls": "^2.11.1",
     "docker": "^0.2.14",
+    "husky": "^0.6.1",
     "istanbul": "~0.2",
     "jscs": "~1.3",
     "jshint": "^2.5.2",
