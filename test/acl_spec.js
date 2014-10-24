@@ -321,7 +321,8 @@ describe('Test ACL', function () {
       },
       permissions: {
         admin: ['*'],
-        owner: ['read']
+        owner: ['read'],
+        'dynamic_{user_id}': ['update']
       }
     };
 
@@ -361,7 +362,12 @@ describe('Test ACL', function () {
 
     // roles are added from relation name + .roles array in relation options
     it('should generate roles based on model relation & settings', function() {
-      var aclmodel = new TestModel({id: 1, user_id: actor.id});
+      var aclmodel = new TestModel({
+        id: 1,
+        user_id: actor.id
+      });
+      // test that dynamic role key was replaced
+      should.exist(aclmodel.acl.permissions['dynamic_' + actor.id]);
       var roles = aclmodel.getRoles(actor);
       roles.indexOf('owner').should.be.above( -1 );
       roles.indexOf('user').should.be.above( -1 );
@@ -369,6 +375,8 @@ describe('Test ACL', function () {
       aclmodel = new TestModel({id: 1, user_id: 22});
       roles = aclmodel.getRoles(actor);
       roles.indexOf('owner').should.equal( -1 );
+      var json = aclmodel.toJSON({includePermissions: true});
+      should.exist(json.permissions);
     });
 
     it('should check access to virtualProperties', function() {
