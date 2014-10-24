@@ -64,7 +64,13 @@
 <div class="pilwrap">
   <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
 </div>
-<p><a href="http://serverbonejs.org/">Serverbone.js</a> is a server-side Rest API framework that supports multiple data stores on Node.js. Especially, you can combine multiple data stores such as a document store (e.g. MongoDB using <a href="https://github.com/Everyplay/backbone-db-mongodb">backbone-db-mongodb</a>), and a key-value store for indexes (e.g. Redis using <a href="https://github.com/Everyplay/backbone-db-redis">backbone-db-redis</a>). The project is based on the following modules:</p>
+<p><a href="http://serverbonejs.org/">Serverbone.js</a> is a server-side Rest API framework that supports multiple
+data stores on Node.js. Especially, you can combine multiple data stores such as a document store
+(e.g. MongoDB using <a href="https://github.com/Everyplay/backbone-db-mongodb">backbone-db-mongodb</a>), and a
+key-value store for indexes
+(e.g. Redis using <a href="https://github.com/Everyplay/backbone-db-redis">backbone-db-redis</a>).</p>
+
+<p>The project is based on the following modules:</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 
@@ -79,8 +85,10 @@
 </div>
 <ul>
 <li><a href="https://github.com/Everyplay/backbone-db">Backbone DB</a>: provides interface for interacting with databases</li>
-<li><a href="https://github.com/Everyplay/backbone-promises">Backbone Promises</a>: serverbone APIs use Promises/A+ conventions.</li>
-<li><a href="https://github.com/Everyplay/backbone-blueprint">Backbone Blueprint</a>: JSON schema parsing &amp; validation, etc.</li>
+<li><a href="https://github.com/Everyplay/backbone-promises">Backbone Promises</a>: serverbone APIs use Promises/A+
+conventions.</li>
+<li><a href="https://github.com/Everyplay/backbone-blueprint">Backbone Blueprint</a>: JSON schema parsing &amp; validation,
+etc.</li>
 </ul>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
@@ -97,8 +105,10 @@
 <p>The goals of the framework are:</p>
 
 <ul>
-<li>Define models using JSON configuration (based on JSON Schema, implemented by <a href="https://github.com/Everyplay/backbone-blueprint">backbone-blueprint</a>)</li>
-<li>Mount models &amp; collections CRUD easily into HTTP verbs by using Resource. E.g. HTTP POST should call Model.create.</li>
+<li>Define models using JSON configuration (based on JSON Schema, implemented by
+<a href="https://github.com/Everyplay/backbone-blueprint">backbone-blueprint</a>)</li>
+<li>Mount models &amp; collections CRUD easily into HTTP verbs by using Resource. E.g. HTTP POST
+should call Model.create.</li>
 <li>Provide basis for implementing resource level fine grained ACL</li>
 </ul>
         </td>

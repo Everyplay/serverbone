@@ -18,6 +18,42 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+      <div class="heading h1">
+        <a href="#resource">Resource</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype.addroute">Resource.prototype.addRoute</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype._mountrelations">Resource.prototype._mountRelations</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype._getconstuctcollectionfunction">Resource.prototype._getConstuctCollectionFunction</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype._addparameterhandler">Resource.prototype._addParameterHandler</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype._adderrorhandler">Resource.prototype._addErrorHandler</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype._addroute">Resource.prototype._addRoute</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype._addcustomroute">Resource.prototype._addCustomRoute</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype.update">Resource.prototype.update</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype.create">Resource.prototype.create</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype.save">Resource.prototype.save</a>
+      </div>
+      <div class="heading h2">
+        <a href="#resource.prototype.remove">Resource.prototype.remove</a>
+      </div>
     </div>
   </div>
   <div id="sidebar-toggle"></div>
@@ -36,9 +72,12 @@
   <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
 </div>
 <div class="dox">
-  <div class="summary"><p>Resource routing. Handles mapping Models &amp; Collections into routes.</p>
+  <div class="summary">
   </div>
-  <div class="body">
+  <div class="body"><p>Mapping model's &amp; collection's <code>CRUD</code> operations into <code>HTTP</code> verbs is done by using <code>Resource</code>.</p>
+
+<p>Resource creates an <a href="http://expressjs.com">Express</a> application with default routes created
+that match the basic CRUD needs of a REST API.</p>
   </div>
 </div>
         </td>
@@ -51,6 +90,56 @@
 <span class="kd">var</span> <span class="nx">middleware</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../middleware&#39;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">serverbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../&#39;</span><span class="p">);</span>
 
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource">
+  <h1>
+    <a href="#resource" name="resource" class="pilcrow">&#182;</a>
+    Resource
+  </h1>
+</div>
+
+  </div>
+  <div class="body"><p>The <code>Resource</code> class provides Express CRUD route mapping for a
+collection and its models. A <code>Resource</code> object can be mounted as an
+Express sub application onto an HTTP path:</p>
+
+
+<div class="highlight"><pre><code><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">bodyParser</span><span class="p">.</span><span class="nx">json</span><span class="p">());</span>
+
+<span class="kd">var</span> <span class="nx">moviesResource</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">serverbone</span><span class="p">.</span><span class="nx">Resource</span><span class="p">(</span><span class="s1">&#39;movies&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">collection</span><span class="o">:</span> <span class="nx">collections</span><span class="p">.</span><span class="nx">Movies</span>
+<span class="p">});</span>
+<span class="c1">// mount Movies resource into /movies</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/movies&#39;</span><span class="p">,</span> <span class="nx">moviesResource</span><span class="p">.</span><span class="nx">app</span><span class="p">);</span>
+</code></pre></div>
+
+
+
+<p>This will make the following routes available:</p>
+
+<ul>
+<li><code>GET /movies</code> maps to <code>fetch</code> on the collection class
+to fetch all models.</li>
+<li><code>POST /movies</code> maps to <code>post</code> on the collection class
+to create a new model.</li>
+<li><code>GET /movies/:id</code> Maps to <code>fetch</code> on the model class
+to fetch a model with the given <code>id</code>.</li>
+<li><code>PUT /movies/:id</code> Maps to <code>update</code> on the model class
+to update a model with the given <code>id</code>.</li>
+<li><code>DELETE /movies/:id</code> Maps to <code>delete</code> on the model class
+to delete a model with the given <code>id</code>.</li>
+</ul>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
 <span class="kd">var</span> <span class="nx">Resource</span> <span class="o">=</span> <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
@@ -63,7 +152,7 @@
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
 </div>
 <p>custom routes are added before this.app.router this we use the router before any.
 it is set in initMiddlewares</p>
@@ -80,7 +169,7 @@ it is set in initMiddlewares</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
 </div>
 <p>initialize this resouce's Collection &amp; Model (both are required)</p>
         </td>
@@ -127,34 +216,49 @@ it is set in initMiddlewares</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype.addroute">
+  <h2>
+    <a href="#resource.prototype.addroute" name="resource.prototype.addroute" class="pilcrow">&#182;</a>
+    Resource.prototype.addRoute
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>addRoute</p>
+
   </div>
-  <div class="body"><p>Add custom route to this resource, it will be handled before the created model routes</p>
+  <div class="body"><p>Add a custom route to this resource. The route will be handled before the
+collection/model mapped routes created by <code>Resource</code>.</p>
+
+<p>Example:</p>
+
+
+<div class="highlight"><pre><code><span class="nx">resource</span><span class="p">.</span><span class="nx">addRoute</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;/some_route&quot;</span><span class="p">,</span> <span class="nx">middleware</span><span class="p">,</span>
+  <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s2">&quot;HI!&quot;</span><span class="p">)</span>
+  <span class="p">});</span>
+</code></pre></div>
+
+
   </div>
   <div class="details">
     <div class="dox_tag_title">Params</div>
     <div class="dox_tag_detail">
       <span class="dox_tag_name">method</span>
-      <span>{String} enum GET,POST,PUT,DELETE,PATCH,HEAD</span>
+      <span class="dox_type">String</span>
+      <span>enum GET,POST,PUT,DELETE,PATCH,HEAD</span>
     </div>
     <div class="dox_tag_detail">
       <span class="dox_tag_name">route</span>
-      <span>{String}</span>
+      <span class="dox_type">String</span>
     </div>
     <div class="dox_tag_detail">
-      <span class="dox_tag_name">middleare</span>
-      <span>list
-
-example:
-
-addRoute("GET", "/some_route", middleware, function(req, res, next) {
-  res.send("HI!")
-})</span>
+      <span class="dox_tag_name">middleware</span>
+      <span>list of Express-style middleware</span>
+    </div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">handler</span>
+      <span class="dox_type">Function</span>
+      <span>the route handler</span>
     </div>
     <div class="dox_tag_title">API</div>
     <div class="dox_tag_detail">
@@ -176,7 +280,7 @@ addRoute("GET", "/some_route", middleware, function(req, res, next) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
 </div>
 <p>GET, route_path, mw1, mw2 ....</p>
         </td>
@@ -192,7 +296,7 @@ addRoute("GET", "/some_route", middleware, function(req, res, next) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
 </div>
 <p>middlewares are processed for each request</p>
         </td>
@@ -205,7 +309,7 @@ addRoute("GET", "/some_route", middleware, function(req, res, next) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
 </div>
 <p>setup error domain first, always.</p>
         </td>
@@ -236,7 +340,7 @@ addRoute("GET", "/some_route", middleware, function(req, res, next) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
 </div>
 <p>init middlewares etc. first</p>
         </td>
@@ -251,7 +355,7 @@ addRoute("GET", "/some_route", middleware, function(req, res, next) {
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
 </div>
 <p>Setup crud API routes
 Chained method handlers per method</p>
@@ -279,7 +383,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
 </div>
 <p>Setup custom routes if any</p>
         </td>
@@ -301,7 +405,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
 </div>
 <p>bind each array of handlers to the proper HTTP verb.</p>
         </td>
@@ -318,7 +422,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
 </div>
 <p>mount collection relations</p>
         </td>
@@ -333,7 +437,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
 </div>
 <p>error handling must be last</p>
         </td>
@@ -443,16 +547,27 @@ Chained method handlers per method</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype._mountrelations">
+  <h2>
+    <a href="#resource.prototype._mountrelations" name="resource.prototype._mountrelations" class="pilcrow">&#182;</a>
+    Resource.prototype._mountRelations
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>_mountRelations</p>
+
   </div>
-  <div class="body"><p>Goes trough relations specified in the model schema and mounts all relations as
-subresources. Schema should set {mountRelations: true} option and
-relation must have set option {mount: true}, if it should be mounted.</p>
+  <div class="body"><p>Goes trough relations specified in the model schema and mounts all
+relations as subresources. The schema should set the option
+<code>mountRelations</code> to true and each relation must have the option <code>mount</code>
+set to true if it should be mounted.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private
+</span>
+    </div>
   </div>
 </div>
         </td>
@@ -525,15 +640,32 @@ relation must have set option {mount: true}, if it should be mounted.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype._getconstuctcollectionfunction">
+  <h2>
+    <a href="#resource.prototype._getconstuctcollectionfunction" name="resource.prototype._getconstuctcollectionfunction" class="pilcrow">&#182;</a>
+    Resource.prototype._getConstuctCollectionFunction
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Helper method for _mountRelations for specifying function for overriding relations
-_constructCollection method</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>A helper method for <a href="#resource.prototype._mountrelations">_mountRelations</a>
+providing a function to override the <code>_constructCollection</code> method on a
+resource mounted for a relation.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Function</span>
+      <span>the override function</span>
+    </div>
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private
+</span>
+    </div>
   </div>
 </div>
         </td>
@@ -551,21 +683,33 @@ _constructCollection method</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype._addparameterhandler">
+  <h2>
+    <a href="#resource.prototype._addparameterhandler" name="resource.prototype._addparameterhandler" class="pilcrow">&#182;</a>
+    Resource.prototype._addParameterHandler
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Adds express app.param handler for this routes model.idAttribute</p>
+
   </div>
-  <div class="body"><p>The param handler creates a model instance to req.model and sets the models idAttribute to the captured param.
-req.model.fetch() will be called and the returned promise set to req.model.promise then calls next().</p>
+  <div class="body"><p>Adds an Express <code>app.param</code> handler for the <code>idAttribute</code> of this route's
+model.</p>
 
-<p>example:</p>
+<p>The param handler creates a model instance, sets it as <code>req.model</code>,
+and sets the model's <code>idAttribute</code> to the captured parameter value.
+<code>req.model.fetch()</code> will be called and the returned promise set to
+<code>req.model.promise</code>. The handler then calls <code>next()</code>.</p>
 
-<p>req.model.promise.then(function() {
-  res.send(req.model);
-});</p>
+<p>The promise can be used as follows:</p>
+
+
+<div class="highlight"><pre><code><span class="nx">req</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">promise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">model</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
   </div>
   <div class="details">
     <div class="dox_tag_title">API</div>
@@ -610,17 +754,29 @@ req.model.fetch() will be called and the returned promise set to req.model.promi
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-17" id="section-17">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype._adderrorhandler">
+  <h2>
+    <a href="#resource.prototype._adderrorhandler" name="resource.prototype._adderrorhandler" class="pilcrow">&#182;</a>
+    Resource.prototype._addErrorHandler
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>_addErrorHandler</p>
-  </div>
-  <div class="body"><p>Adds express application error handler also adds this application under its own error domain that handles any
-uncaught exceptions relating to this resource.</p>
 
-<p>this.app middleware chain is already ran using domain that forwards all uncaught exceptions here.</p>
+  </div>
+  <div class="body"><p>Adds an Express application error handler for the mounted path.
+This also puts the resource's application under its own error domain
+that handles any uncaught exceptions relating to this resource.</p>
+
+<p><code>this.app</code>'s middleware chain is already ran using a domain that forwards
+all uncaught exceptions here.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private
+</span>
+    </div>
   </div>
 </div>
         </td>
@@ -642,14 +798,24 @@ uncaught exceptions relating to this resource.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype._addroute">
+  <h2>
+    <a href="#resource.prototype._addroute" name="resource.prototype._addroute" class="pilcrow">&#182;</a>
+    Resource.prototype._addRoute
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>_addRoute adds route to express application</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Adds a route to the Express application.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private
+</span>
+    </div>
   </div>
 </div>
         </td>
@@ -675,22 +841,31 @@ uncaught exceptions relating to this resource.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype._addcustomroute">
+  <h2>
+    <a href="#resource.prototype._addcustomroute" name="resource.prototype._addcustomroute" class="pilcrow">&#182;</a>
+    Resource.prototype._addCustomRoute
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Adds a custom route to Resource</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Adds a custom route to Resource.
+The configuration format:
+    {path: '/foo', method: 'get', handlers: [fn1, fn2]}</p>
   </div>
   <div class="details">
     <div class="dox_tag_title">Params</div>
     <div class="dox_tag_detail">
-      <span class="dox_tag_name">routeConfig,</span>
+      <span class="dox_tag_name">routeConfig</span>
       <span class="dox_type">Object</span>
-      <span>fmt:
-{path: '/foo', method: 'get', handlers: [fn1, fn2]}</span>
+      <span>route configuration</span>
+    </div>
+    <div class="dox_tag_title">API</div>
+    <div class="dox_tag_detail">
+      <span class="dox_type">private
+</span>
     </div>
   </div>
 </div>
@@ -709,7 +884,7 @@ uncaught exceptions relating to this resource.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
 </div>
 <p>Instantiate new Model if POST, otherwise fetch existing</p>
         </td>
@@ -768,7 +943,7 @@ uncaught exceptions relating to this resource.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
+  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
 </div>
 <p>Fetch collection with given params</p>
         </td>
@@ -793,7 +968,7 @@ uncaught exceptions relating to this resource.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
+  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
 </div>
 <p>Parse &amp; convert options for collection.fetch</p>
         </td>
@@ -813,10 +988,22 @@ uncaught exceptions relating to this resource.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype.update">
+  <h2>
+    <a href="#resource.prototype.update" name="resource.prototype.update" class="pilcrow">&#182;</a>
+    Resource.prototype.update
+  </h2>
 </div>
+
+  </div>
+  <div class="body"><p>Used in handling HTTP PUT or PATCH request on an <code>/:id</code> path identifying
+a model instance.
+Updates the model attributes based on request's JSON body.</p>
+  </div>
+</div>
+
 <p>Update Model attributes</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
@@ -831,11 +1018,20 @@ uncaught exceptions relating to this resource.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-24" id="section-24">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype.create">
+  <h2>
+    <a href="#resource.prototype.create" name="resource.prototype.create" class="pilcrow">&#182;</a>
+    Resource.prototype.create
+  </h2>
 </div>
-<p>Create new model</p>
+
+  </div>
+  <div class="body"><p>Used in handling an HTTP POST request on the resource root.
+Creates a new model instance and saves it in the storage backend.</p>
+  </div>
+</div>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 <span class="nx">Resource</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">create</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
@@ -855,11 +1051,21 @@ uncaught exceptions relating to this resource.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-25" id="section-25">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype.save">
+  <h2>
+    <a href="#resource.prototype.save" name="resource.prototype.save" class="pilcrow">&#182;</a>
+    Resource.prototype.save
+  </h2>
 </div>
-<p>Save updated model or update changed attributes with PATCH</p>
+
+  </div>
+  <div class="body"><p>Used in handling HTTP PUT or PATCH request on an <code>/:id</code> path identifying
+a model instance.
+Saves the updated model in the storage backend.</p>
+  </div>
+</div>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 <span class="nx">Resource</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">save</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
@@ -870,7 +1076,7 @@ uncaught exceptions relating to this resource.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-26" id="section-26">&#182;</a>
+  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
 </div>
 <p>TODO: PATCH support</p>
         </td>
@@ -889,11 +1095,21 @@ uncaught exceptions relating to this resource.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype.remove">
+  <h2>
+    <a href="#resource.prototype.remove" name="resource.prototype.remove" class="pilcrow">&#182;</a>
+    Resource.prototype.remove
+  </h2>
 </div>
-<p>Destroy Model</p>
+
+  </div>
+  <div class="body"><p>Used in handling an HTTP DELETE request on an <code>/:id</code> path identifying
+a model instance.
+Deletes the model.</p>
+  </div>
+</div>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 <span class="nx">Resource</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">remove</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">{</span>

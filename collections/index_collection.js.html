@@ -18,6 +18,9 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+      <div class="heading h1">
+        <a href="#indexcollection">IndexCollection</a>
+      </div>
     </div>
   </div>
   <div id="sidebar-toggle"></div>
@@ -35,12 +38,7 @@
 <div class="pilwrap">
   <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
 </div>
-<div class="dox">
-  <div class="summary"><p>Collection which stores indexes separately.</p>
-  </div>
-  <div class="body">
-  </div>
-</div>
+
         </td>
         <td class="code highlight"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">when</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when&#39;</span><span class="p">);</span>
@@ -48,6 +46,28 @@
 <span class="kd">var</span> <span class="nx">BaseCollection</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./base_collection&#39;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">IndexMixin</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./index_mixin&#39;</span><span class="p">);</span>
 
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexcollection">
+  <h1>
+    <a href="#indexcollection" name="indexcollection" class="pilcrow">&#182;</a>
+    IndexCollection
+  </h1>
+</div>
+
+  </div>
+  <div class="body"><p>Collection which stores indexes separately. It is a convenience base class
+that uses <a href="./index_mixin.js.html#indexmixin">IndexMixin</a> to store collection
+indexes in a dedicated storage backend.</p>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
 <span class="kd">var</span> <span class="nx">IndexCollection</span> <span class="o">=</span> <span class="nx">BaseCollection</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span>
   <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">IndexMixin</span><span class="p">,</span> <span class="p">{</span>
     <span class="nx">defaultOptions</span><span class="o">:</span> <span class="p">{</span>
@@ -70,7 +90,7 @@
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
 </div>
 <div class="dox">
   <div class="summary"><p>Ids were fetched from index, read models from the main store</p>
@@ -114,7 +134,7 @@
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
 </div>
 <p>need to sort models here, since there is no way to guarantee of order of documents
 fetched from MongoDB /w $in query</p>

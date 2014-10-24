@@ -18,6 +18,30 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+      <div class="heading h1">
+        <a href="#indexmixin">IndexMixin</a>
+      </div>
+      <div class="heading h2">
+        <a href="#indexmixin.addtoindex">IndexMixin.addToIndex</a>
+      </div>
+      <div class="heading h2">
+        <a href="#indexmixin.readfromindex">IndexMixin.readFromIndex</a>
+      </div>
+      <div class="heading h2">
+        <a href="#indexmixin.fetch">IndexMixin.fetch</a>
+      </div>
+      <div class="heading h2">
+        <a href="#indexmixin.removefromindex">IndexMixin.removeFromIndex</a>
+      </div>
+      <div class="heading h2">
+        <a href="#indexmixin.destroyall">IndexMixin.destroyAll</a>
+      </div>
+      <div class="heading h2">
+        <a href="#indexmixin.exists">IndexMixin.exists</a>
+      </div>
+      <div class="heading h2">
+        <a href="#indexmixin.count">IndexMixin.count</a>
+      </div>
     </div>
   </div>
   <div id="sidebar-toggle"></div>
@@ -36,8 +60,9 @@
   <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
 </div>
 <div class="dox">
-  <div class="summary"><p>Helper mixin for storing indexes
-Indexes can e.g. use a different db adapter from the main Collection.</p>
+  <div class="summary"><p>A helper mixin for storing indices.
+Indices can e.g. use a <a href="https://github.com/Everyplay/backbone-db">Backbone DB</a>
+adapter different from the main Collection.</p>
   </div>
   <div class="body">
   </div>
@@ -49,36 +74,72 @@ Indexes can e.g. use a different db adapter from the main Collection.</p>
 <span class="kd">var</span> <span class="nx">sequence</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;when/sequence&#39;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">utils</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../utils&#39;</span><span class="p">);</span>
 
-<span class="kd">var</span> <span class="nx">IndexMixin</span> <span class="o">=</span> <span class="p">{</span>
 
 </pre></div>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin">
+  <h1>
+    <a href="#indexmixin" name="indexmixin" class="pilcrow">&#182;</a>
+    IndexMixin
+  </h1>
 </div>
-<p>these must be defined:
-indexKey: 'i:User:{user_id}:followers',
-indexDb: Db,</p>
+
+  </div>
+  <div class="body"><p>A mixin for collections, providing support for storing property and
+relation indices in a separate storage backend.</p>
+
+<p>Application developers may find it more convenient to use
+<a href="./index_collection.js.html#indexcollection">IndexCollection</a> or
+specialized extensions of <code>IndexMixin</code> rather than use this mixin directly.</p>
+
+<p>Collection classes extended using <code>IndexMixin</code> must define the following
+properties:</p>
+
+<ul>
+<li><code>indexKey</code>: name of the index key. May be a format string to derive the
+name from a relation property, e.g. <code>i:Value:{ref_id}:relation</code>.</li>
+<li><code>indexDb</code>: a Backbone DB storage backend for index data</li>
+</ul>
+  </div>
+</div>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">IndexMixin</span> <span class="o">=</span> <span class="p">{</span>
 
 
 </pre></div>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin.addtoindex">
+  <h2>
+    <a href="#indexmixin.addtoindex" name="indexmixin.addtoindex" class="pilcrow">&#182;</a>
+    IndexMixin.addToIndex
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Adds a new model to the index. Only specified attribute is indexed.
-Db adapter returns a Promise</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Adds a new model to the index. Only the index attribute is indexed.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">model</span>
+      <span class="dox_type">Object</span>
+      <span>the model to add</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>promise of the asynchronous operation</span>
+    </div>
   </div>
 </div>
         </td>
@@ -95,15 +156,26 @@ Db adapter returns a Promise</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin.readfromindex">
+  <h2>
+    <a href="#indexmixin.readfromindex" name="indexmixin.readfromindex" class="pilcrow">&#182;</a>
+    IndexMixin.readFromIndex
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Read model ids from the index. Populates collection models with ids,
+
+  </div>
+  <div class="body"><p>Read model IDs from the index. Populates collection's models with IDs,
 for fetching from the main storage.</p>
   </div>
-  <div class="body">
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>promise of the asynchronous operation</span>
+    </div>
   </div>
 </div>
         </td>
@@ -117,15 +189,32 @@ for fetching from the main storage.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin.fetch">
+  <h2>
+    <a href="#indexmixin.fetch" name="indexmixin.fetch" class="pilcrow">&#182;</a>
+    IndexMixin.fetch
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Fetch ids from index first, then models from main storage
-if option {idsOnly: true} fetch only ids.</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Fetch IDs from the index first, then models from the main storage.
+If the option <code>idsOnly</code> is true, fetch only the IDs.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">[options]</span>
+      <span class="dox_type">Object</span>
+      <span>the options</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>promise of the asynchronous operation</span>
+    </div>
   </div>
 </div>
         </td>
@@ -147,14 +236,30 @@ if option {idsOnly: true} fetch only ids.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin.removefromindex">
+  <h2>
+    <a href="#indexmixin.removefromindex" name="indexmixin.removefromindex" class="pilcrow">&#182;</a>
+    IndexMixin.removeFromIndex
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Removes a model from index</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Removes models from the index.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">models</span>
+      <span>a model or an array of models</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>promise of the asynchronous operation</span>
+    </div>
   </div>
 </div>
         </td>
@@ -172,14 +277,25 @@ if option {idsOnly: true} fetch only ids.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin.destroyall">
+  <h2>
+    <a href="#indexmixin.destroyall" name="indexmixin.destroyall" class="pilcrow">&#182;</a>
+    IndexMixin.destroyAll
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>remove index completely</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Removes the index completely.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>promise of the asynchronous operation</span>
+    </div>
   </div>
 </div>
         </td>
@@ -193,14 +309,30 @@ if option {idsOnly: true} fetch only ids.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin.exists">
+  <h2>
+    <a href="#indexmixin.exists" name="indexmixin.exists" class="pilcrow">&#182;</a>
+    IndexMixin.exists
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Check if model exists in index</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Check if the model exists in the index.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name">model</span>
+      <span>a model</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>promise of the asynchronous operation</span>
+    </div>
   </div>
 </div>
         </td>
@@ -217,14 +349,25 @@ if option {idsOnly: true} fetch only ids.</p>
         </td>
       </tr>
       <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="indexmixin.count">
+  <h2>
+    <a href="#indexmixin.count" name="indexmixin.count" class="pilcrow">&#182;</a>
+    IndexMixin.count
+  </h2>
 </div>
-<div class="dox">
-  <div class="summary"><p>Get count of items in index</p>
+
   </div>
-  <div class="body">
+  <div class="body"><p>Get the count of items in the index.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">Promise</span>
+      <span>promise of the asynchronous operation</span>
+    </div>
   </div>
 </div>
         </td>
