@@ -22,6 +22,9 @@
         <a href="#resource">Resource</a>
       </div>
       <div class="heading h2">
+        <a href="#resource.prototype.delegateevents">Resource.prototype.delegateEvents</a>
+      </div>
+      <div class="heading h2">
         <a href="#resource.prototype.addroute">Resource.prototype.addRoute</a>
       </div>
       <div class="heading h2">
@@ -145,6 +148,9 @@ to delete a model with the given <code>id</code>.</li>
   <span class="k">this</span><span class="p">.</span><span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">relations</span> <span class="o">=</span> <span class="p">{};</span>
 
+  <span class="k">this</span><span class="p">.</span><span class="nx">routes</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+
 
 </pre></div>
         </td>
@@ -154,27 +160,9 @@ to delete a model with the given <code>id</code>.</li>
 <div class="pilwrap">
   <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
 </div>
-<p>custom routes are added before this.app.router this we use the router before any.
-it is set in initMiddlewares</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-  <span class="k">this</span><span class="p">.</span><span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
-
-  <span class="k">this</span><span class="p">.</span><span class="nx">routes</span> <span class="o">=</span> <span class="p">{};</span>
-  <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
-</div>
 <p>initialize this resouce's Collection &amp; Model (both are required)</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-
   <span class="k">this</span><span class="p">.</span><span class="nx">CollectionClass</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">collection</span><span class="p">;</span>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">model</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">CollectionClass</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;collection must be defined in options&#39;</span><span class="p">);</span>
@@ -184,8 +172,53 @@ it is set in initMiddlewares</p>
   <span class="k">this</span><span class="p">.</span><span class="nx">delegateEvents</span><span class="p">();</span>
 <span class="p">};</span>
 
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
+</div>
+<p>Add Backbone.Events pub/sub functionality to Resource</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
 <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">Resource</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Events</span><span class="p">);</span>
 
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="resource.prototype.delegateevents">
+  <h2>
+    <a href="#resource.prototype.delegateevents" name="resource.prototype.delegateevents" class="pilcrow">&#182;</a>
+    Resource.prototype.delegateEvents
+  </h2>
+</div>
+
+  </div>
+  <div class="body"><p>Setup event listeners. Maps events to methods, works similarly as in <code>Backbone.Model</code>.</p>
+  </div>
+  <div class="details">
+    <div class="dox_tag_title">Params</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span>{[type]} events [description]</span>
+    </div>
+    <div class="dox_tag_title">Returns</div>
+    <div class="dox_tag_detail">
+      <span class="dox_tag_name"></span>
+      <span class="dox_type">[type]</span>
+      <span>[description]</span>
+    </div>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
 <span class="nx">Resource</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">delegateEvents</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">events</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">events</span> <span class="o">||</span> <span class="p">(</span><span class="nx">events</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">result</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="s1">&#39;events&#39;</span><span class="p">))))</span> <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
   <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;delegating events %s&#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">events</span><span class="p">));</span>
@@ -250,6 +283,7 @@ collection/model mapped routes created by <code>Resource</code>.</p>
     <div class="dox_tag_detail">
       <span class="dox_tag_name">route</span>
       <span class="dox_type">String</span>
+      <span>path where to mount</span>
     </div>
     <div class="dox_tag_detail">
       <span class="dox_tag_name">middleware</span>
@@ -273,18 +307,6 @@ collection/model mapped routes created by <code>Resource</code>.</p>
   <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;Add route %s&#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">arguments</span><span class="p">));</span>
   <span class="kd">var</span> <span class="nx">method</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
   <span class="kd">var</span> <span class="nx">route</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
-</div>
-<p>GET, route_path, mw1, mw2 ....</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
   <span class="kd">var</span> <span class="nx">fnList</span> <span class="o">=</span> <span class="p">[</span><span class="nx">route</span><span class="p">].</span><span class="nx">concat</span><span class="p">([].</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">).</span><span class="nx">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">router</span><span class="p">[</span><span class="nx">method</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()].</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">router</span><span class="p">,</span> <span class="nx">fnList</span><span class="p">);</span>
 <span class="p">};</span>
@@ -318,6 +340,20 @@ collection/model mapped routes created by <code>Resource</code>.</p>
     <span class="nx">next</span><span class="p">();</span>
   <span class="p">});</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">middleware</span><span class="p">.</span><span class="nx">domain</span><span class="p">());</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+</div>
+<p>create a default router for custom routes (which are executed before default routes)</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+  <span class="k">this</span><span class="p">.</span><span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
   <span class="k">this</span><span class="p">.</span><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">router</span><span class="p">);</span>
 <span class="p">};</span>
 
@@ -340,7 +376,7 @@ collection/model mapped routes created by <code>Resource</code>.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
 </div>
 <p>init middlewares etc. first</p>
         </td>
@@ -355,7 +391,7 @@ collection/model mapped routes created by <code>Resource</code>.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
 </div>
 <p>Setup crud API routes
 Chained method handlers per method</p>
@@ -383,7 +419,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-11" id="section-11">&#182;</a>
+  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
 </div>
 <p>Setup custom routes if any</p>
         </td>
@@ -405,7 +441,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-12" id="section-12">&#182;</a>
+  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
 </div>
 <p>bind each array of handlers to the proper HTTP verb.</p>
         </td>
@@ -422,7 +458,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-13" id="section-13">&#182;</a>
+  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
 </div>
 <p>mount collection relations</p>
         </td>
@@ -437,7 +473,7 @@ Chained method handlers per method</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
+  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
 </div>
 <p>error handling must be last</p>
         </td>
@@ -884,7 +920,7 @@ The configuration format:
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
+  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
 </div>
 <p>Instantiate new Model if POST, otherwise fetch existing</p>
         </td>
@@ -943,7 +979,7 @@ The configuration format:
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
+  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
 </div>
 <p>Fetch collection with given params</p>
         </td>
@@ -968,7 +1004,7 @@ The configuration format:
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+  <a class="pilcrow" href="#section-24" id="section-24">&#182;</a>
 </div>
 <p>Parse &amp; convert options for collection.fetch</p>
         </td>
@@ -1076,7 +1112,7 @@ Saves the updated model in the storage backend.</p>
       <tr>
         <td class="docs">
 <div class="pilwrap">
-  <a class="pilcrow" href="#section-27" id="section-27">&#182;</a>
+  <a class="pilcrow" href="#section-28" id="section-28">&#182;</a>
 </div>
 <p>TODO: PATCH support</p>
         </td>
