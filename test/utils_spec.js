@@ -27,16 +27,4 @@ describe('Utils tests', function() {
     var err = new Error('Foo error');
     serverbone.utils.response.sendError(req, res, err);
   });
-
-  it('should fail if trying to send JSON without resource', function() {
-    var req = {};
-    var res = {
-      locals: {},
-      status: function() {
-        return res;
-      },
-      json: function() {},
-    };
-    serverbone.utils.response.sendJson(req, res);
-  });
 });
