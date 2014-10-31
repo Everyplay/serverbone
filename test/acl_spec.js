@@ -375,8 +375,6 @@ describe('Test ACL', function () {
       aclmodel = new TestModel({id: 1, user_id: 22});
       roles = aclmodel.getRoles(actor);
       roles.indexOf('owner').should.equal( -1 );
-      var json = aclmodel.toJSON({includePermissions: true});
-      should.exist(json.permissions);
     });
 
     it('should check access to virtualProperties', function() {
