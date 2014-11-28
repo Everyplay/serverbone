@@ -188,7 +188,7 @@ var FooModel = exports.FooModel = BaseModel.extend({
   sync: Db.sync.bind(database)
 });
 
-exports.TestIndexCollection = serverbone.collections.IndexCollection.extend({
+var TestIndexCollection = exports.TestIndexCollection = serverbone.collections.IndexCollection.extend({
   model: FooModel,
   type: FooModel.prototype.type,
   indexDb: indexingDatabase,
@@ -196,6 +196,13 @@ exports.TestIndexCollection = serverbone.collections.IndexCollection.extend({
   sync: Db.sync.bind(database),
   db: database,
   url: 'indexed_collection'
+});
+
+exports.SortedTestIndexCollection = TestIndexCollection.extend({
+  indexKey: 'i:Foo:{foo_id}:relation:sorted',
+  indexSort: function(model) {
+    return model.get('data').charCodeAt(0);
+  }
 });
 
 exports.TestValueIndexCollection = serverbone.collections.IndexCollection.extend(

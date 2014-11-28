@@ -1,7 +1,10 @@
 var testSetup = require('./test_setup');
 var should = require('chai').should();
 var when = require('when');
+var sequence = require('when/sequence');
+var _ = require('lodash');
 var TestCollection = testSetup.TestIndexCollection;
+var SortedTestCollection = testSetup.SortedTestIndexCollection;
 
 describe('Test IndexCollection', function() {
   var collection;
@@ -131,4 +134,53 @@ describe('Test IndexCollection', function() {
       });
   });
 
+  it('should add another model to the index', function() {
+    return collection
+      .create({data: 'ccc'})
+      .then(function () {
+        return collection.addToIndex(collection.at(1));
+      });
+  });
+
+  describe('indexSort', function () {
+    var collection = new SortedTestCollection(null, opts);
+
+    it('should honor the order when fetching', function () {
+      return sequence([
+        _.bind(collection.create, collection, {data: 'aaa'}),
+        _.bind(collection.create, collection, {data: 'ccc'}),
+      ]).then(function () {
+        return when.join(
+          collection.addToIndex(collection.at(0)),
+          collection.addToIndex(collection.at(1))
+        );
+      }).then(function () {
+        return collection.fetch();
+      }).then(function () {
+        collection.length.should.equal(2);
+        collection.at(0).get('data').should.equal('ccc');
+        collection.at(1).get('data').should.equal('aaa');
+      });
+    });
+
+    it('should add another model to the index', function() {
+      collection = new SortedTestCollection(null, opts);
+      return collection
+        .create({data: 'bbb'})
+        .then(function () {
+          return collection.addToIndex(collection.at(0));
+        });
+    });
+
+    it('should fetch the models in the sort order', function() {
+      return collection
+        .fetch()
+        .then(function() {
+          collection.length.should.equal(3);
+          collection.at(0).get('data').should.equal('ccc');
+          collection.at(1).get('data').should.equal('bbb');
+          collection.at(2).get('data').should.equal('aaa');
+        });
+    });
+  });
 });
