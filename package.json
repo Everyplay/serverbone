@@ -25,7 +25,7 @@
   "dependencies": {
     "async": "^0.7.0",
     "backbone": "^1.1.2",
-    "backbone-blueprint": "~0.1",
+    "backbone-blueprint": "~0.2",
     "backbone-db": "^0.5.3",
     "backbone-db-local": "^0.5.8",
     "backbone-db-mongodb": "~0.2",
