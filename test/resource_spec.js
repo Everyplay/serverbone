@@ -329,26 +329,6 @@ describe('ResourceTests', function () {
         });
     });
 
-    it('should delete a model', function (next) {
-      request(app)
-        .del('/test/' + id)
-        .end(function (err, res) {
-          res.status.should.equal(200);
-          next();
-        });
-    });
-
-    it('should check that model got removed', function (next) {
-      request(app)
-        .get('/test')
-        .end(function (err, res) {
-          res.status.should.equal(200);
-          var models = res.body;
-          models.length.should.equal(0);
-          next();
-        });
-    });
-
     it('should return error if trying to create resource with invalid values', function (next) {
       request(app)
         .post('/foo')
@@ -507,6 +487,26 @@ describe('ResourceTests', function () {
         .put('/test/' + id + '/listrel/5')
         .end(function (err, res) {
           res.status.should.equal(200);
+          next();
+        });
+    });
+
+    it('should delete a model', function (next) {
+      request(app)
+        .del('/test/' + id)
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          next();
+        });
+    });
+
+    it('should check that model got removed', function (next) {
+      request(app)
+        .get('/test')
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          var models = res.body;
+          models.length.should.equal(2);
           next();
         });
     });
