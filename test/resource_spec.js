@@ -208,7 +208,7 @@ describe('ResourceTests', function () {
       setTimeout(next, 50);
     });
 
-    it('should create resource', function (next) {
+    it('should create a model', function (next) {
       request(app)
         .post('/test')
         .send({
@@ -284,6 +284,18 @@ describe('ResourceTests', function () {
           should.exist(res.body);
           res.body.id.should.equal(id);
           res.body.title.should.equal('new title');
+          next();
+        });
+    });
+
+    it('should verify list', function (next) {
+      request(app)
+        .get('/test')
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          var models = res.body;
+          should.exist(models);
+          models.length.should.equal(1);
           next();
         });
     });
@@ -365,6 +377,18 @@ describe('ResourceTests', function () {
           next();
         });
     });
+
+    it('should verify list (again)', function (next) {
+      request(app)
+        .get('/test')
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          var models = res.body;
+          should.exist(models);
+          models.length.should.equal(1);
+          next();
+        });
+    });
   });
 
   describe('Resource listing', function () {
@@ -424,6 +448,7 @@ describe('ResourceTests', function () {
         .get('/test/' + id + '/modelrel')
         .end(function (err, res) {
           res.status.should.equal(200);
+          sandbox.restore();
           next();
         });
     });
@@ -491,6 +516,17 @@ describe('ResourceTests', function () {
         });
     });
 
+    it('should check models list', function (next) {
+      request(app)
+        .get('/test')
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          var models = res.body;
+          models.length.should.equal(1);
+          next();
+        });
+    });
+
     it('should delete a model', function (next) {
       request(app)
         .del('/test/' + id)
@@ -506,7 +542,7 @@ describe('ResourceTests', function () {
         .end(function (err, res) {
           res.status.should.equal(200);
           var models = res.body;
-          models.length.should.equal(2);
+          models.length.should.equal(0);
           next();
         });
     });

@@ -16,6 +16,8 @@ var mongo = require('../config/mongo');
 var redisTestDb = require('../config/redis');
 var Db = require('backbone-db-local');
 var database = new Db('test_database');
+var emptyModelDatabase = new Db('empty_model_test_database');
+var protectedDatabase = new Db('protected_model_test_database');
 var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
 
@@ -27,8 +29,8 @@ var acl = serverbone.acl;
 
 var EmptyModel = exports.EmptyModel = BaseModel.extend({
   type: 'barfoo',
-  db: database,
-  sync: Db.sync.bind(database),
+  db: emptyModelDatabase,
+  sync: Db.sync.bind(emptyModelDatabase),
   schema: {id: 'barfoo'}
 });
 
@@ -152,8 +154,8 @@ var protectedSchema = {
 
 var ProtectedModel = exports.ProtectedModel = BaseModel.extend({
   type: 'protected',
-  db: database,
-  sync: Db.sync.bind(database),
+  db: protectedDatabase,
+  sync: Db.sync.bind(protectedDatabase),
   schema: protectedSchema
 });
 
@@ -166,8 +168,8 @@ var TestCollection = exports.TestCollection = serverbone.collections.BaseCollect
 
 exports.ProtectedCollection = serverbone.collections.BaseCollection.extend({
   model: ProtectedModel,
-  sync: Db.sync.bind(database),
-  db: database
+  sync: Db.sync.bind(protectedDatabase),
+  db: protectedDatabase
 });
 
 var fooSchema = {
