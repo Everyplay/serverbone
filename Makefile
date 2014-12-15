@@ -11,7 +11,7 @@ DOCKER_OPTS = -u
 ifeq ($(GREP), )
 	GREP_CMND =
 else
- 	GREP_CMND = --grep $(GREP)
+	GREP_CMND = --grep '$(GREP)'
 endif
 
 MOCHA-OPTS = --reporter $(REPORTER) \
