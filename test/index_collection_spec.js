@@ -152,6 +152,31 @@ describe('Test IndexCollection', function() {
       });
   });
 
+  var BackupCollection = TestCollection.extend({
+    indexKey: TestCollection.prototype.indexKey + ':deleted'
+  });
+
+  it('should support indexBackupKey when removing the index', function() {
+    return collection
+      .create({data: 'aaa'})
+      .then(function(model) {
+        var modelId = model.id;
+        var backupCollection = new BackupCollection(null, opts);
+        return collection
+          .addToIndex(collection.at(0))
+          .then(function() {
+            return collection.removeIndex({
+              indexBackupKey: backupCollection.indexKey
+            });
+          }).then(function() {
+            return backupCollection.readFromIndex();
+          }).then(function() {
+            backupCollection.length.should.equal(1);
+            backupCollection.at(0).get('id').should.equal(modelId);
+          });
+      });
+  });
+
   describe('indexSort', function () {
     var collection = new SortedTestCollection(null, opts);
 
