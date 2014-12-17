@@ -142,6 +142,16 @@ describe('Test IndexCollection', function() {
       });
   });
 
+  it('should remove the index', function() {
+    return collection
+      .removeIndex()
+      .then(function() {
+        return collection.fetch();
+      }).then(function() {
+        collection.length.should.equal(0);
+      });
+  });
+
   describe('indexSort', function () {
     var collection = new SortedTestCollection(null, opts);
 
@@ -180,6 +190,16 @@ describe('Test IndexCollection', function() {
           collection.at(0).get('data').should.equal('ccc');
           collection.at(1).get('data').should.equal('bbb');
           collection.at(2).get('data').should.equal('aaa');
+        });
+    });
+
+    it('should remove the index', function() {
+      return collection
+        .removeIndex()
+        .then(function() {
+          return collection.fetch();
+        }).then(function() {
+          collection.length.should.equal(0);
         });
     });
   });
