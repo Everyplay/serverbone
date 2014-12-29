@@ -27,6 +27,8 @@ describe('ResourceTests', function () {
       if (!testSetup.unitTesting) {
         testSetup.setDb(TestModel, 'redis');
         testSetup.setDb(TestCollection, 'redis');
+        testSetup.setDb(testSetup.AnotherModel, 'redis');
+        testSetup.setDb(testSetup.AnotherCollection, 'redis');
         testSetup.setDb(ProtectedCollection, 'redis');
         testSetup.setDb(FailingCollection, 'redis');
       }
@@ -48,7 +50,19 @@ describe('ResourceTests', function () {
         collection: ProtectedCollection
       });
 
+      var test2 = new serverbone.Resource('test2', {
+        collection: testSetup.AnotherCollection,
+        defaultProjectionOptions: {
+          projection: {
+            onlyFields: ['id', 'name', 'test', 'test_id'],
+            test: ['id', 'title']
+          },
+          recursive: true
+        }
+      });
+
       app.use('/test', resource.app);
+      app.use('/test2', test2.app);
       app.use('/foo', fooRes.app);
       app.use('/prot', protRes.app);
       app.use('/proj', projRes.app);
@@ -404,6 +418,57 @@ describe('ResourceTests', function () {
           args.limit.should.equal(5);
           args.offset.should.equal(5);
           args.after_id.should.equal(99);
+          sandbox.restore();
+          next();
+        });
+    });
+  });
+
+  describe('Fetch options', function() {
+    var testModel;
+    var anotherModel;
+
+    before(function() {
+      testModel = new TestModel({
+        title: 'testmodel'
+      });
+      return testModel
+        .save()
+        .then(function() {
+          anotherModel = new testSetup.AnotherModel({
+            name: 'anothermodel',
+            test_id: testModel.id
+          });
+          return anotherModel.save();
+        });
+    });
+
+    after(function() {
+      return when.join(testModel.destroy(), anotherModel.destroy());
+    });
+
+    it('should fetch model with relations', function(next) {
+      request(app)
+        .get('/test2/' + anotherModel.id)
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          var a = res.body;
+          a.id.should.equal(anotherModel.id);
+          should.exist(a.test_id);
+          should.exist(a.test);
+          var test = a.test;
+          test.id.should.equal(testModel.id);
+          test.title.should.equal(testModel.get('title'));
+          next();
+        });
+    });
+
+    it('should not fetch relation if not in projection', function(next) {
+      var spy = sandbox.spy(TestModel.prototype.fetch);
+      request(app)
+        .get('/test2/' + anotherModel.id + '?fields=id,name,test_id')
+        .end(function (err, res) {
+          spy.called.should.equal(false);
           sandbox.restore();
           next();
         });

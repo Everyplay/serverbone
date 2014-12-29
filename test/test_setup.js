@@ -130,6 +130,41 @@ exports.TestModel2 = TestModel.extend({
   schema: projectionSchema
 });
 
+var anotherSchema = {
+  owner: 'user_id',
+  properties: {
+    id: {
+      type: 'integer'
+    },
+    name: {
+      type: 'string'
+    },
+    test_id: {
+      type: 'integer'
+    },
+    test: {
+      type: 'relation',
+      model: TestModel,
+      references: {
+        id: 'test_id'
+      }
+    }
+  }
+};
+
+exports.AnotherModel = BaseModel.extend({
+  type: 'another_model',
+  schema: anotherSchema,
+  sync: Db.sync.bind(database),
+  db: database
+});
+
+exports.AnotherCollection = serverbone.collections.BaseCollection.extend({
+  model: exports.AnotherModel,
+  sync: Db.sync.bind(database),
+  db: database
+});
+
 exports.TestCollection2 = serverbone.collections.BaseCollection.extend({
   model: exports.TestModel2,
   sync: Db.sync.bind(database),

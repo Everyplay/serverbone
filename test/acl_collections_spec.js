@@ -2,6 +2,7 @@ var setup = require('./test_setup');
 var should = require('chai').should();
 var serverbone = require('..');
 var when = require('when');
+var _ = require('lodash');
 var ACLCollection = setup.ACLCollection;
 var ACLIndexCollection = setup.ACLIndexCollection;
 
@@ -87,6 +88,33 @@ describe('ACLCollection tests', function() {
         .addToIndex(model, {actor: actor})
         .then(function() {
           collection.length.should.equal(1);
+        });
+    });
+
+    it('should read from index', function() {
+      return collection
+        .readFromIndex()
+        .then(function() {
+          collection.length.should.equal(1);
+        });
+    });
+
+    it('should remove from index', function() {
+      var model = actor;
+      return collection
+        .removeFromIndex(model, {actor: actor})
+        .then(function() {
+          collection.length.should.equal(0);
+        });
+    });
+
+    it('should have no access to destroyAll', function() {
+      return collection
+        .destroyAll()
+        .then(function() {
+          return when.reject(new Error('Should have no access to destroyAll'));
+        }, function(err) {
+          return when.resolve();
         });
     });
   });
