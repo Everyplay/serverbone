@@ -152,6 +152,15 @@ describe('BaseCollection tests', function () {
         });
     });
 
+    it('should skip not found models when calling applyToAll', function() {
+      collection.add(new testSetup.TestModel({id: 9282828282}));
+      return collection
+        .applyToAll('fetch')
+        .then(function() {
+          collection.length.should.equal(2);
+        });
+    });
+
     it('should destroy all models from collection', function() {
       collection.length.should.equal(2);
       return collection
