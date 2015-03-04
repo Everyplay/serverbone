@@ -108,7 +108,11 @@ describe('Test ACL', function () {
 
 
     describe('ACLModel', function () {
-      var user, admin, model, users, actor, aclmodel;
+      var user, admin, model, users, actor, aclmodel, syncOptions;
+
+      function modelSynced(collection, resp, options) {
+        syncOptions = options;
+      }
 
       before(function(next) {
         this.timeout(5000);
@@ -132,23 +136,25 @@ describe('Test ACL', function () {
       beforeEach(function() {
         actor = new ACLModel({id: 1234});
         aclmodel = new ACLModel({user_id: 1234}, {actor: SystemUser});
+        aclmodel.on('sync', modelSynced);
         return aclmodel.save();
       });
 
-      it('should set actor and action on fetch', function(next) {
+      it('should set actor and action on fetch', function() {
         var options = {};
-        aclmodel.save().done(function() {
-          aclmodel.fetch(options).done(function() {
-            options.action.should.equal('read');
-            options.should.have.property('actor');
-            aclmodel = new ACLModel({id: aclmodel.id}, {actor: SystemUser});
-              options = {};
-              aclmodel.fetch(options).done(function() {
-              options.action.should.equal('read');
-              options.should.have.property('actor');
-              next();
-            });
-          });
+        return aclmodel.fetch(options).then(function() {
+          syncOptions.action.should.equal('read');
+          syncOptions.should.have.property('actor');
+        });
+      });
+
+      it('should set actor and action on fetch, actor in options', function() {
+        var model = new ACLModel({id: aclmodel.id});
+        model.on('sync', modelSynced);
+        var options = {actor: SystemUser};
+        return model.fetch(options).then(function() {
+          syncOptions.action.should.equal('read');
+          syncOptions.should.have.property('actor');
         });
       });
 
@@ -164,28 +170,30 @@ describe('Test ACL', function () {
           return aclmodel
             .save(null, opt)
             .then(function() {
-              opt.action.should.equal('update');
-              opt.should.have.property('actor');
+              syncOptions.action.should.equal('update');
+              syncOptions.should.have.property('actor');
             });
         }
         function saveAsSystem() {
           aclmodel = new ACLModel();
+          aclmodel.on('sync', modelSynced);
           opt = {actor: SystemUser};
           return aclmodel
             .save(null, opt)
             .then(function() {
-              opt.action.should.equal('create');
-              opt.should.have.property('actor');
+              syncOptions.action.should.equal('create');
+              syncOptions.should.have.property('actor');
             });
         }
         function updateAsSystem() {
           opt = {actor: SystemUser};
           aclmodel = new ACLModel({id: 123123}, {actor: SystemUser});
+          aclmodel.on('sync', modelSynced);
           return aclmodel
             .save(null, opt)
             .then(function() {
-              opt.action.should.equal('update');
-              opt.should.have.property('actor');
+              syncOptions.action.should.equal('update');
+              syncOptions.should.have.property('actor');
             });
         }
 
@@ -202,23 +210,25 @@ describe('Test ACL', function () {
       it('should set actor and action on destroy', function() {
         var options = {actor: SystemUser};
         return aclmodel.destroy(options).then(function() {
-          options.action.should.equal('destroy');
-          options.should.have.property('actor');
+          syncOptions.action.should.equal('destroy');
+          syncOptions.should.have.property('actor');
           options = {actor: SystemUser};
           aclmodel = new ACLModel(null, {actor: SystemUser});
+          aclmodel.on('sync', modelSynced);
           options = {actor: SystemUser};
           return aclmodel.save(null, options).then(function() {
             options = {actor: SystemUser};
             return aclmodel.destroy(options).then(function() {
-              options.action.should.equal('destroy');
-              options.should.have.property('actor');
+              syncOptions.action.should.equal('destroy');
+              syncOptions.should.have.property('actor');
               aclmodel = new ACLModel({id: 123123}, {actor: SystemUser});
+              aclmodel.on('sync', modelSynced);
               options = {};
               return aclmodel.save(null, options).then(function() {
                 options = {actor: SystemUser};
                 return aclmodel.destroy(options).then(function() {
-                  options.action.should.equal('destroy');
-                  options.should.have.property('actor');
+                  syncOptions.action.should.equal('destroy');
+                  syncOptions.should.have.property('actor');
                 });
               });
             });
