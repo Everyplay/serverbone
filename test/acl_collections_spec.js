@@ -8,7 +8,11 @@ var ACLIndexCollection = setup.ACLIndexCollection;
 
 describe('ACLCollection tests', function() {
   describe('actor options', function() {
-    var model, collection, actor;
+    var model, collection, actor, syncOptions;
+
+    function collectionSynced(collection, resp, options) {
+      syncOptions = options;
+    }
 
     after(function(next) {
       collection.length.should.equal(0);
@@ -20,44 +24,56 @@ describe('ACLCollection tests', function() {
       actor = new ACLCollection.prototype.model({id: 12346});
       actor.addRoles('owner'); // TODO: fix roles
       collection = new ACLCollection(null, {actor: actor});
+      collection.on('sync', collectionSynced);
     });
 
     it('should set correct action and actor for fetch', function() {
       var options = {};
-      collection.fetch(options);
-      options.action.should.equal('read');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-      options = {actor: actor};
-      collection = new ACLCollection(null);
-      collection.fetch(options);
-      options.action.should.equal('read');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
+      return collection.fetch(options).then(function() {
+        syncOptions.action.should.equal('read');
+        syncOptions.should.have.property('actor');
+        syncOptions.actor.get('id').should.equal(actor.id);
+      });
+    });
+
+    it('should set correct action and actor for fetch, actor in options', function() {
+      var options = {actor: actor};
+      var collection = new ACLCollection(null);
+      collection.on('sync', collectionSynced);
+      return collection.fetch(options).then(function() {
+        syncOptions.action.should.equal('read');
+        syncOptions.should.have.property('actor');
+        syncOptions.actor.get('id').should.equal(actor.id);
+      });
     });
 
     it('should set correct action and actor for create', function() {
       var options = {};
-      collection.create(null, options);
-      options.action.should.equal('create');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-      options = {actor: actor};
-      collection = new ACLCollection(null);
-      collection.create(null, options);
-      options.action.should.equal('create');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
+      return collection.create(null, options).then(function() {
+        syncOptions.action.should.equal('create');
+        syncOptions.should.have.property('actor');
+        syncOptions.actor.get('id').should.equal(actor.id);
+      });
+    });
+
+    it('should set correct action and actor for create, actor in options', function() {
+      var options = {actor: actor};
+      var collection = new ACLCollection(null);
+      collection.on('sync', collectionSynced);
+      return collection.create(null, options).then(function() {
+        syncOptions.action.should.equal('create');
+        syncOptions.should.have.property('actor');
+        syncOptions.actor.get('id').should.equal(actor.id);
+      });
     });
 
     it('should set correct action and actor for destroyAll', function() {
       var options = {};
-      var promise = collection.destroyAll(options);
-      options.action.should.equal('destroy');
-      options.should.have.property('actor');
-      options.actor.get('id').should.equal(actor.id);
-      options = {actor: actor};
-      return promise;
+      return collection.destroyAll(options).then(function() {
+        syncOptions.action.should.equal('destroy');
+        syncOptions.should.have.property('actor');
+        syncOptions.actor.get('id').should.equal(actor.id);
+      });
     });
   });
 
