@@ -9,5 +9,4 @@ client.client('setname', __filename);
 
 var RedisDb = require('backbone-db-redis');
 var store = new RedisDb('serverbone-tests', client);
-console.log('Using redis store:', config.get('redis_database'));
 module.exports = store;

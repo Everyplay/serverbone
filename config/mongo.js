@@ -10,10 +10,8 @@ var _openConnection = function(cb) {
 
   MongoClient.connect(connectionString, function(err, database) {
     if (err) {
-      console.error('Failed to connect to:', connectionString, err);
       return cb(err);
     }
-    console.log('Using mongodb:', connectionString);
     db = database;
     cb(null, db);
   });

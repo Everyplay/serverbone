@@ -1,6 +1,7 @@
-//require('pretty-monitor').start();
+// require('pretty-monitor').start();
 var _ = require('lodash');
 var when = require('backbone-promises').when;
+var nodefn = require('when/node');
 var MongoDb = require('backbone-db-mongodb');
 var blueprint = require('backbone-blueprint');
 var env = process.env.ENV || 'test';
@@ -8,10 +9,11 @@ var unitTesting = exports.unitTesting = (env === 'test');
 
 var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
-var BaseCollection = serverbone.collections.BaseCollection;
 var ACLModel = serverbone.models.ACLModel;
 var ACLCollection = serverbone.collections.ACLCollection;
 var FlatModel = serverbone.models.FlatModel;
+var acl = serverbone.acl;
+
 var mongo = require('../config/mongo');
 var redisTestDb = require('../config/redis');
 var Db = require('backbone-db-local');
@@ -21,11 +23,6 @@ var protectedDatabase = new Db('protected_model_test_database');
 var IndexingTestDb = serverbone.db.IndexingTestDb;
 var indexingDatabase = new IndexingTestDb('index_database');
 
-var BaseModel = serverbone.models.BaseModel;
-var BaseCollection = serverbone.collections.BaseCollection;
-var ACLModel = serverbone.models.ACLModel;
-var FlatModel = serverbone.models.FlatModel;
-var acl = serverbone.acl;
 
 var EmptyModel = exports.EmptyModel = BaseModel.extend({
   type: 'barfoo',
@@ -225,7 +222,9 @@ var FooModel = exports.FooModel = BaseModel.extend({
   sync: Db.sync.bind(database)
 });
 
-var TestIndexCollection = exports.TestIndexCollection = serverbone.collections.IndexCollection.extend({
+var TestIndexCollection
+= exports.TestIndexCollection
+= serverbone.collections.IndexCollection.extend({
   model: FooModel,
   type: FooModel.prototype.type,
   indexDb: indexingDatabase,
@@ -253,7 +252,9 @@ exports.TestValueIndexCollection = serverbone.collections.IndexCollection.extend
     url: 'indexed_collection'
   }));
 
-var TestJSONIndexCollection = exports.TestJSONIndexCollection = serverbone.collections.IndexCollection.extend(
+var TestJSONIndexCollection
+= exports.TestJSONIndexCollection
+= serverbone.collections.IndexCollection.extend(
   _.extend({}, serverbone.collections.JSONIndexMixin, {
     type: 'jsoncoll',
     indexDb: indexingDatabase,
@@ -307,7 +308,7 @@ exports.ACLUser = ACLModel.extend({
       name: {
         type: 'string',
         permissions: {
-          owner: ['update','read'],
+          owner: ['update', 'read'],
           admin: ['*']
         }
       },
@@ -321,7 +322,7 @@ exports.ACLUser = ACLModel.extend({
   getRoles: function(model) {
     var roles = exports.ACLUser.__super__.getRoles.apply(this, arguments);
     var sameType = acl.type(this.type);
-    var sameId = acl.property('id','id');
+    var sameId = acl.property('id', 'id');
     if (sameType(model) && sameId(this, model)) roles.push('owner');
     return roles;
   }
@@ -341,7 +342,7 @@ exports.ACLModel = ACLModel.extend({
     permissions: {
       user: ['read', 'update', 'destroy', 'create'],
       owner: ['read', 'update', 'destroy', 'create'],
-      '*': ['read','create'],
+      '*': ['read', 'create'],
       admin: ['*']
     },
     properties: {
@@ -358,11 +359,11 @@ exports.ACLModel = ACLModel.extend({
         }
       },
       user_id: {
-        type: 'integer',
+        type: 'integer'
       },
       user: {
         type: 'relation',
-        roles: ['owner','user'],
+        roles: ['owner', 'user'],
         references: {
           id: 'user_id'
         },
@@ -370,9 +371,9 @@ exports.ACLModel = ACLModel.extend({
       },
       description: {
         type: 'test',
-        default: 'desc',
+        'default': 'desc',
         permissions: {
-          user: ['read','update','create']
+          user: ['read', 'update', 'create']
         }
       }
     }
@@ -450,7 +451,9 @@ exports.setupDbs = function(cb) {
   });
 };
 
-/**
+exports.setupDbsPromised = nodefn.lift(exports.setupDbs);
+
+/*
  * Override Model's Db settings
  * @param {[type]} ModelClass
  * @param {[type]} dbId       'redis', 'mongo'

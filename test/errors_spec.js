@@ -1,5 +1,5 @@
-var testSetup = require('./test_setup');
-var should = require('chai').should();
+require('./test_setup');
+require('chai').should();
 var serverbone = require('..');
 
 describe('Error tests', function () {

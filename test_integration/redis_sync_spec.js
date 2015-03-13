@@ -1,7 +1,6 @@
 var should = require('chai').should();
 var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
-var assert = require('chai').assert;
 
 var RedisDb = require('backbone-db-redis');
 var testDb = require('../config/redis');
@@ -12,7 +11,7 @@ var testSchema = {
   type: 'object',
   properties: {
     data: {
-      type: 'integer',
+      type: 'integer'
     }
   },
   indexes: [{
@@ -29,9 +28,8 @@ var TestModel = BaseModel.extend({
     var key = this.dbBaseKey || this.type;
     if (this.isNew()) {
       return key;
-    } else {
-      return key + ':' + this.get(this.idAttribute);
     }
+    return key + ':' + this.get(this.idAttribute);
   }
 });
 

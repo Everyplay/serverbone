@@ -17,7 +17,9 @@ exports.inDescendingOrder = function(arr) {
 };
 
 exports.checkCollectionOrder = function(collection, sortAttribute, checkOptions, next) {
-  var sortParam = checkOptions.order === 'descending' ? sortAttribute : '-' + sortAttribute;
+  var sortParam = checkOptions.order === 'descending'
+    ? sortAttribute
+    : '-' + sortAttribute;
   var fetchOptions = {
     sort: sortParam
   };
@@ -25,7 +27,9 @@ exports.checkCollectionOrder = function(collection, sortAttribute, checkOptions,
     .fetch(fetchOptions)
     .done(function() {
       if (checkOptions.length) collection.length.should.equal(checkOptions.length);
-      var orderCheck = checkOptions.order === 'descending' ? exports.inDescendingOrder : exports.inAscendingOrder;
+      var orderCheck = checkOptions.order === 'descending'
+        ? exports.inDescendingOrder
+        : exports.inAscendingOrder;
       var attrs = collection.pluck(sortAttribute);
       orderCheck(attrs).should.equal(true);
       next();

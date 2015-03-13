@@ -29,12 +29,12 @@ describe('BaseCollection tests', function () {
   var collection = new TestCollection();
 
   before(function(next) {
-    testSetup.setupDbs(function(err, dbs) {
+    testSetup.setupDbs(function(err) {
       if (!testSetup.unitTesting) {
         testSetup.setDb(TestCollection, 'redis');
         testSetup.setDb(TestCollection.prototype.model, 'redis');
       }
-      next();
+      next(err);
     });
   });
 
@@ -177,5 +177,4 @@ describe('BaseCollection tests', function () {
         });
     });
   });
-
 });

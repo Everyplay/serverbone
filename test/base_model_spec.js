@@ -1,4 +1,4 @@
-var testSetup = require('./test_setup');
+require('./test_setup');
 var _ = require('lodash');
 var when = require('when');
 var sinon = require('sinon');
@@ -15,7 +15,7 @@ var testSchema = {
   type: 'object',
   properties: {
     data: {
-      'type': 'integer',
+      'type': 'integer'
     }
   }
 };
@@ -27,6 +27,7 @@ var TestModel = BaseModel.extend({
   db: testDb
 });
 
+/* eslint max-nested-callbacks: 0 */
 describe('BaseModel', function() {
 
   describe('Basic setup', function() {
@@ -55,6 +56,7 @@ describe('BaseModel', function() {
         .then(function() {
           return when.reject(new Error('should not save'));
         }, function(err) {
+          should.exist(err);
           return when.resolve();
         });
     });

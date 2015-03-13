@@ -15,6 +15,7 @@ var ProtectedCollection = testSetup.ProtectedCollection;
 var TestCollection = testSetup.TestCollection;
 var FailingCollection = testSetup.FailingCollection;
 
+/* eslint max-nested-callbacks: 0 */
 describe('ResourceTests', function () {
   var app;
   var id;
@@ -23,7 +24,8 @@ describe('ResourceTests', function () {
   var sandbox;
 
   before(function (next) {
-    testSetup.setupDbs(function(err, dbs) {
+    testSetup.setupDbs(function(err) {
+      if (err) return next(err);
       if (!testSetup.unitTesting) {
         testSetup.setDb(TestModel, 'redis');
         testSetup.setDb(TestCollection, 'redis');
@@ -84,7 +86,7 @@ describe('ResourceTests', function () {
       testSetup.clearDb();
     });
 
-    it('should create an application & take model from collection if not provided', function (next) {
+    it('should take model from collection if not provided', function (next) {
       var res = new serverbone.Resource('test', {
         collection: TestCollection
       });
@@ -98,10 +100,10 @@ describe('ResourceTests', function () {
         collection: TestCollection
       });
       // bypass the actual resource to test just the param loader.
-      res.app.get('/asd/:id', function (req, res, next) {
+      res.app.get('/asd/:id', function (req, _res) {
         req.model.should.be.ok;
         req.model.get(req.model.idAttribute).should.be.equal(123);
-        res.send(req.model);
+        _res.send(req.model);
       });
 
       var model = new TestModel({
@@ -115,9 +117,9 @@ describe('ResourceTests', function () {
         .done(function () {
           request(res.app)
             .get('/asd/123')
-            .end(function (err, res) {
-              res.status.should.be.equal(200);
-              res.body.id.should.equal(123);
+            .end(function (err, _res) {
+              _res.status.should.be.equal(200);
+              _res.body.id.should.equal(123);
               next();
             });
         }, next);
@@ -129,46 +131,46 @@ describe('ResourceTests', function () {
         model: TestModel
       });
       res.app.should.be.ok;
-      res.addRoute("GET", '/throwing_route', function (req, res, next) {
+      res.addRoute('GET', '/throwing_route', function () {
         var err = new Error('test error');
         err.status = 444;
         throw err;
       });
       request(res.app)
         .get('/throwing_route')
-        .end(function (err, res) {
-          res.status.should.be.equal(444);
+        .end(function (err, _res) {
+          _res.status.should.be.equal(444);
           next();
         });
     });
 
     it('should map urls to resource', function (next) {
-      var app = express();
+      var _app = express();
       var opts = {
         collection: TestCollection
       };
       var res = new serverbone.Resource('test', opts);
-      app.use('/api/v1/foo/test', res.app);
+      _app.use('/api/v1/foo/test', res.app);
       res.app.should.be.ok;
-      request(app)
+      request(_app)
         .get('/api/v1/foo/test')
-        .end(function (err, res) {
-          res.status.should.equal(200);
+        .end(function (err, _res) {
+          _res.status.should.equal(200);
           next();
         });
     });
 
     it('should allow exteding resource', function (next) {
       var fooMiddleware = function () {
-        return function (req, res, next) {
+        return function (req, _res, _next) {
           req.user = {
             id: 1
           };
-          next();
+          _next();
         };
       };
 
-      var CustomResource = function (name, options, app) {
+      var CustomResource = function (name, options) {
         options.customRoutes = [{
           path: '/foo/testpath',
           method: 'get',
@@ -182,13 +184,13 @@ describe('ResourceTests', function () {
 
       util.inherits(CustomResource, serverbone.Resource);
 
-      CustomResource.prototype.setup = function (req, res, next) {
+      CustomResource.prototype.setup = function (req, _res, _next) {
         this.val = 'bar2';
-        next();
+        _next();
       };
 
-      CustomResource.prototype.send = function (req, res) {
-        res.json({
+      CustomResource.prototype.send = function (req, _res) {
+        _res.json({
           foo: this.val,
           user: req.user
         });
@@ -199,18 +201,18 @@ describe('ResourceTests', function () {
         this.app.use(fooMiddleware());
       };
 
-      var app = express();
+      var _app = express();
       var opts = {
         collection: TestCollection
       };
       var res = new CustomResource('cust', opts);
-      app.use('/api/v1/cust', res.app);
-      request(app)
+      _app.use('/api/v1/cust', res.app);
+      request(_app)
         .get('/api/v1/cust/foo/testpath')
-        .end(function (err, res) {
-          res.status.should.equal(200);
-          res.body.foo.should.equal('bar2');
-          res.body.user.id.should.equal(1);
+        .end(function (err, _res) {
+          _res.status.should.equal(200);
+          _res.body.foo.should.equal('bar2');
+          _res.body.user.id.should.equal(1);
           next();
         });
     });
@@ -375,7 +377,7 @@ describe('ResourceTests', function () {
       request(res.app)
         .post('/fail')
         .send({})
-        .end(function (err, res) {
+        .end(function () {
           next();
         });
     });
@@ -467,7 +469,7 @@ describe('ResourceTests', function () {
       var spy = sandbox.spy(TestModel.prototype.fetch);
       request(app)
         .get('/test2/' + anotherModel.id + '?fields=id,name,test_id')
-        .end(function (err, res) {
+        .end(function () {
           spy.called.should.equal(false);
           sandbox.restore();
           next();
@@ -615,47 +617,47 @@ describe('ResourceTests', function () {
 
   describe('Expose schema', function () {
     it('should expose schema', function (next) {
-      var resource = new serverbone.Resource('test', {
+      var _resource = new serverbone.Resource('test', {
         exposeSchema: true,
         collection: TestCollection
       });
 
-      request(resource.app)
+      request(_resource.app)
         .get('/schema')
         .end(function (err, res) {
           assert.deepEqual(res.body, {
-            "properties": {
-              "id": {
-                "type": "integer",
-                "required": false
+            properties: {
+              'id': {
+                'type': 'integer',
+                'required': false
               },
-              "title": {
-                "type": "string",
-                "required": true
+              'title': {
+                'type': 'string',
+                'required': true
               },
-              "test": {
-                "type": "string",
-                "required": false
+              'test': {
+                'type': 'string',
+                'required': false
               },
-              "tests": {
-                "type": "array",
-                "items": {
-                  "$ref": "foobar"
+              'tests': {
+                'type': 'array',
+                'items': {
+                  '$ref': 'foobar'
                 }
               },
-              "customName": {
-                "type": "array",
-                "items": {
-                  "$ref": "barfoo"
+              'customName': {
+                'type': 'array',
+                'items': {
+                  '$ref': 'barfoo'
                 }
               },
-              "listRelation": {
-                "type": "array",
-                "items": {
-                  "$ref": "barfoo"
+              'listRelation': {
+                'type': 'array',
+                'items': {
+                  '$ref': 'barfoo'
                 }
               },
-              "modelRelation": {
+              'modelRelation': {
                 '$ref': 'barfoo'
               }
             }
@@ -670,7 +672,7 @@ describe('ResourceTests', function () {
   describe('JSON', function() {
 
     before(function() {
-      sandbox.stub(projRes.ModelClass.prototype, 'fetch', function(options) {
+      sandbox.stub(projRes.ModelClass.prototype, 'fetch', function() {
         var coll = new testSetup.TestCollection2();
         var model = new testSetup.TestModel2({id: 5});
         coll.add(model);

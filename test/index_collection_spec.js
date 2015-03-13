@@ -13,7 +13,8 @@ describe('Test IndexCollection', function() {
   };
 
   before(function(next) {
-    testSetup.setupDbs(function(err, dbs) {
+    testSetup.setupDbs(function(err) {
+      if (err) return next(err);
       if (!testSetup.unitTesting) {
         testSetup.setDb(TestCollection, 'redis');
         testSetup.setDb(TestCollection.prototype.model, 'redis');
@@ -144,7 +145,7 @@ describe('Test IndexCollection', function() {
 
   it('should remove the index', function() {
     return collection
-      .removeIndex()
+      .destroyAll()
       .then(function() {
         return collection.fetch();
       }).then(function() {
@@ -153,53 +154,54 @@ describe('Test IndexCollection', function() {
   });
 
   describe('indexSort', function () {
-    var collection = new SortedTestCollection(null, opts);
+    // sorted z-a
+    var sortedCollection = new SortedTestCollection(null, opts);
 
     it('should honor the order when fetching', function () {
       return sequence([
-        _.bind(collection.create, collection, {data: 'aaa'}),
-        _.bind(collection.create, collection, {data: 'ccc'}),
+        _.bind(sortedCollection.create, sortedCollection, {data: 'aaa'}),
+        _.bind(sortedCollection.create, sortedCollection, {data: 'ccc'})
       ]).then(function () {
         return when.join(
-          collection.addToIndex(collection.at(0)),
-          collection.addToIndex(collection.at(1))
+          sortedCollection.addToIndex(sortedCollection.at(0)),
+          sortedCollection.addToIndex(sortedCollection.at(1))
         );
       }).then(function () {
-        return collection.fetch();
+        return sortedCollection.fetch();
       }).then(function () {
-        collection.length.should.equal(2);
-        collection.at(0).get('data').should.equal('ccc');
-        collection.at(1).get('data').should.equal('aaa');
+        sortedCollection.length.should.equal(2);
+        sortedCollection.at(0).get('data').should.equal('ccc');
+        sortedCollection.at(1).get('data').should.equal('aaa');
       });
     });
 
     it('should add another model to the index', function() {
-      collection = new SortedTestCollection(null, opts);
-      return collection
+      sortedCollection = new SortedTestCollection(null, opts);
+      return sortedCollection
         .create({data: 'bbb'})
         .then(function () {
-          return collection.addToIndex(collection.at(0));
+          return sortedCollection.addToIndex(sortedCollection.at(0));
         });
     });
 
     it('should fetch the models in the sort order', function() {
-      return collection
+      return sortedCollection
         .fetch()
         .then(function() {
-          collection.length.should.equal(3);
-          collection.at(0).get('data').should.equal('ccc');
-          collection.at(1).get('data').should.equal('bbb');
-          collection.at(2).get('data').should.equal('aaa');
+          sortedCollection.length.should.equal(3);
+          sortedCollection.at(0).get('data').should.equal('ccc');
+          sortedCollection.at(1).get('data').should.equal('bbb');
+          sortedCollection.at(2).get('data').should.equal('aaa');
         });
     });
 
     it('should remove the index', function() {
-      return collection
-        .removeIndex()
+      return sortedCollection
+        .destroyAll()
         .then(function() {
-          return collection.fetch();
+          return sortedCollection.fetch();
         }).then(function() {
-          collection.length.should.equal(0);
+          sortedCollection.length.should.equal(0);
         });
     });
   });

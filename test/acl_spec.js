@@ -1,15 +1,15 @@
+require('./test_setup');
 var setup = require('./test_setup');
 var should = require('chai').should();
-var serverbone = require('..');
 var ACL = require('serverbone-acl').ACL;
 var ACLModel = setup.ACLModel;
-var ACLCollection = setup.ACLCollection;
 var ACLUser = setup.ACLUser;
 var ACLUserCollection = setup.ACLUserCollection;
 var SystemUser = setup.SystemUser;
 var when = require('when');
 var sequence = require('when/sequence');
 
+/* eslint max-nested-callbacks: 0 */
 describe('Test ACL', function () {
   describe('Access Roles', function () {
     var acl;
@@ -73,59 +73,32 @@ describe('Test ACL', function () {
       acl.assert('anyone', 'destroye').should.equal(false);
     });
 
-    describe('ACLModel access with roles', function() {
-      var TestUser = ACLUser.extend({
-      });
-
-      var schema = {
-        properties: {
-          id: {
-            type: 'integer'
-          },
-          user_id: {
-            type: 'integer'
-          },
-          user: {
-            type: 'relation',
-            model: TestUser,
-            roles: ['owner', 'test_role'],
-            references: {
-              id: 'user_id'
-            }
-          }
-        }
-      };
-
-      var TestModel = ACLModel.extend({
-        type: 'acl-test-model',
-        schema: schema
-      });
-
-      var actor;
-      var model;
-
-    });
-
-
     describe('ACLModel', function () {
-      var user, admin, model, users, actor, aclmodel, syncOptions;
+      var user, model, users, aclmodel, syncOptions;
 
       function modelSynced(collection, resp, options) {
         syncOptions = options;
       }
 
-      before(function(next) {
+      function createTestData() {
+        function createUser() {
+          return users
+          .create()
+          .then(function(_model) {
+            user = _model;
+          });
+        }
+
+        users = new ACLUserCollection(null, {actor: SystemUser});
+        return createUser();
+      }
+
+      before(function() {
         this.timeout(5000);
-        setup.setupDbs(function() {
-          users = new ACLUserCollection(null, {actor: SystemUser});
-          users.create().done(function(model) {
-            user = model;
-            users.create().done(function(adm) {
-              admin = adm;
-              next();
-            }, next);
-          }, next);
-        });
+        return sequence([
+          setup.setupDbsPromised,
+          createTestData
+        ]);
       });
 
       after(function(next) {
@@ -134,7 +107,7 @@ describe('Test ACL', function () {
       });
 
       beforeEach(function() {
-        actor = new ACLModel({id: 1234});
+        // actor = new ACLModel({id: 1234});
         aclmodel = new ACLModel({user_id: 1234}, {actor: SystemUser});
         aclmodel.on('sync', modelSynced);
         return aclmodel.save();
@@ -142,17 +115,19 @@ describe('Test ACL', function () {
 
       it('should set actor and action on fetch', function() {
         var options = {};
-        return aclmodel.fetch(options).then(function() {
-          syncOptions.action.should.equal('read');
-          syncOptions.should.have.property('actor');
-        });
+        return aclmodel
+          .fetch(options)
+          .then(function() {
+            syncOptions.action.should.equal('read');
+            syncOptions.should.have.property('actor');
+          });
       });
 
       it('should set actor and action on fetch, actor in options', function() {
-        var model = new ACLModel({id: aclmodel.id});
-        model.on('sync', modelSynced);
+        var m = new ACLModel({id: aclmodel.id});
+        m.on('sync', modelSynced);
         var options = {actor: SystemUser};
-        return model.fetch(options).then(function() {
+        return m.fetch(options).then(function() {
           syncOptions.action.should.equal('read');
           syncOptions.should.have.property('actor');
         });
@@ -241,11 +216,11 @@ describe('Test ACL', function () {
           user_id: user.get(user.idAttribute),
           description: 'foo'
         });
-        var acl = model.acl;
+        var _acl = model.acl;
         return model
           .save(null, {actor: user})
           .then(function() {
-            model.acl.permissions['*'].should.equal(acl.permissions['*']);
+            model.acl.permissions['*'].should.equal(_acl.permissions['*']);
           });
       });
 
@@ -365,7 +340,7 @@ describe('Test ACL', function () {
 
     after(function() {
       var fns = [
-        actor.destroy({actor: SystemUser}),
+        actor.destroy({actor: SystemUser})
       ];
       return when.all(fns);
     });
@@ -427,5 +402,3 @@ describe('Test ACL', function () {
   });
 
 });
-
-

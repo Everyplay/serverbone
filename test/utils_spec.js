@@ -1,11 +1,9 @@
-var testSetup = require('./test_setup');
-var _ = require('lodash');
+require('./test_setup');
 var sinon = require('sinon');
-var should = require('chai').should();
+require('chai').should();
 var serverbone = require('..');
 
 describe('Utils tests', function() {
-  var model;
   var sandbox;
 
   before(function() {

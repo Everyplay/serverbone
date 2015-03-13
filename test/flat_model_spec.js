@@ -1,6 +1,5 @@
 var testSetup = require('./test_setup');
-var should = require('chai').should();
-var serverbone = require('..');
+require('chai').should();
 var FlatModel = testSetup.FlatTestModel;
 
 
@@ -8,12 +7,11 @@ describe('FlatModel tests', function () {
   var model;
 
   before(function(next) {
-    testSetup.setupDbs(function(err, dbs) {
+    testSetup.setupDbs(function(err) {
       if (!testSetup.unitTesting) {
         testSetup.setDb(FlatModel, 'redis');
       }
-
-      next();
+      next(err);
     });
   });
 

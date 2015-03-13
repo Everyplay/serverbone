@@ -1,16 +1,17 @@
+require('./test_setup');
 var setup = require('./test_setup');
 var should = require('chai').should();
-var serverbone = require('..');
 var when = require('when');
-var _ = require('lodash');
 var ACLCollection = setup.ACLCollection;
 var ACLIndexCollection = setup.ACLIndexCollection;
 
 describe('ACLCollection tests', function() {
   describe('actor options', function() {
-    var model, collection, actor, syncOptions;
+    var collection;
+    var actor;
+    var syncOptions;
 
-    function collectionSynced(collection, resp, options) {
+    function collectionSynced(_collection, resp, options) {
       syncOptions = options;
     }
 
@@ -20,7 +21,6 @@ describe('ACLCollection tests', function() {
     });
 
     beforeEach(function() {
-      model = new ACLCollection.prototype.model({id: 12345});
       actor = new ACLCollection.prototype.model({id: 12346});
       actor.addRoles('owner'); // TODO: fix roles
       collection = new ACLCollection(null, {actor: actor});
@@ -38,7 +38,7 @@ describe('ACLCollection tests', function() {
 
     it('should set correct action and actor for fetch, actor in options', function() {
       var options = {actor: actor};
-      var collection = new ACLCollection(null);
+      collection = new ACLCollection(null);
       collection.on('sync', collectionSynced);
       return collection.fetch(options).then(function() {
         syncOptions.action.should.equal('read');
@@ -58,7 +58,7 @@ describe('ACLCollection tests', function() {
 
     it('should set correct action and actor for create, actor in options', function() {
       var options = {actor: actor};
-      var collection = new ACLCollection(null);
+      collection = new ACLCollection(null);
       collection.on('sync', collectionSynced);
       return collection.create(null, options).then(function() {
         syncOptions.action.should.equal('create');
@@ -130,6 +130,7 @@ describe('ACLCollection tests', function() {
         .then(function() {
           return when.reject(new Error('Should have no access to destroyAll'));
         }, function(err) {
+          should.exist(err);
           return when.resolve();
         });
     });

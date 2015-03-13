@@ -1,20 +1,19 @@
 var testSetup = require('./test_setup');
-var should = require('chai').should();
-var when = require('when');
+require('chai').should();
 var TestCollection = testSetup.TestValueIndexCollection;
 
 describe('Test ValueIndexCollection', function () {
   var collection;
 
   before(function(next) {
-    testSetup.setupDbs(function(err, dbs) {
+    testSetup.setupDbs(function(err) {
       if (!testSetup.unitTesting) {
         testSetup.setDb(TestCollection, 'redis');
         testSetup.setDb(TestCollection.prototype.model, 'redis');
       }
 
       collection = new TestCollection();
-      next();
+      next(err);
     });
   });
 

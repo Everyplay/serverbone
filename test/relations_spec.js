@@ -1,11 +1,9 @@
-var testSetup = require('./test_setup');
-var _ = require('lodash');
+require('./test_setup');
 var sinon = require('sinon');
 var should = require('chai').should();
 var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
 var BaseCollection = serverbone.collections.BaseCollection;
-var assert = require('chai').assert;
 
 var Db = require('backbone-db-local');
 var testDb = new Db('testdb');
@@ -142,7 +140,7 @@ describe('BaseModelRelations', function() {
     should.not.exist(json.owner.id);
     should.exist(json.owner.name);
 
-    //whitelisting
+    // whitelisting
     json = model.toJSON({
       recursive: true,
       projection: {
@@ -153,7 +151,7 @@ describe('BaseModelRelations', function() {
     should.not.exist(json.data);
     Object.keys(json).length.should.equal(1);
 
-    //blacklisting
+    // blacklisting
     json = model.toJSON({
       recursive: true,
       projection: {
@@ -195,13 +193,12 @@ describe('BaseModelRelations', function() {
   });
 
   it('should be able to fetchAll even if no relations defined', function() {
-    var user = new User({id: 1});
-    return user
-      .fetchAll();
+    var _user = new User({id: 1});
+    return _user.fetchAll();
   });
 
   it('should be able to saveAll even if no relations defined', function() {
-    var user = new User();
-    return user.saveAll();
+    var _user = new User();
+    return _user.saveAll();
   });
 });

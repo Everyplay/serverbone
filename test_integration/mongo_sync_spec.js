@@ -1,7 +1,6 @@
 var should = require('chai').should();
 var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
-var assert = require('chai').assert;
 
 var MongoDb = require('backbone-db-mongodb');
 var mongo = require('../config/mongo');
@@ -13,7 +12,7 @@ var testSchema = {
   type: 'object',
   properties: {
     data: {
-      type: 'integer',
+      type: 'integer'
     },
     _id: {
       type: 'any'
@@ -60,7 +59,6 @@ describe('Integration Test: MongoDb sync', function() {
   before(function(done) {
     mongo.connect(function(err, _db) {
       if (err) {
-        console.error(err);
         return done(err);
       }
       db = _db;

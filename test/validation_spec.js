@@ -1,4 +1,4 @@
-var testSetup = require('./test_setup');
+require('./test_setup');
 var should = require('chai').should();
 var serverbone = require('..');
 var BaseModel = serverbone.models.BaseModel;
@@ -50,7 +50,8 @@ describe('Test validation against schema', function() {
   });
 
   it('should add custom validator', function() {
-    TestModel.prototype.validator.attributes.contains = function validateContains(instance, schema, options, ctx) {
+    TestModel.prototype.validator.attributes.contains
+    = function validateContains(instance, schema) {
       if (typeof instance !== 'string') return;
       if (typeof schema.contains !== 'string') throw new Error('"contains" expects a string');
       if (instance.indexOf(schema.contains) < 0) {
@@ -64,5 +65,4 @@ describe('Test validation against schema', function() {
     var error = foo.validate();
     should.exist(error);
   });
-
 });

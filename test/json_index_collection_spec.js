@@ -1,7 +1,6 @@
 var testSetup = require('./test_setup');
-var should = require('chai').should();
+require('chai').should();
 var _ = require('lodash');
-var when = require('when');
 var sequence = require('when/sequence');
 var TestCollection = testSetup.TestJSONIndexCollection;
 var TestMultiIndexCollection = testSetup.TestMultiIndexCollection;
@@ -26,14 +25,13 @@ describe('Test JSONIndexCollection', function () {
   ];
 
   before(function(next) {
-    testSetup.setupDbs(function(err, dbs) {
+    testSetup.setupDbs(function(err) {
       if (!testSetup.unitTesting) {
         testSetup.setDb(TestCollection, 'redis');
         testSetup.setDb(TestCollection.prototype.model, 'redis');
       }
-
       collection = new TestCollection(null, {foo_id: 1});
-      next();
+      next(err);
     });
   });
 

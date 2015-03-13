@@ -20,7 +20,7 @@ MOCHA-OPTS = --reporter $(REPORTER) \
 		--recursive \
 		--colors
 
-test: jshint jscs
+test:
 	@NODE_ENV=$(ENV) $(BIN)/mocha \
 		$(MOCHA-OPTS) \
 		$(GREP_CMND)
@@ -43,16 +43,11 @@ test-int:
 	@$(MAKE) test ENV=test-integration
 .PHONY: test-int
 
-jshint:
-	@$(BIN)/jshint $(SRC_FILES)
-.PHONY: jshint
-
-jscs:
-	@$(BIN)/jscs .
-.PHONY: jscs
+lint:
+	@$(BIN)/eslint $(SRC_FILES)
+.PHONY: eslint
 
 ## Coverage:
-
 test-coverage:
 	@NODE_ENV=test $(BIN)/istanbul cover $(BIN)/_mocha -- $(MOCHA-OPTS)
 .PHONY: test-coverage
