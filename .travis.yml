@@ -8,7 +8,7 @@ notifications:
   email: false
   flowdock:
     secure: "Dzdl31ndnQqlllJBLHpTMg40XcGGH/aYAJpgweODG2LDfbSfhZmFT3/j1XZt06ldoKnowXUOW10iExMFRLN0rEhLdXP2aw5MAM8khwrjfBTBc9Ti2F9ITBOLEP7CkUiBAKvXflUGeuVSGP7lt6Bf4Hf5YQ/wJypjkUIa5nS4rGM="
-before_script: make jshint
+before_script: make lint
 script:
   - make test-coverage
   - make test-int
