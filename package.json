@@ -30,7 +30,7 @@
     "backbone-db-indexing-adapter": "^0.1.1",
     "backbone-db-local": "^0.5.8",
     "backbone-db-mongodb": "~0.2",
-    "backbone-db-redis": "~0.0.17",
+    "backbone-db-redis": "^0.1.1",
     "backbone-promises": "^0.2.9",
     "body-parser": "^1.6.0",
     "debug": "^1.0.4",
