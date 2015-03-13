@@ -27,6 +27,7 @@
     "backbone": "^1.1.2",
     "backbone-blueprint": "~0.2",
     "backbone-db": "^0.5.3",
+    "backbone-db-indexing-adapter": "^0.1.1",
     "backbone-db-local": "^0.5.8",
     "backbone-db-mongodb": "~0.2",
     "backbone-db-redis": "~0.0.17",
