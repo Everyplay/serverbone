@@ -1,6 +1,6 @@
 {
   "name": "serverbone",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Serverside additions to backbone to serve collections and models as express apps",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "backbone-db-redis": "^0.1.2",
     "backbone-promises": "^0.2.9",
     "backdash": "^1.1.2-2.4.1",
-    "body-parser": "^1.6.0",
+    "body-parser": "^1.12.2",
     "debug": "^1.0.4",
     "express": "^4.12.3",
     "lodash": "^3.5.0",
