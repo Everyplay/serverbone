@@ -28,8 +28,8 @@ describe('Test validation against schema', function() {
     var error = foo.validate();
     should.exist(error);
     var json = error.toJSON();
-    json.error.should.equal('status is required');
-    json.error_description.should.equal('status is required');
+    json.error.should.equal('status is required,requires property \"status\"');
+    json.error_description.should.equal('status is required,requires property \"status\"');
   });
 
   it('should give validation error if data has wrong type', function() {

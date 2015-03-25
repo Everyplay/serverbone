@@ -364,7 +364,7 @@ describe('ResourceTests', function () {
         .end(function (err, res) {
           res.status.should.equal(400);
           var body = res.body;
-          body.error.should.equal('title is required');
+          body.error.should.equal('title is required,requires property \"title\"');
           next();
         });
     });
