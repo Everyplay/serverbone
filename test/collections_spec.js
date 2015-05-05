@@ -176,5 +176,18 @@ describe('BaseCollection tests', function () {
           collection.length.should.equal(0);
         });
     });
+
+    it('should support option sequential for applyToAll', function() {
+      return when.join(
+          collection.create({test: '1', title: 'foo1'}),
+          collection.create({test: '1', title: 'foo1'})
+        )
+        .then(function() {
+          return collection.applyToAll('destroy', {sequential: true});
+        })
+        .then(function() {
+          collection.length.should.equal(0);
+        });
+    });
   });
 });
